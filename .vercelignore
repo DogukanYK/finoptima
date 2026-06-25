@@ -1,0 +1,6 @@
+# Vercel deploy paketine girmeyecek dosyalar
+.env*
+public/uploads
+*.tsbuildinfo
+coverage
+.next

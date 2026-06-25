@@ -1,0 +1,451 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ThemeMode {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum AccountType {
+  CHECKING
+  CREDIT_CARD
+  SAVINGS
+  CASH
+  OTHER
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionKind {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum TransactionSource {
+  MANUAL
+  STATEMENT
+  RECEIPT
+}
+
+enum EventType {
+  REMINDER
+  BILL
+  EVENT
+}
+
+enum ImportStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum DebtKind {
+  CREDIT_CARD
+  LOAN
+}
+
+enum AutomationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum FinanceProfileType {
+  INDIVIDUAL
+  CORPORATE
+}
+
+// Senaryo olay tipi. INCOME ek gelir (prim, satış, ikinci iş),
+// EXPENSE beklenmedik gider (tatil, sağlık), DEBT_PAYMENT ek borç
+// kapatma (erken ödeme, refinansman). Yön mantığı forecast'e net
+// nakit deltası olarak yansır.
+enum ScenarioEventKind {
+  INCOME
+  EXPENSE
+  DEBT_PAYMENT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(USER)
+  onboardedAt  DateTime?
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean  @default(false)
+  sessionsValidFrom DateTime? // "tüm cihazlardan çıkış" kesim noktası
+  consentedAt       DateTime? // KVKK aydınlatma metni rıza zamanı
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  theme            ThemeSettings?
+  accounts         Account[]
+  categories       Category[]
+  categoryRules    CategoryRule[]
+  transactions     Transaction[]
+  statementImports StatementImport[]
+  events           CalendarEvent[]
+  reports          MonthlyReport[]
+  createdInvites   InviteCode[]      @relation("InviteCreator")
+  usedInvite       InviteCode?       @relation("InviteUser")
+  findeksReports   FindeksReport[]
+  debts            Debt[]
+  debtPayments     DebtPayment[]
+  automations      PaymentAutomation[]
+  financeProfile   FinanceProfile?
+  auditLogs        AuditLog[]
+  scenarios        Scenario[]
+}
+
+model InviteCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  createdById String
+  createdBy   User      @relation("InviteCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  usedById    String?   @unique
+  usedBy      User?     @relation("InviteUser", fields: [usedById], references: [id])
+  usedAt      DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model ThemeSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mode       ThemeMode @default(SYSTEM)
+  presetName String    @default("Klasik Mavi")
+
+  primaryColor     String @default("#1E40AF")
+  accentColor      String @default("#059669")
+  destructiveColor String @default("#DC2626")
+  backgroundColor  String @default("#F8FAFC")
+  surfaceColor     String @default("#FFFFFF")
+  textColor        String @default("#0F172A")
+  mutedTextColor   String @default("#64748B")
+  borderColor      String @default("#E2E8F0")
+
+  darkBackgroundColor String @default("#0F172A")
+  darkSurfaceColor    String @default("#101A34")
+  darkTextColor       String @default("#F8FAFC")
+  darkMutedTextColor  String @default("#94A3B8")
+  darkBorderColor     String @default("#1E293B")
+
+  statusColors Json @default("{\"success\":\"#22C55E\",\"warning\":\"#F59E0B\",\"danger\":\"#EF4444\"}")
+  chartColors  Json @default("[\"#1E40AF\",\"#059669\",\"#F59E0B\",\"#8B5CF6\",\"#EC4899\",\"#06B6D4\"]")
+
+  headingFont       String @default("Plus Jakarta Sans")
+  bodyFont          String @default("Inter")
+  fontWeightBody    Int    @default(400)
+  fontWeightHeading Int    @default(700)
+  baseFontSize      Int    @default(16)
+  lineHeight        Float  @default(1.6)
+  letterSpacing     Float  @default(0)
+
+  borderRadius    Int    @default(12)
+  shadowIntensity String @default("soft")
+  borderWidth     Int    @default(1)
+  density         String @default("comfortable")
+  animationLevel  String @default("full")
+
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankName   String
+  type       AccountType @default(CHECKING)
+  label      String
+  iban       String?
+  balance    Decimal?    @db.Decimal(14, 2)
+  cardLast4  String?
+  cardExpiry String?
+  createdAt  DateTime    @default(now())
+
+  transactions     Transaction[]
+  statementImports StatementImport[]
+
+  @@index([userId])
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  icon      String       @default("tag")
+  color     String       @default("#64748B")
+  kind      CategoryKind @default(EXPENSE)
+  parentId  String?
+  parent    Category?    @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[]   @relation("CategoryTree")
+  sortOrder Int          @default(0)
+  isSystem  Boolean      @default(false)
+
+  transactions Transaction[]
+  rules        CategoryRule[]
+
+  @@index([userId])
+}
+
+model CategoryRule {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pattern    String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  priority   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Transaction {
+  id              String            @id @default(cuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       String?
+  account         Account?          @relation(fields: [accountId], references: [id])
+  categoryId      String?
+  category        Category?         @relation(fields: [categoryId], references: [id])
+  kind            TransactionKind   @default(EXPENSE)
+  amount          Decimal           @db.Decimal(14, 2)
+  currency        String            @default("TRY")
+  date            DateTime
+  description     String
+  source          TransactionSource @default(MANUAL)
+  receiptImageUrl String?
+  note            String?
+  dedupHash       String?
+  createdAt       DateTime          @default(now())
+
+  events CalendarEvent[]
+
+  @@index([userId, date])
+  @@index([userId, dedupHash])
+}
+
+model StatementImport {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId   String?
+  account     Account?     @relation(fields: [accountId], references: [id])
+  bankProfile String
+  fileName    String
+  rowCount    Int          @default(0)
+  status      ImportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  @@index([userId])
+}
+
+model CalendarEvent {
+  id                  String       @id @default(cuid())
+  userId              String
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title               String
+  date                DateTime
+  time                String?
+  type                EventType    @default(REMINDER)
+  amount              Decimal?     @db.Decimal(14, 2)
+  isPaid              Boolean      @default(false)
+  recurringRule       String?
+  relatedTransactionId String?
+  relatedTransaction  Transaction? @relation(fields: [relatedTransactionId], references: [id])
+  note                String?
+  createdAt           DateTime     @default(now())
+
+  @@index([userId, date])
+}
+
+model FindeksReport {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reportDate       DateTime
+  score            Int
+  band             String
+  componentWeights Json
+  totalLimit       Decimal  @db.Decimal(14, 2)
+  totalDebt        Decimal  @db.Decimal(14, 2)
+  debtRatio        Int
+  worstStatus      String
+  accounts         Json
+  fileName         String?
+  createdAt        DateTime @default(now())
+
+  @@index([userId, reportDate])
+}
+
+model MonthlyReport {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month       String
+  summaryJson Json
+  generatedAt DateTime @default(now())
+
+  @@unique([userId, month])
+  @@index([userId])
+}
+
+// Borç / kredi kalemi (kredi kartı veya kredi)
+model Debt {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  kind      DebtKind @default(CREDIT_CARD)
+  balance   Decimal  @db.Decimal(14, 2)
+  apr       Decimal  @db.Decimal(6, 2) // aylık faiz oranı (%)
+  dueDay    Int? // ayın günü (1-31)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments    DebtPayment[]
+  automations PaymentAutomation[]
+
+  @@index([userId])
+}
+
+// Bir borca yapılan ödeme kaydı
+model DebtPayment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  debtId    String
+  debt      Debt     @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  amount    Decimal  @db.Decimal(14, 2)
+  paidAt    DateTime @default(now())
+  source    String   @default("MANUAL") // MANUAL | AUTOMATION
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([debtId])
+}
+
+// AI ödeme otomasyonu önerisi (onay kuyruğu)
+model PaymentAutomation {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  debtId      String
+  debt        Debt             @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  amount      Decimal          @db.Decimal(14, 2)
+  optimalDate DateTime
+  reason      String
+  result      String
+  status      AutomationStatus @default(PENDING)
+  decidedAt   DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([userId, status])
+}
+
+// Denetim günlüğü — güvenlik ve finansal işlemlerin değiştirilemez kaydı.
+// Uygulama yalnız ekleme yapar; güncelleme/silme yapılmaz (append-only).
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String // örn. "login.success", "debt.payment", "automation.approve"
+  entityType String?
+  entityId   String?
+  ip         String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+
+// Kullanıcı başına finans stratejisi + genişletilmiş kimlik profili
+model FinanceProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountType FinanceProfileType @default(INDIVIDUAL)
+
+  // Strateji & nakit akışı dağılımı
+  strategy          String  @default("balanced") // aggressive | balanced | safe | custom
+  allocDebt         Int     @default(50)
+  allocSavings      Int     @default(25)
+  allocCash         Int     @default(25)
+  automationEnabled Boolean @default(false)
+
+  // Kimlik & doğrulama
+  taxOrIdNumber  String?
+  birthDate      DateTime?
+  nationality    String?
+  province       String?
+  district       String?
+  neighborhood   String?
+  fullAddress    String?
+  postalCode     String?
+  profession     String?
+  incomeRange    String?
+  aiIdentityText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Senaryo — kullanıcının seçtiği dönem için "ne olursa" simülasyonu.
+// Olaylar (ScenarioEvent) kullanıcının baseline öngörüsüne delta olarak
+// uygulanır; sonuç olarak nakit akışı, Findeks tahmini ve strateji
+// uygunluğu yeniden hesaplanır.
+model Scenario {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  periodStart DateTime
+  periodEnd   DateTime
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events ScenarioEvent[]
+
+  @@index([userId, createdAt])
+}
+
+model ScenarioEvent {
+  id          String            @id @default(cuid())
+  scenarioId  String
+  scenario    Scenario          @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  kind        ScenarioEventKind
+  amount      Decimal           @db.Decimal(14, 2)
+  date        DateTime
+  description String
+  // Hangi kategoriye atfedileceği opsiyonel; yoksa "Senaryo" başlığı altında gösterilir.
+  categoryId  String?
+
+  @@index([scenarioId, date])
+}

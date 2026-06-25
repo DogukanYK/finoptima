@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Çevrimdışısın · Akça</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      html, body { height: 100%; }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        text-align: center;
+        background: #f8fafc;
+        color: #0f172a;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0f172a; color: #f8fafc; }
+      }
+      .mark {
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: #1e40af;
+      }
+      h1 { font-size: 1.25rem; font-weight: 800; }
+      p { max-width: 22rem; color: #64748b; line-height: 1.6; font-size: 0.95rem; }
+      button {
+        margin-top: 0.5rem;
+        padding: 0.7rem 1.4rem;
+        border: none;
+        border-radius: 12px;
+        background: #1e40af;
+        color: #fff;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mark">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 1 0-4h11" />
+        <path d="M16 13h.5" />
+      </svg>
+    </div>
+    <h1>Çevrimdışısın</h1>
+    <p>
+      Akça'ya ulaşmak için internet bağlantısı gerekiyor. Bağlantın geri
+      geldiğinde kaldığın yerden devam edebilirsin.
+    </p>
+    <button onclick="location.reload()">Yeniden dene</button>
+  </body>
+</html>

@@ -1,26 +1,259 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tema token'larını Tailwind renk/ölçek sistemine bağlar */
+@theme inline {
+  --color-canvas: var(--app-bg);
+  --color-surface: var(--app-surface);
+  --color-surface-2: var(--app-surface-2);
+  --color-ink: var(--app-text);
+  --color-muted: var(--app-muted);
+  --color-line: var(--app-border);
+  --color-primary: var(--app-primary);
+  --color-primary-soft: var(--app-primary-soft);
+  --color-accent: var(--app-accent);
+  --color-accent-soft: var(--app-accent-soft);
+  --color-destructive: var(--app-destructive);
+  --color-destructive-soft: var(--app-destructive-soft);
+  --color-success: var(--app-success);
+  --color-warning: var(--app-warning);
+  --color-danger: var(--app-danger);
+  --color-signal: var(--app-signal);
+  --color-violet: var(--app-violet);
+  --color-chart-1: var(--app-chart-1);
+  --color-chart-2: var(--app-chart-2);
+  --color-chart-3: var(--app-chart-3);
+  --color-chart-4: var(--app-chart-4);
+  --color-chart-5: var(--app-chart-5);
+  --color-chart-6: var(--app-chart-6);
+  --radius-card: var(--app-radius);
+  --font-heading: var(--app-font-heading);
+  --font-body: var(--app-font-body);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Varsayılan tema (giriş/kayıt sayfaları ve FOUC öncesi yedek) */
+:root {
+  color-scheme: light dark;
+  --app-bg: #fafaf7;
+  --app-surface: #ffffff;
+  --app-surface-2: #f3f2ec;
+  --app-text: #0b0c10;
+  --app-muted: #7e8497;
+  --app-border: #e9e8e2;
+  --app-primary: #2046ff;
+  --app-primary-soft: rgba(32, 70, 255, 0.1);
+  --app-violet: #7c5cff;
+  --app-violet-soft: rgba(124, 92, 255, 0.1);
+  --app-gradient: linear-gradient(120deg, #2046ff 0%, #7c5cff 100%);
+  --app-accent: #0e8a47;
+  --app-accent-soft: rgba(14, 138, 71, 0.1);
+  --app-destructive: #ff6a4d;
+  --app-destructive-soft: rgba(255, 106, 77, 0.1);
+  --app-success: #0e8a47;
+  --app-warning: #d97706;
+  --app-danger: #ff6a4d;
+  --app-signal: #e6ff42;
+  --app-shadow: 0 1px 0 rgba(11, 12, 16, 0.07), 0 8px 18px rgba(11, 12, 16, 0.04);
+  --app-shadow-lg: 0 1px 0 rgba(11, 12, 16, 0.06), 0 14px 36px rgba(11, 12, 16, 0.06);
+  --app-radius: 18px;
+  --app-border-width: 1px;
+  --app-font-body: "DM Sans", system-ui, sans-serif;
+  --app-font-heading: "Space Grotesk", system-ui, sans-serif;
+  --app-fw-body: 500;
+  --app-fw-heading: 700;
+  --app-base-size: 16px;
+  --app-line-height: 1.55;
+  --app-letter-spacing: 0em;
+  --app-density-gap: 1rem;
+  --app-density-pad: 1.25rem;
+  --app-density-row: 3rem;
+  --app-chart-1: #2046ff;
+  --app-chart-2: #7c5cff;
+  --app-chart-3: #0e8a47;
+  --app-chart-4: #ff6a4d;
+  --app-chart-5: #e6ff42;
+  --app-chart-6: #d97706;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --app-bg: #0a0b0f;
+    --app-surface: #16181f;
+    --app-surface-2: #12141c;
+    --app-text: #fafaf7;
+    --app-muted: #7a8096;
+    --app-border: #26282f;
+    --app-violet: #a594ff;
+    --app-violet-soft: rgba(165, 148, 255, 0.18);
   }
 }
 
+* {
+  border-color: var(--app-border);
+}
+
+html {
+  font-size: var(--app-base-size);
+  /* native his: aşırı kaydırma zıplaması ve yenile-için-çek kapalı */
+  overscroll-behavior-y: none;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Liquid Glass atmosferi — glass yüzeyler bu blob'lardan renk emer */
+  background:
+    radial-gradient(circle at 96% -8%, rgba(32, 70, 255, 0.1) 0%, transparent 38%),
+    radial-gradient(circle at -6% 38%, rgba(124, 92, 255, 0.09) 0%, transparent 38%),
+    radial-gradient(circle at 82% 96%, rgba(14, 138, 71, 0.07) 0%, transparent 36%),
+    var(--app-bg);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: var(--app-text);
+  font-family: var(--app-font-body);
+  font-weight: var(--app-fw-body);
+  line-height: var(--app-line-height);
+  letter-spacing: var(--app-letter-spacing);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--app-font-heading);
+  font-weight: var(--app-fw-heading);
+  letter-spacing: -0.01em;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* dokunma gecikmesini azalt */
+button,
+a,
+[role="button"],
+input,
+select {
+  touch-action: manipulation;
+}
+
+/* ekran okuyucu yardımcıları */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link:focus {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  clip: auto;
+  padding: 0.625rem 1rem;
+  border-radius: var(--app-radius);
+  background: var(--app-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Bileşen yardımcıları — Liquid Glass yüzeyler */
+.card {
+  background: color-mix(in srgb, var(--app-surface) 80%, transparent);
+  border: var(--app-border-width) solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow-lg);
+  backdrop-filter: blur(16px) saturate(1.18);
+  -webkit-backdrop-filter: blur(16px) saturate(1.18);
+}
+
+.card-lg {
+  box-shadow: var(--app-shadow-lg);
+}
+
+/* Yoğun yüzey (modal, üst bar) — daha opak */
+.glass-intense {
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  border: var(--app-border-width) solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow-lg);
+  backdrop-filter: blur(28px) saturate(1.2);
+  -webkit-backdrop-filter: blur(28px) saturate(1.2);
+}
+
+/* Mono etiket pill'i — finansal terminal karakteri */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-text) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-text) 9%, transparent);
+  color: var(--app-text);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--app-muted);
+  opacity: 0.7;
+}
+
+/* Landing — yüzen animasyonlar */
+@keyframes nvFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes nvSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* iskelet/shimmer */
+@keyframes shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--app-surface-2) 25%,
+    var(--app-border) 37%,
+    var(--app-surface-2) 63%
+  );
+  background-size: 936px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--app-border);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
