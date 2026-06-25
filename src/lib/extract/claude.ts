@@ -7,7 +7,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { getAnthropic, EXTRACT_MODEL } from "@/lib/ai/client";
+import { getAnthropic, EXTRACT_MODEL, AI_DEMO } from "@/lib/ai/client";
 import type { ExtractInput, ExtractResult, ExtractedRow } from "@/lib/extract/types";
 
 const rowSchema = z.object({
@@ -47,7 +47,22 @@ function toBase64(buffer: ArrayBuffer): string {
   return Buffer.from(buffer).toString("base64");
 }
 
+// Demo modu: API çağrılmadan örnek "[DEMO]" sonuç (anahtarsız test).
+function demoExtract(): ExtractResult {
+  const t = new Date();
+  const d = (n: number) =>
+    new Date(t.getFullYear(), t.getMonth(), Math.max(1, t.getDate() - n));
+  const rows: ExtractedRow[] = [
+    { date: d(1), description: "[DEMO] Market alışverişi", amount: 432.5, direction: "out", currency: "TRY" },
+    { date: d(3), description: "[DEMO] Maaş ödemesi", amount: 30000, direction: "in", currency: "TRY" },
+    { date: d(5), description: "[DEMO] Elektrik faturası", amount: 612.4, direction: "out", currency: "TRY" },
+    { date: d(8), description: "[DEMO] Kredi kartı ödemesi", amount: 2500, direction: "out", currency: "TRY" },
+  ];
+  return { rows, docKind: "statement", currency: "TRY", confidence: 1, engine: "claude" };
+}
+
 export async function claudeExtract(input: ExtractInput): Promise<ExtractResult> {
+  if (AI_DEMO) return demoExtract();
   const client = getAnthropic();
   const content: Anthropic.ContentBlockParam[] = [];
 

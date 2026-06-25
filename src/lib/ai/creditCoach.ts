@@ -6,7 +6,7 @@
 
 import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { getAnthropic, CREDIT_COACH_MODEL } from "@/lib/ai/client";
+import { getAnthropic, CREDIT_COACH_MODEL, AI_DEMO } from "@/lib/ai/client";
 import type { FindeksResult } from "@/lib/findeks";
 import type { PlainDebt } from "@/lib/queries";
 
@@ -38,10 +38,24 @@ KURALLAR (kesinlikle uy):
 6. En fazla 5 adım. En kritik olan en üstte (priority: high).
 7. Dil: sıcak, sade, anlaşılır Türkçe. Jargon yok. Kullanıcıyla "sen" diliyle konuş.`;
 
+// Demo modu: API çağrılmadan örnek "[DEMO]" plan (anahtarsız test).
+function demoPlan(): CoachPlan {
+  return {
+    summary:
+      "[DEMO] Bu örnek bir plandır — gerçek AI çağrısı yapılmadı (AI_DEMO=true).",
+    steps: [
+      { priority: "high", title: "[DEMO] Yüksek faizli kart borcunu önce kapat", why: "En yüksek faizli borç toplam maliyetini büyütüyor.", action: "Bu ayki ek ödemeyi bu karta yönlendir.", impact: "yüksek etki" },
+      { priority: "medium", title: "[DEMO] Kart kullanım oranını %30 altına indir", why: "Düşük kullanım oranı kredi sağlığını olumlu etkiler.", action: "Ayın ortasında ara ödeme yap.", impact: "orta etki" },
+      { priority: "low", title: "[DEMO] Faturaları zamanında öde", why: "Zamanında ödeme en güçlü olumlu sinyaldir.", action: "Ajandaya hatırlatma kur.", impact: "düşük etki" },
+    ],
+  };
+}
+
 export async function generateCreditCoachPlan(input: {
   findeks: FindeksResult;
   debts: PlainDebt[];
 }): Promise<CoachPlan> {
+  if (AI_DEMO) return demoPlan();
   const { findeks, debts } = input;
 
   // Claude'a SADECE deterministik motorun ürettiği sayıları veriyoruz.

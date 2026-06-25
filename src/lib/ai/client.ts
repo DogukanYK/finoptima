@@ -21,3 +21,7 @@ export const CREDIT_COACH_MODEL = "claude-opus-4-8";
 
 // Belge okuma (vision/PDF) modeli — yüksek doğruluk gerektiği için Opus.
 export const EXTRACT_MODEL = "claude-opus-4-8";
+
+// Demo modu: AI_DEMO=true ise API ÇAĞRILMAZ, açıkça "[DEMO]" etiketli örnek
+// sonuç döner. Anahtarsız akışı 0$ ile test etmek için (gerçek veri DEĞİL).
+export const AI_DEMO = process.env.AI_DEMO === "true";
