@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import {
   uploadReceipt,
+  extractReceiptFromImage,
   type ReceiptActionState,
 } from "@/lib/actions/receipts";
 import { recognizeReceipt } from "@/lib/ocr/receiptOcr";
@@ -23,7 +24,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { cn } from "@/lib/utils";
 
 type Category = { id: string; name: string; kind: string };
-type OcrStatus = "idle" | "running" | "done" | "error";
+type OcrStatus = "idle" | "running" | "cloud" | "done" | "error";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -58,6 +59,22 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
     }
   }, [state]);
 
+  async function cloudFallback(file: File) {
+    setOcr("cloud");
+    const fd = new FormData();
+    fd.set("file", file);
+    const res = await extractReceiptFromImage(fd);
+    if (res.ok) {
+      setAmount(res.amount);
+      setDescription(res.description);
+      setDate(res.date);
+      setKind(res.kind);
+      setOcr("done");
+    } else {
+      setOcr("error");
+    }
+  }
+
   async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -67,13 +84,22 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
       const text = await recognizeReceipt(file);
       const parsed = parseReceiptText(text);
       if (parsed.amount != null) {
+        // Offline başarılı — fotoğraf cihazdan çıkmaz.
         setAmount(parsed.amount.toFixed(2).replace(".", ","));
+        if (parsed.merchant) setDescription(parsed.merchant);
+        if (parsed.date) setDate(parsed.date);
+        setOcr("done");
+        return;
       }
-      if (parsed.merchant) setDescription(parsed.merchant);
-      if (parsed.date) setDate(parsed.date);
-      setOcr("done");
+      // Offline okuyamadı → otomatik buluta.
+      await cloudFallback(file);
     } catch {
-      setOcr("error");
+      // Cihaz-içi OCR patladı → buluta dene.
+      try {
+        await cloudFallback(file);
+      } catch {
+        setOcr("error");
+      }
     }
   }
 
@@ -118,7 +144,7 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
             Fiş fotoğrafı çek veya seç
           </span>
           <span className="text-xs text-muted">
-            Fotoğraf cihazında okunur, sunucuya gönderilmez
+            Önce cihazda okunur; okunamazsa yapay zekâya gönderilir
           </span>
         </button>
       )}
@@ -136,6 +162,12 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
         <div className="flex items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft px-3 py-2.5 text-sm text-primary">
           <Loader2 size={16} className="shrink-0 animate-spin" />
           Fiş okunuyor… (cihazında işleniyor)
+        </div>
+      )}
+      {ocr === "cloud" && (
+        <div className="flex items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft px-3 py-2.5 text-sm text-primary">
+          <Loader2 size={16} className="shrink-0 animate-spin" />
+          Cihazda okunamadı — yapay zekâ ile okunuyor…
         </div>
       )}
       {ocr === "done" && (

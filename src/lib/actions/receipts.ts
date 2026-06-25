@@ -6,6 +6,7 @@ import { requireUserId } from "@/lib/auth-helpers";
 import { transactionSchema } from "@/lib/validation";
 import { categorize } from "@/lib/categorize";
 import { parseAmount, dateFromInput } from "@/lib/format";
+import { extractDocument } from "@/lib/extract";
 
 export type ReceiptActionState = {
   ok?: boolean;
@@ -65,4 +66,52 @@ export async function uploadReceipt(
   revalidatePath("/dashboard");
   revalidatePath("/transactions");
   return { ok: true };
+}
+
+export type ReceiptExtractResult =
+  | {
+      ok: true;
+      amount: string;
+      description: string;
+      date: string;
+      kind: "EXPENSE" | "INCOME";
+    }
+  | { ok: false; error: string };
+
+// Offline OCR fişi okuyamazsa: görüntüyü buluta (Claude vision) gönderip
+// alanları doldurur. Fotoğraf YALNIZ bu durumda sunucuya gider.
+export async function extractReceiptFromImage(
+  formData: FormData,
+): Promise<ReceiptExtractResult> {
+  await requireUserId();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "Görüntü bulunamadı." };
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return { ok: false, error: "Görüntü 10 MB'tan küçük olmalı." };
+  }
+
+  const buffer = await file.arrayBuffer();
+  const result = await extractDocument(
+    { fileName: file.name, mimeType: file.type || "image/png", buffer },
+    { allowCloud: true },
+  );
+  const row = result.rows[0];
+  if (!row) {
+    return {
+      ok: false,
+      error:
+        "Görüntüden bilgi okunamadı. Görüntü okuma AI gerektirir — ANTHROPIC_API_KEY ekli mi?",
+    };
+  }
+  const dt = row.date;
+  const dateStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+  return {
+    ok: true,
+    amount: row.amount.toFixed(2).replace(".", ","),
+    description: row.description || "Fiş",
+    date: dateStr,
+    kind: row.direction === "in" ? "INCOME" : "EXPENSE",
+  };
 }
