@@ -38,6 +38,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // unpdf/pdf.js sunucu tarafında bundle edilmeden (native require) çalışsın —
+  // aksi halde Next bundle'ında "PDF okunamadı" hatası veriyor.
+  serverExternalPackages: ["unpdf"],
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

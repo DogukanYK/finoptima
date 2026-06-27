@@ -123,7 +123,9 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
       try {
         text = await extractPdfText(buffer);
       } catch {
-        return { ok: false, error: "PDF okunamadı." };
+        // Metin katmanı çıkarılamadı (taranmış/uyumsuz PDF) — hata verme, buluta
+        // bırak: Claude PDF'i doğrudan okur; demo'da senaryo dosya adından gelir.
+        text = "";
       }
       const result = await extractDocument(
         { fileName: file.name, mimeType: "application/pdf", buffer, text },
