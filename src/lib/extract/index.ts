@@ -27,7 +27,8 @@ export async function extractDocument(
     const cloud = await claudeExtract(input);
     if (cloud.rows.length === 0 && offline.rows.length > 0) return offline;
     return cloud;
-  } catch {
+  } catch (e) {
+    console.error("[extract] Claude motoru hatası:", e);
     return offline;
   }
 }

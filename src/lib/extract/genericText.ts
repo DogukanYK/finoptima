@@ -119,15 +119,26 @@ function amountTokens(line: string): string[] {
 
 export function parseGenericStatement(rawText: string): GenericParseResult {
   const currency = detectCurrency(rawText);
-  const lines = rawText
+  // PDF metni satır sonu içermeyebilir (tek satıra sıkışmış işlemler). Her
+  // tarihten önce satır başı ekleyerek her işlemi kendi satırına ayır.
+  const normalized = rawText.replace(
+    /(\d{1,2}[.\/-]\d{1,2}[.\/-]\d{2,4}|\d{4}-\d{1,2}-\d{1,2})/g,
+    "\n$1",
+  );
+  const lines = normalized
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
 
   const rows: ExtractedRow[] = [];
   let candidates = 0;
+  let prevBalance: number | null = null;
 
   for (const line of lines) {
+    // Başlık/özet satırlarını atla (gerçek işlem değil).
+    if (/sıra\s*no|açıklama|raporlama|bakiye\s*:|hesap (sahibi|türü|numara)/i.test(line))
+      continue;
+
     const dateHit = findDate(line);
     if (!dateHit) continue;
     // Tarihi ÖNCE çıkar — yoksa "14.03.2024" içindeki "14.03" tutar sanılır.
@@ -136,23 +147,31 @@ export function parseGenericStatement(rawText: string): GenericParseResult {
     if (tokens.length === 0) continue; // hem tarih hem tutar gerek
     candidates++;
 
-    // İşlem tutarı: işaretli token varsa onu seç (genelde transaction);
-    // yoksa ilk token (sonuncu çoğu dökümde bakiyedir).
-    const signed = tokens.find((t) => /[-+(]/.test(t));
-    const chosen = signed ?? tokens[0];
-    const amt = parseStatementAmount(chosen);
-    if (!Number.isFinite(amt) || amt === 0) continue;
+    // İşlem tutarı = ilk token; 2+ token varsa SON token = yürüyen bakiye.
+    const txAmt = parseStatementAmount(tokens[0]);
+    if (!Number.isFinite(txAmt) || txAmt === 0) continue;
+    const balance =
+      tokens.length >= 2
+        ? parseStatementAmount(tokens[tokens.length - 1])
+        : null;
 
-    // Yön
+    // Yön: işaret > bakiye-deltası (arttıysa gelir) > sözcük > varsayılan(gider).
     let direction: "in" | "out";
-    if (amt < 0 || /\(/.test(chosen)) direction = "out";
-    else if (/\+/.test(chosen)) direction = "in";
-    else {
+    if (txAmt < 0 || /\(/.test(tokens[0])) direction = "out";
+    else if (/\+/.test(tokens[0])) direction = "in";
+    else if (
+      balance !== null &&
+      Number.isFinite(balance) &&
+      prevBalance !== null
+    ) {
+      direction = balance > prevBalance ? "in" : "out";
+    } else {
       const f = fold(lineNoDate);
       if (IN_WORDS.some((w) => f.includes(w))) direction = "in";
       else if (OUT_WORDS.some((w) => f.includes(w))) direction = "out";
       else direction = "out"; // varsayılan: gider
     }
+    if (balance !== null && Number.isFinite(balance)) prevBalance = balance;
 
     // Açıklama: tutar + para birimi token'larını çıkar (tarih zaten yok).
     let desc = lineNoDate;
@@ -166,7 +185,7 @@ export function parseGenericStatement(rawText: string): GenericParseResult {
     rows.push({
       date: dateHit.date,
       description: desc.slice(0, 120),
-      amount: Math.abs(amt),
+      amount: Math.abs(txAmt),
       direction,
       currency,
     });
