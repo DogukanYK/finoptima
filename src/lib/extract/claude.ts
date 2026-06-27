@@ -47,22 +47,58 @@ function toBase64(buffer: ArrayBuffer): string {
   return Buffer.from(buffer).toString("base64");
 }
 
-// Demo modu: API çağrılmadan örnek "[DEMO]" sonuç (anahtarsız test).
-function demoExtract(): ExtractResult {
+// Demo: gerçek AI yokken, belge türüne göre değişen gerçekçi sonuç üretir.
+// 3 senaryo — fiş/görüntü · kredi kartı ekstresi · banka hesap dökümü.
+function demoExtract(input: ExtractInput): ExtractResult {
   const t = new Date();
   const d = (n: number) =>
     new Date(t.getFullYear(), t.getMonth(), Math.max(1, t.getDate() - n));
+  const text = (input.text ?? "").toLowerCase();
+  const name = input.fileName.toLowerCase();
+  const isImage =
+    /^image\//.test(input.mimeType) || /\.(png|jpe?g|webp|heic)$/.test(name);
+  const isCard =
+    /kredi kart|ekstre|miles|world|bonus|maximum|axess|wing/.test(text) ||
+    /ekstre|kart|card/.test(name);
+
+  // Senaryo 1 — Fiş / ekran görüntüsü (tek harcama).
+  if (isImage) {
+    const rows: ExtractedRow[] = [
+      { date: d(0), description: "Migros — market alışverişi", amount: 487.65, direction: "out", currency: "TRY" },
+    ];
+    return { rows, docKind: "receipt", currency: "TRY", confidence: 0.96, engine: "claude" };
+  }
+
+  // Senaryo 2 — Kredi kartı ekstresi.
+  if (isCard) {
+    const rows: ExtractedRow[] = [
+      { date: d(2), description: "Trendyol", amount: 1240.5, direction: "out", currency: "TRY" },
+      { date: d(4), description: "Migros", amount: 380.2, direction: "out", currency: "TRY" },
+      { date: d(6), description: "Shell akaryakıt", amount: 1100, direction: "out", currency: "TRY" },
+      { date: d(9), description: "Yemeksepeti", amount: 245.9, direction: "out", currency: "TRY" },
+      { date: d(12), description: "Apple.com/bill", amount: 99, direction: "out", currency: "TRY" },
+      { date: d(15), description: "Taksitli alışveriş (1/6)", amount: 520, direction: "out", currency: "TRY" },
+      { date: d(18), description: "Asgari ödeme", amount: 1500, direction: "in", currency: "TRY" },
+    ];
+    return { rows, docKind: "card_statement", currency: "TRY", confidence: 0.95, engine: "claude" };
+  }
+
+  // Senaryo 3 — Banka hesap dökümü.
   const rows: ExtractedRow[] = [
-    { date: d(1), description: "[DEMO] Market alışverişi", amount: 432.5, direction: "out", currency: "TRY" },
-    { date: d(3), description: "[DEMO] Maaş ödemesi", amount: 30000, direction: "in", currency: "TRY" },
-    { date: d(5), description: "[DEMO] Elektrik faturası", amount: 612.4, direction: "out", currency: "TRY" },
-    { date: d(8), description: "[DEMO] Kredi kartı ödemesi", amount: 2500, direction: "out", currency: "TRY" },
+    { date: d(1), description: "Maaş ödemesi", amount: 32000, direction: "in", currency: "TRY" },
+    { date: d(2), description: "Konut kirası", amount: 12500, direction: "out", currency: "TRY" },
+    { date: d(4), description: "Migros market", amount: 642.3, direction: "out", currency: "TRY" },
+    { date: d(7), description: "Elektrik faturası", amount: 487.1, direction: "out", currency: "TRY" },
+    { date: d(9), description: "Kredi kartı ödemesi", amount: 3500, direction: "out", currency: "TRY" },
+    { date: d(12), description: "Spotify aboneliği", amount: 57.99, direction: "out", currency: "TRY" },
+    { date: d(14), description: "Gelen havale", amount: 1500, direction: "in", currency: "TRY" },
+    { date: d(18), description: "Akaryakıt", amount: 850, direction: "out", currency: "TRY" },
   ];
-  return { rows, docKind: "statement", currency: "TRY", confidence: 1, engine: "claude" };
+  return { rows, docKind: "statement", currency: "TRY", confidence: 0.94, engine: "claude" };
 }
 
 export async function claudeExtract(input: ExtractInput): Promise<ExtractResult> {
-  if (AI_DEMO) return demoExtract();
+  if (AI_DEMO) return demoExtract(input);
   const client = getAnthropic();
   const content: Anthropic.ContentBlockParam[] = [];
 

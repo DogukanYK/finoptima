@@ -38,24 +38,85 @@ KURALLAR (kesinlikle uy):
 6. En fazla 5 adım. En kritik olan en üstte (priority: high).
 7. Dil: sıcak, sade, anlaşılır Türkçe. Jargon yok. Kullanıcıyla "sen" diliyle konuş.`;
 
-// Demo modu: API çağrılmadan örnek "[DEMO]" plan (anahtarsız test).
-function demoPlan(): CoachPlan {
-  return {
-    summary:
-      "[DEMO] Bu örnek bir plandır — gerçek AI çağrısı yapılmadı (AI_DEMO=true).",
-    steps: [
-      { priority: "high", title: "[DEMO] Yüksek faizli kart borcunu önce kapat", why: "En yüksek faizli borç toplam maliyetini büyütüyor.", action: "Bu ayki ek ödemeyi bu karta yönlendir.", impact: "yüksek etki" },
-      { priority: "medium", title: "[DEMO] Kart kullanım oranını %30 altına indir", why: "Düşük kullanım oranı kredi sağlığını olumlu etkiler.", action: "Ayın ortasında ara ödeme yap.", impact: "orta etki" },
-      { priority: "low", title: "[DEMO] Faturaları zamanında öde", why: "Zamanında ödeme en güçlü olumlu sinyaldir.", action: "Ajandaya hatırlatma kur.", impact: "düşük etki" },
-    ],
-  };
+// Demo: gerçek AI yokken, kullanıcının GERÇEK verisinden (skor faktörleri +
+// borçlar) duruma göre değişen, detaylı bir plan üretir — gerçek AI çıktısını
+// taklit eder. Farklı finansal durumlar farklı plan üretir.
+function demoPlan(input: {
+  findeks: FindeksResult;
+  debts: PlainDebt[];
+}): CoachPlan {
+  const { findeks, debts } = input;
+  const tl = (n: number) => `${Math.round(n).toLocaleString("tr-TR")} ₺`;
+  const score = (k: string) =>
+    findeks.factors.find((x) => x.key === k)?.score ?? 50;
+  const active = debts
+    .filter((d) => d.balance > 0)
+    .sort((a, b) => b.apr - a.apr);
+  const top = active[0];
+  const totalDebt = active.reduce((s, d) => s + d.balance, 0);
+  const health = findeks.healthScore;
+  const steps: CoachStep[] = [];
+
+  if (top) {
+    steps.push({
+      priority: "high",
+      title: `Önce ${top.name} borcunu hedefle`,
+      why: `${top.name} aylık %${top.apr} ile en yüksek faizli borcun (${tl(top.balance)}). Bu borç durdukça faiz maliyetin büyüyor ve kredi sağlığını en çok bu aşağı çekiyor.`,
+      action: `Bu ay nakit fazlanın büyük kısmını ${top.name}'a yönlendir; mümkünse asgarinin üstünde öde. Diğer borçlarda asgariyi aksatma.`,
+      impact: "yüksek etki",
+    });
+  }
+
+  if (score("savings") < 55) {
+    steps.push({
+      priority: active.length ? "medium" : "high",
+      title: "Tasarruf oranını yükselt",
+      why: `Tasarruf faktörün ${score("savings")}/100 — gelirinin yeterince azını elinde tutuyorsun; beklenmedik gideri yeni borçla karşılama riski yüksek.`,
+      action: "Ay başında gelirinin ~%15-20'sini otomatik talimatla kenara ayır, kalanla harca.",
+      impact: "orta etki",
+    });
+  }
+
+  if (score("punctuality") < 80) {
+    steps.push({
+      priority: "high",
+      title: "Faturaları zamanında öde",
+      why: `Ödeme düzeni faktörün ${score("punctuality")}/100. Geciken ödemeler kredi skorunun en güçlü olumsuz belirleyicisidir.`,
+      action: "Takvimden elektrik, kredi kartı ve abonelik faturalarına hatırlatma kur; ödedikçe işaretle.",
+      impact: "yüksek etki",
+    });
+  }
+
+  steps.push({
+    priority: "medium",
+    title: "Kart kullanım oranını %30 altında tut",
+    why: "Kart limitinin %30'undan fazlasını kullanmak Findeks skorunu doğrudan aşağı çeker.",
+    action: "Ekstre kesim gününden birkaç gün önce ara ödeme yaparak kullanım oranını düşür.",
+    impact: "orta etki",
+  });
+
+  if (health >= 65 && active.length === 0) {
+    steps.push({
+      priority: "low",
+      title: "Birikimini düzenli yatırıma yönlendir",
+      why: "Borcun yok ve kredi sağlığın iyi; atıl nakit enflasyona karşı değer kaybediyor.",
+      action: "Aylık sabit bir tutarı düzenli bir yatırım aracına yönlendir.",
+      impact: "düşük etki",
+    });
+  }
+
+  const summary = active.length
+    ? `Kredi sağlığın "${findeks.band}" bandında (sağlık ${health}/100). En kritik nokta ${top ? `${top.name} (aylık %${top.apr})` : "borç yükün"}; toplam ${tl(totalDebt)} borç var. Adımlar bu ay etkiyi en çok artıracak sırayla dizildi.`
+    : `Kredi sağlığın "${findeks.band}" bandında (sağlık ${health}/100) ve aktif borcun yok. Odak: tasarruf ve ödeme düzenini koruyup skoru daha da yukarı taşımak.`;
+
+  return { summary, steps: steps.slice(0, 5) };
 }
 
 export async function generateCreditCoachPlan(input: {
   findeks: FindeksResult;
   debts: PlainDebt[];
 }): Promise<CoachPlan> {
-  if (AI_DEMO) return demoPlan();
+  if (AI_DEMO) return demoPlan(input);
   const { findeks, debts } = input;
 
   // Claude'a SADECE deterministik motorun ürettiği sayıları veriyoruz.
