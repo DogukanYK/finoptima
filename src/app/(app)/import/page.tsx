@@ -3,6 +3,9 @@ import { getAccounts } from "@/lib/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { ImportWizard } from "@/components/import/import-wizard";
 
+// AI gözden geçir / bulut belge okuma uzun sürebilir — fonksiyon süresini uzat.
+export const maxDuration = 60;
+
 export default async function ImportPage() {
   const user = await requireUser();
   const accounts = await getAccounts(user.id);

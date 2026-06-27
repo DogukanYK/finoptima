@@ -8,10 +8,12 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import {
   parseStatement,
   commitStatement,
+  reviewWithAI,
   type ParsedRow,
 } from "@/lib/actions/import";
 import { formatTL, formatDateShort } from "@/lib/format";
@@ -42,6 +44,7 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
   const [pending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   const [picked, setPicked] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   function analyze() {
     setError("");
@@ -50,6 +53,7 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
       setError("Lütfen bir dosya seç.");
       return;
     }
+    setFile(file);
     const fd = new FormData();
     fd.set("file", file);
     startTransition(async () => {
@@ -83,6 +87,29 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
           : `${res.detectedBank ?? "Banka"} Hesabı`,
       );
       setStage("preview");
+    });
+  }
+
+  // Önizlemedeki dosyayı doğrudan Claude'a gönderip satırları yeniden çıkarır.
+  function reviewAI() {
+    if (!file) return;
+    setError("");
+    startTransition(async () => {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await reviewWithAI(fd);
+      if (!res.ok || !res.rows) {
+        setError(res.error ?? "Yapay zekâ okuması başarısız.");
+        return;
+      }
+      setRows(res.rows);
+      setDetectedBank(res.detectedBank ?? "AI ile okundu");
+      setAccountType(res.accountType ?? "DEBIT");
+      setExcluded(
+        new Set(
+          res.rows.map((r, i) => (r.duplicate ? i : -1)).filter((i) => i >= 0),
+        ),
+      );
     });
   }
 
@@ -173,6 +200,26 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
           <span className="rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent">
             {includedCount} işlem
           </span>
+        </div>
+
+        {/* AI gözden geçir */}
+        <div>
+          <button
+            onClick={reviewAI}
+            disabled={pending}
+            className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] border border-primary bg-primary-soft px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-2 disabled:opacity-60"
+          >
+            {pending ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Sparkles size={16} />
+            )}
+            Yapay zekâ gözden geçirsin
+          </button>
+          <p className="mt-1.5 text-xs text-muted">
+            Yön, tutar ve açıklamaları yapay zekâ ile yeniden, daha doğru çıkarır
+            (banka tanınmasa bile). Belge yapay zekâya gönderilir.
+          </p>
         </div>
 
         {/* Hedef hesap */}

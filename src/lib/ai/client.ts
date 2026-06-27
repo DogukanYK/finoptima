@@ -19,8 +19,10 @@ export function getAnthropic(): Anthropic {
 // "claude-sonnet-4-6" veya "claude-haiku-4-5"e düşürülebilir.
 export const CREDIT_COACH_MODEL = "claude-opus-4-8";
 
-// Belge okuma (vision/PDF) modeli — yüksek doğruluk gerektiği için Opus.
-export const EXTRACT_MODEL = "claude-opus-4-8";
+// Belge okuma (vision/PDF) modeli — mekanik çıkarım + HIZ için Sonnet
+// (çok işlemli ekstrede Opus ~85s sürüp Vercel zaman aşımına takılıyor).
+// Maksimum doğruluk istenirse "claude-opus-4-8"e çekilebilir.
+export const EXTRACT_MODEL = "claude-sonnet-4-6";
 
 // Demo modu: AI_DEMO=true ise API ÇAĞRILMAZ, açıkça "[DEMO]" etiketli örnek
 // sonuç döner. Anahtarsız akışı 0$ ile test etmek için (gerçek veri DEĞİL).

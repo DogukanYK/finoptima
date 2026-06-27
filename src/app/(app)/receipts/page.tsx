@@ -7,6 +7,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { ReceiptForm } from "@/components/receipts/receipt-form";
 
+// Fiş AI okuması (offline okuyamazsa bulut) uzun sürebilir — süreyi uzat.
+export const maxDuration = 60;
+
 export default async function ReceiptsPage() {
   const user = await requireUser();
   const [categories, receipts] = await Promise.all([
@@ -29,9 +32,8 @@ export default async function ReceiptsPage() {
 
       <div className="mb-5 rounded-[var(--app-radius)] bg-primary-soft p-3.5 text-sm text-primary">
         <p>
-          Fiş fotoğrafın <strong>cihazında okunur</strong>; sunucuya yalnız
-          tutar, tarih ve satıcı bilgisi gider — fotoğrafın hiçbir yere
-          yüklenmez.
+          Fiş fotoğrafın <strong>önce cihazında okunur</strong>; cihazda
+          okunamazsa daha doğru sonuç için yapay zekâya gönderilir.
         </p>
       </div>
 

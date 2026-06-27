@@ -8,6 +8,9 @@ import { SectionCard } from "@/components/ui/section-card";
 import { FindeksUpload } from "@/components/findeks/findeks-upload";
 import { CreditCoach } from "@/components/findeks/credit-coach";
 
+// AI kredi koçu çağrısı için sunucu fonksiyon süresini uzat.
+export const maxDuration = 60;
+
 const MONO = { fontFamily: "ui-monospace,Menlo,monospace" } as const;
 
 export default async function FindeksPage() {

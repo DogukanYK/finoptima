@@ -15,6 +15,7 @@ import {
 } from "@/lib/bankProfiles";
 import { parsePdfStatement, extractPdfText } from "@/lib/pdfStatements";
 import { extractDocument } from "@/lib/extract";
+import { claudeExtract } from "@/lib/extract/claude";
 import { toDateKey } from "@/lib/format";
 
 export type ParsedRow = {
@@ -326,5 +327,83 @@ export async function commitStatement(payload: {
     ok: true,
     imported: rows.length,
     skipped: payload.rows.length - rows.length,
+  };
+}
+
+// "AI Gözden Geçir" — dosyayı DOĞRUDAN Claude'a gönderir (offline'ı atlar).
+// Yönleri/tutarları/açıklamaları temiz çıkarır; banka tanınmasa bile.
+export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
+  const userId = await requireUserId();
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: "Dosya bulunamadı." };
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    return { ok: false, error: "Dosya 10 MB'tan küçük olmalı." };
+  }
+
+  const [categories, existing, rules] = await Promise.all([
+    db.category.findMany({ where: { userId }, select: { id: true, name: true } }),
+    db.transaction.findMany({
+      where: { userId, dedupHash: { not: null } },
+      select: { dedupHash: true },
+    }),
+    db.categoryRule.findMany({
+      where: { userId },
+      select: { pattern: true, categoryId: true, priority: true },
+    }),
+  ]);
+  const catName = new Map(categories.map((c) => [c.id, c.name]));
+  const existingHashes = new Set(existing.map((e) => e.dedupHash));
+
+  const buffer = await file.arrayBuffer();
+  const lower = file.name.toLowerCase();
+  const isPdf = lower.endsWith(".pdf") || file.type === "application/pdf";
+  let text = "";
+  if (isPdf) {
+    try {
+      text = await extractPdfText(buffer);
+    } catch {
+      text = "";
+    }
+  }
+  const mimeType = isPdf ? "application/pdf" : file.type || "image/png";
+
+  let result;
+  try {
+    result = await claudeExtract({ fileName: file.name, mimeType, buffer, text });
+  } catch (e) {
+    console.error("[reviewWithAI] Claude hatası:", e);
+    return {
+      ok: false,
+      error: "Yapay zekâ okuması başarısız oldu. API anahtarı / limit kontrol et.",
+    };
+  }
+  if (result.rows.length === 0) {
+    return { ok: false, error: "Belgeden işlem çıkarılamadı." };
+  }
+
+  const rows: ParsedRow[] = result.rows.map((r) => {
+    const kind: TxKind = r.direction === "in" ? "INCOME" : "EXPENSE";
+    const matchedCat = categorize(r.description, rules);
+    const hash = makeHash(toDateKey(r.date), r.amount, r.description);
+    return {
+      date: r.date.toISOString(),
+      description: r.description,
+      amount: r.amount,
+      kind,
+      categoryId: matchedCat,
+      categoryName: matchedCat ? (catName.get(matchedCat) ?? null) : null,
+      dedupHash: hash,
+      duplicate: existingHashes.has(hash),
+    };
+  });
+
+  return {
+    ok: true,
+    rows,
+    fileName: file.name,
+    detectedBank: "AI ile okundu",
+    accountType: result.docKind === "card_statement" ? "CREDIT_CARD" : "DEBIT",
   };
 }

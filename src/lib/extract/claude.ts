@@ -123,7 +123,7 @@ export async function claudeExtract(input: ExtractInput): Promise<ExtractResult>
 
   const message = await client.messages.parse({
     model: EXTRACT_MODEL,
-    max_tokens: 8192,
+    max_tokens: 16000, // uzun dökümler (çok işlemli ekstre) için headroom
     system: SYSTEM_PROMPT,
     output_config: { format: zodOutputFormat(docSchema) },
     messages: [{ role: "user", content }],
