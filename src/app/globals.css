@@ -33,32 +33,32 @@
 /* Varsayılan tema (giriş/kayıt sayfaları ve FOUC öncesi yedek) */
 :root {
   color-scheme: light dark;
-  --app-bg: #fafaf7;
+  --app-bg: #f8fafc;
   --app-surface: #ffffff;
-  --app-surface-2: #f3f2ec;
-  --app-text: #0b0c10;
-  --app-muted: #7e8497;
-  --app-border: #e9e8e2;
-  --app-primary: #2046ff;
-  --app-primary-soft: rgba(32, 70, 255, 0.1);
-  --app-violet: #7c5cff;
-  --app-violet-soft: rgba(124, 92, 255, 0.1);
-  --app-gradient: linear-gradient(120deg, #2046ff 0%, #7c5cff 100%);
-  --app-accent: #0e8a47;
-  --app-accent-soft: rgba(14, 138, 71, 0.1);
-  --app-destructive: #ff6a4d;
-  --app-destructive-soft: rgba(255, 106, 77, 0.1);
-  --app-success: #0e8a47;
+  --app-surface-2: #f1f5f9;
+  --app-text: #0f172a;
+  --app-muted: #64748b;
+  --app-border: #e2e8f0;
+  --app-primary: #2563eb;
+  --app-primary-soft: rgba(37, 99, 235, 0.1);
+  --app-violet: #3b82f6;
+  --app-violet-soft: rgba(59, 130, 246, 0.1);
+  --app-gradient: linear-gradient(120deg, #2563eb 0%, #0ea5e9 100%);
+  --app-accent: #059669;
+  --app-accent-soft: rgba(5, 150, 105, 0.1);
+  --app-destructive: #dc2626;
+  --app-destructive-soft: rgba(220, 38, 38, 0.1);
+  --app-success: #059669;
   --app-warning: #d97706;
-  --app-danger: #ff6a4d;
-  --app-signal: #e6ff42;
-  --app-shadow: 0 1px 0 rgba(11, 12, 16, 0.07), 0 8px 18px rgba(11, 12, 16, 0.04);
-  --app-shadow-lg: 0 1px 0 rgba(11, 12, 16, 0.06), 0 14px 36px rgba(11, 12, 16, 0.06);
-  --app-radius: 18px;
+  --app-danger: #dc2626;
+  --app-signal: #10b981;
+  --app-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.05);
+  --app-shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.05), 0 18px 44px rgba(15, 23, 42, 0.08);
+  --app-radius: 16px;
   --app-border-width: 1px;
-  --app-font-body: "DM Sans", system-ui, sans-serif;
+  --app-font-body: "IBM Plex Sans", system-ui, sans-serif;
   --app-font-heading: "Space Grotesk", system-ui, sans-serif;
-  --app-fw-body: 500;
+  --app-fw-body: 400;
   --app-fw-heading: 700;
   --app-base-size: 16px;
   --app-line-height: 1.55;
@@ -66,24 +66,24 @@
   --app-density-gap: 1rem;
   --app-density-pad: 1.25rem;
   --app-density-row: 3rem;
-  --app-chart-1: #2046ff;
-  --app-chart-2: #7c5cff;
-  --app-chart-3: #0e8a47;
-  --app-chart-4: #ff6a4d;
-  --app-chart-5: #e6ff42;
-  --app-chart-6: #d97706;
+  --app-chart-1: #2563eb;
+  --app-chart-2: #059669;
+  --app-chart-3: #f59e0b;
+  --app-chart-4: #0ea5e9;
+  --app-chart-5: #6366f1;
+  --app-chart-6: #ef4444;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --app-bg: #0a0b0f;
-    --app-surface: #16181f;
-    --app-surface-2: #12141c;
-    --app-text: #fafaf7;
-    --app-muted: #7a8096;
-    --app-border: #26282f;
-    --app-violet: #a594ff;
-    --app-violet-soft: rgba(165, 148, 255, 0.18);
+    --app-bg: #0b1120;
+    --app-surface: #111827;
+    --app-surface-2: #0f172a;
+    --app-text: #f1f5f9;
+    --app-muted: #94a3b8;
+    --app-border: #1e293b;
+    --app-violet: #60a5fa;
+    --app-violet-soft: rgba(96, 165, 250, 0.18);
   }
 }
 

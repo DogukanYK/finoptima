@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { requireUser, themeFromUser } from "@/lib/auth-helpers";
-import { themeStyleContent } from "@/lib/theme";
+import { requireUser } from "@/lib/auth-helpers";
+import { DEFAULT_THEME, themeStyleContent } from "@/lib/theme";
 import { AppShell } from "@/components/app/app-shell";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 
@@ -12,7 +12,8 @@ export default async function AppLayout({
   const user = await requireUser();
   if (!user.onboardedAt) redirect("/onboarding");
 
-  const theme = themeFromUser(user.theme);
+  // Tema müşterileştirme kaldırıldı — herkese tek modern fintech teması.
+  const theme = DEFAULT_THEME;
 
   return (
     <>

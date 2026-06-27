@@ -239,7 +239,7 @@ function ScoreHero({
           width: 500,
           height: 500,
           background:
-            "radial-gradient(circle, rgba(230,255,66,0.16) 0%, transparent 60%)",
+            "radial-gradient(circle, rgba(5,150,105,0.20) 0%, transparent 60%)",
         }}
       />
 
