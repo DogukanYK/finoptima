@@ -10,6 +10,10 @@ import {
   ArrowRight,
   Check,
   FileText,
+  Wifi,
+  ArrowLeftRight,
+  Plus,
+  User,
 } from "lucide-react";
 
 const display = Space_Grotesk({
@@ -98,80 +102,115 @@ function ScorePhone() {
         }}
       />
 
-      <div
-        className="fin-float relative z-10 w-[286px] rounded-[44px] p-2.5 sm:w-[306px]"
-        style={{ background: INK, boxShadow: "0 50px 110px rgba(15,23,42,0.28)" }}
-      >
-        <div className="relative overflow-hidden rounded-[34px]" style={{ background: BG }}>
-          <div className="absolute left-1/2 top-3.5 z-10 h-6 w-20 -translate-x-1/2 rounded-full bg-black" />
-          <div className="px-4 pb-6 pt-12">
-            <div className="flex items-center justify-between">
-              <div className="text-[13px] font-semibold" style={{ color: INK }}>
-                Merhaba, Doğukan
-              </div>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: GRAD }}>
-                D
-              </span>
-            </div>
+      <div className="fin-float relative z-10 w-[300px]" style={{ filter: "drop-shadow(0 48px 90px rgba(15,23,42,0.4))" }}>
+        {/* yan tuşlar */}
+        <span aria-hidden className="absolute -left-[2px] top-[118px] z-0 h-[26px] w-[3px] rounded-l-[2px]" style={{ background: "linear-gradient(90deg,#15171b,#3d4047)" }} />
+        <span aria-hidden className="absolute -left-[2px] top-[162px] z-0 h-[44px] w-[3px] rounded-l-[2px]" style={{ background: "linear-gradient(90deg,#15171b,#3d4047)" }} />
+        <span aria-hidden className="absolute -left-[2px] top-[216px] z-0 h-[44px] w-[3px] rounded-l-[2px]" style={{ background: "linear-gradient(90deg,#15171b,#3d4047)" }} />
+        <span aria-hidden className="absolute -right-[2px] top-[174px] z-0 h-[64px] w-[3px] rounded-r-[2px]" style={{ background: "linear-gradient(270deg,#15171b,#3d4047)" }} />
 
-            {/* skor kartı */}
-            <div className="relative mt-3 overflow-hidden rounded-[20px] p-4 text-white" style={{ background: DARK }}>
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full"
-                style={{ background: "radial-gradient(circle, rgba(37,99,235,0.5) 0%, transparent 60%)" }}
-              />
-              <div className="relative flex items-center gap-4">
-                <ScoreRing value={1420} max={1900} />
-                <div>
-                  <div className="text-[10px] font-semibold tracking-[0.1em]" style={{ fontFamily: F.mono, color: "rgba(248,250,252,0.6)" }}>
-                    FINDEKS (TAHMİNİ)
-                  </div>
-                  <div className="mt-0.5 text-[30px] font-extrabold leading-none tracking-tight" style={{ fontFamily: F.display }}>
-                    1.420
-                  </div>
-                  <span className="mt-1.5 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold" style={{ background: "rgba(16,185,129,0.22)", color: "#34D399", fontFamily: F.mono }}>
-                    +38 ↑ · İyi
+        {/* titanyum çerçeve */}
+        <div className="relative z-10 rounded-[54px] p-[3px]" style={{ background: "linear-gradient(145deg,#71747d 0%,#1b1d22 36%,#43464d 62%,#14161a 100%)" }}>
+          {/* siyah bezel */}
+          <div className="rounded-[52px] bg-black p-[7px]">
+            {/* ekran */}
+            <div className="relative flex flex-col overflow-hidden rounded-[45px]" style={{ background: BG, aspectRatio: "9 / 19.3" }}>
+              {/* dynamic island */}
+              <div className="absolute left-1/2 top-[11px] z-30 h-[26px] w-[86px] -translate-x-1/2 rounded-full bg-black" />
+
+              {/* durum çubuğu */}
+              <div className="relative z-20 flex items-center justify-between px-6 pt-3.5 text-[12px] font-semibold" style={{ color: INK }}>
+                <span style={{ fontFamily: F.display }}>9:41</span>
+                <span className="flex items-center gap-[5px]">
+                  <span className="flex items-end gap-[2px]">
+                    {[5, 8, 11, 14].map((h, i) => (
+                      <span key={i} className="w-[3px] rounded-[1px]" style={{ height: h, background: INK }} />
+                    ))}
                   </span>
+                  <Wifi size={14} strokeWidth={2.5} />
+                  <span className="relative ml-[1px] flex h-[12px] w-[22px] items-center rounded-[3px]" style={{ border: "1px solid rgba(15,23,42,0.45)" }}>
+                    <span className="ml-[1.5px] h-[7px] w-[14px] rounded-[1.5px]" style={{ background: INK }} />
+                    <span className="absolute -right-[3px] h-[4px] w-[1.5px] rounded-r-[1px]" style={{ background: "rgba(15,23,42,0.45)" }} />
+                  </span>
+                </span>
+              </div>
+
+              {/* içerik */}
+              <div className="relative z-10 flex-1 px-4 pt-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-medium" style={{ color: MUTED }}>Merhaba, Doğukan</div>
+                    <div className="text-[18px] font-bold tracking-tight" style={{ fontFamily: F.display, color: INK }}>Kredi sağlığın</div>
+                  </div>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold text-white" style={{ background: GRAD }}>D</span>
+                </div>
+
+                {/* skor kartı */}
+                <div className="relative mt-3 overflow-hidden rounded-[20px] p-4 text-white" style={{ background: DARK }}>
+                  <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.55) 0%, transparent 60%)" }} />
+                  <div className="relative flex items-center gap-4">
+                    <ScoreRing value={1420} max={1900} />
+                    <div>
+                      <div className="text-[9px] font-semibold tracking-[0.1em]" style={{ fontFamily: F.mono, color: "rgba(248,250,252,0.6)" }}>FINDEKS (TAHMİNİ)</div>
+                      <div className="mt-0.5 text-[28px] font-extrabold leading-none tracking-tight" style={{ fontFamily: F.display }}>1.420</div>
+                      <span className="mt-1.5 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10.5px] font-bold" style={{ background: "rgba(16,185,129,0.22)", color: "#34D399", fontFamily: F.mono }}>+38 ↑ · İyi</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* faktörler */}
+                <div className="mt-3 space-y-2">
+                  {[
+                    { l: "Ödeme düzeni", v: 92 },
+                    { l: "Kart kullanımı", v: 76 },
+                    { l: "Borç / gelir", v: 84 },
+                  ].map((r) => (
+                    <div key={r.l}>
+                      <div className="flex justify-between text-[11px] font-medium" style={{ color: SUBTLE }}>
+                        <span>{r.l}</span>
+                        <span style={{ fontFamily: F.mono, color: MUTED }}>{r.v}%</span>
+                      </div>
+                      <div className="mt-1 h-1.5 overflow-hidden rounded-full" style={{ background: "#E2E8F0" }}>
+                        <div className="h-full rounded-full" style={{ width: `${r.v}%`, background: r.v >= 85 ? EMERALD : BLUE }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* bu ay yap */}
+                <div className="mt-3 flex items-center gap-2.5 rounded-2xl border p-2.5" style={{ borderColor: "rgba(37,99,235,0.25)", background: "rgba(37,99,235,0.06)" }}>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: BLUE }}>
+                    <Sparkles size={15} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[12px] font-bold" style={{ color: INK }}>Garanti kart borcunu kapat</div>
+                    <div className="text-[10px]" style={{ color: MUTED }}>bu ay önceliğin · +15-20 puan</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* faktörler */}
-            <div className="mt-3.5 space-y-2">
-              {[
-                { l: "Ödeme düzeni", v: 92 },
-                { l: "Kart kullanımı", v: 76 },
-                { l: "Borç / gelir", v: 84 },
-              ].map((r) => (
-                <div key={r.l}>
-                  <div className="flex justify-between text-[11.5px] font-medium" style={{ color: SUBTLE }}>
-                    <span>{r.l}</span>
-                    <span style={{ fontFamily: F.mono, color: MUTED }}>{r.v}%</span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full" style={{ background: "#E2E8F0" }}>
-                    <div className="h-full rounded-full" style={{ width: `${r.v}%`, background: r.v >= 85 ? EMERALD : BLUE }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* bu ay yap */}
-            <div className="mt-3.5 flex items-center gap-2.5 rounded-2xl border p-2.5" style={{ borderColor: "rgba(37,99,235,0.25)", background: "rgba(37,99,235,0.06)" }}>
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: BLUE }}>
-                <Sparkles size={15} />
-              </span>
-              <div className="min-w-0">
-                <div className="truncate text-[12px] font-bold" style={{ color: INK }}>
-                  Garanti kart borcunu kapat
-                </div>
-                <div className="text-[10.5px]" style={{ color: MUTED }}>
-                  bu ay önceliğin · +15-20 puan
-                </div>
+              {/* alt tab bar */}
+              <div className="relative z-20 flex items-center justify-around border-t px-2 pb-6 pt-2.5" style={{ borderColor: LINE, background: "rgba(255,255,255,0.9)" }}>
+                {[
+                  { Icon: Gauge, a: true },
+                  { Icon: ArrowLeftRight, a: false },
+                  { Icon: Plus, a: false },
+                  { Icon: CreditCard, a: false },
+                  { Icon: User, a: false },
+                ].map((t, i) => (
+                  <span key={i} className="flex h-7 w-7 items-center justify-center rounded-xl" style={{ color: t.a ? BLUE : MUTED, background: t.a ? "rgba(37,99,235,0.1)" : "transparent" }}>
+                    <t.Icon size={17} strokeWidth={t.a ? 2.5 : 2} />
+                  </span>
+                ))}
               </div>
+
+              {/* home indicator */}
+              <div className="absolute bottom-[8px] left-1/2 z-30 h-[4px] w-[104px] -translate-x-1/2 rounded-full" style={{ background: "rgba(15,23,42,0.3)" }} />
+
+              {/* ekran parlaması */}
+              <div aria-hidden className="pointer-events-none absolute inset-0 z-40 rounded-[45px]" style={{ background: "linear-gradient(125deg, rgba(255,255,255,0.2) 0%, transparent 22%, transparent 74%, rgba(255,255,255,0.06) 100%)" }} />
             </div>
           </div>
-          <div className="absolute bottom-2 left-1/2 h-1 w-28 -translate-x-1/2 rounded-full opacity-30" style={{ background: INK }} />
         </div>
       </div>
 
