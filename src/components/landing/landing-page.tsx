@@ -232,7 +232,7 @@ function ScorePhone() {
               </div>
 
               {/* alt tab bar */}
-              <div className="relative z-20 flex items-center justify-around border-t px-2 pb-6 pt-2.5" style={{ borderColor: LINE, background: "rgba(255,255,255,0.9)" }}>
+              <div className="relative z-20 flex items-center justify-between border-t px-6 pb-8 pt-2.5" style={{ borderColor: LINE, background: "rgba(255,255,255,0.9)" }}>
                 {[
                   { Icon: Gauge, a: true },
                   { Icon: ArrowLeftRight, a: false },
