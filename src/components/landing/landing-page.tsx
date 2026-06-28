@@ -1,12 +1,23 @@
 import Link from "next/link";
-import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import {
+  ShieldCheck,
+  Gauge,
+  CreditCard,
+  ReceiptText,
+  Sparkles,
+  TrendingUp,
+  ArrowRight,
+  Check,
+  FileText,
+} from "lucide-react";
 
 const display = Space_Grotesk({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-display",
 });
-const body = DM_Sans({
+const body = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-body",
@@ -17,8 +28,18 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+// --- Yeni fintech paleti (serin slate + güven mavisi + zümrüt) ---
+const INK = "#0F172A";
+const BG = "#F8FAFC";
+const MUTED = "#64748B";
+const SUBTLE = "#475569";
+const LINE = "#E2E8F0";
+const BLUE = "#2563EB";
+const EMERALD = "#059669";
+const GRAD = "linear-gradient(120deg, #2563EB 0%, #0EA5E9 100%)";
+const DARK = "linear-gradient(155deg, #0F172A 0%, #172554 100%)";
+
 const F = { display: "var(--font-display)", mono: "var(--font-mono)" };
-const GRAD = "linear-gradient(120deg, #2046ff 0%, #7c5cff 100%)";
 
 /* ---------- parçalar ---------- */
 
@@ -26,14 +47,14 @@ function Brand({ light }: { light?: boolean }) {
   return (
     <span className="inline-flex items-center gap-2.5">
       <span
-        className="inline-flex h-9 w-9 items-center justify-center rounded-[11px] text-[17px] font-bold text-white"
-        style={{ background: GRAD, fontFamily: F.display, letterSpacing: "-0.04em", fontSize: 14 }}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-[11px] font-bold text-white"
+        style={{ background: GRAD, fontFamily: F.display, letterSpacing: "-0.04em", fontSize: 15 }}
       >
         Fo
       </span>
       <span
         className="text-xl font-bold tracking-tight"
-        style={{ fontFamily: F.display, color: light ? "#fafaf7" : "#0b0c10" }}
+        style={{ fontFamily: F.display, color: light ? "#F8FAFC" : INK }}
       >
         FinOptima
       </span>
@@ -41,156 +62,142 @@ function Brand({ light }: { light?: boolean }) {
   );
 }
 
-function Badge({
+function Pill({
   children,
-  tone = "default",
+  tone = "muted",
 }: {
   children: React.ReactNode;
-  tone?: "default" | "accent" | "violet" | "green";
+  tone?: "muted" | "blue" | "green";
 }) {
   const tones = {
-    default: "bg-[rgba(11,12,16,0.05)] text-[#2d3038]",
-    accent: "bg-[rgba(32,70,255,0.1)] text-[#2046ff]",
-    violet: "bg-[rgba(124,92,255,0.1)] text-[#7c5cff]",
-    green: "bg-[rgba(14,138,71,0.1)] text-[#0e8a47]",
-  };
+    muted: { bg: "rgba(15,23,42,0.05)", fg: SUBTLE },
+    blue: { bg: "rgba(37,99,235,0.1)", fg: BLUE },
+    green: { bg: "rgba(5,150,105,0.1)", fg: EMERALD },
+  }[tone];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold ${tones[tone]}`}
+      className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold"
+      style={{ background: tones.bg, color: tones.fg }}
     >
       {children}
     </span>
   );
 }
 
-/* iPhone mockup — basit panel içeriğiyle */
-function HeroPhone() {
+/* iPhone mockup — kredi notu ekranı, hafifçe süzülür */
+function ScorePhone() {
   return (
     <div className="relative flex justify-center">
+      {/* arka glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-12 h-[420px] w-[420px] -translate-x-1/2 rounded-full blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-10 h-[440px] w-[440px] -translate-x-1/2 rounded-full blur-3xl"
         style={{
           background:
-            "conic-gradient(from 90deg, rgba(32,70,255,0.1), rgba(124,92,255,0.1), rgba(32,70,255,0.1))",
+            "radial-gradient(circle, rgba(37,99,235,0.16) 0%, rgba(5,150,105,0.10) 45%, transparent 70%)",
         }}
       />
+
       <div
-        className="relative z-10 w-[280px] rounded-[44px] p-2.5 sm:w-[300px]"
-        style={{
-          background: "#0b0c10",
-          boxShadow: "0 50px 100px rgba(11,12,16,0.3)",
-          animation: "nvFloat 6s ease-in-out infinite",
-        }}
+        className="fin-float relative z-10 w-[286px] rounded-[44px] p-2.5 sm:w-[306px]"
+        style={{ background: INK, boxShadow: "0 50px 110px rgba(15,23,42,0.28)" }}
       >
-        <div className="relative overflow-hidden rounded-[34px] bg-[#fafaf7]">
+        <div className="relative overflow-hidden rounded-[34px]" style={{ background: BG }}>
           <div className="absolute left-1/2 top-3.5 z-10 h-6 w-20 -translate-x-1/2 rounded-full bg-black" />
           <div className="px-4 pb-6 pt-12">
-            <div className="text-[13px] font-medium text-[#7e8497]">
-              Günaydın, Ada
+            <div className="flex items-center justify-between">
+              <div className="text-[13px] font-semibold" style={{ color: INK }}>
+                Merhaba, Doğukan
+              </div>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ background: GRAD }}>
+                D
+              </span>
             </div>
-            {/* bakiye kartı */}
-            <div
-              className="relative mt-2 overflow-hidden rounded-[18px] p-4 text-[#fafaf7]"
-              style={{ background: "linear-gradient(135deg, #0b0c10 0%, #1d2030 100%)" }}
-            >
+
+            {/* skor kartı */}
+            <div className="relative mt-3 overflow-hidden rounded-[20px] p-4 text-white" style={{ background: DARK }}>
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full"
-                style={{ background: "radial-gradient(circle, rgba(32,70,255,0.4) 0%, transparent 60%)" }}
+                style={{ background: "radial-gradient(circle, rgba(37,99,235,0.5) 0%, transparent 60%)" }}
               />
-              <div className="relative">
-                <div className="text-[10px] font-semibold tracking-[0.08em] text-[rgba(250,250,247,0.6)]" style={{ fontFamily: F.mono }}>
-                  TOPLAM BAKİYE
+              <div className="relative flex items-center gap-4">
+                <ScoreRing value={1420} max={1900} />
+                <div>
+                  <div className="text-[10px] font-semibold tracking-[0.1em]" style={{ fontFamily: F.mono, color: "rgba(248,250,252,0.6)" }}>
+                    FINDEKS (TAHMİNİ)
+                  </div>
+                  <div className="mt-0.5 text-[30px] font-extrabold leading-none tracking-tight" style={{ fontFamily: F.display }}>
+                    1.420
+                  </div>
+                  <span className="mt-1.5 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold" style={{ background: "rgba(16,185,129,0.22)", color: "#34D399", fontFamily: F.mono }}>
+                    +38 ↑ · İyi
+                  </span>
                 </div>
-                <div className="mt-1 text-[30px] font-extrabold tracking-tight" style={{ fontFamily: F.display }}>
-                  ₺ 38.420
-                </div>
-                <span
-                  className="mt-1.5 inline-block rounded-md px-2 py-0.5 text-[11px] font-bold text-[#e6ff42]"
-                  style={{ background: "rgba(230,255,66,0.2)", fontFamily: F.mono }}
-                >
-                  + 4.180 ↗
-                </span>
               </div>
             </div>
-            {/* hızlı aksiyonlar */}
-            <div className="mt-3.5 grid grid-cols-4 gap-1.5">
+
+            {/* faktörler */}
+            <div className="mt-3.5 space-y-2">
               {[
-                { i: "+", l: "Ekle", a: true },
-                { i: "⇄", l: "Aktar" },
-                { i: "▢", l: "OCR" },
-                { i: "✦", l: "Plan" },
-              ].map((q) => (
-                <div key={q.l} className="text-center">
-                  <div
-                    className="mx-auto flex h-10 w-10 items-center justify-center rounded-[13px] text-base font-semibold"
-                    style={{
-                      background: q.a ? "#2046ff" : "#f3f2ec",
-                      color: q.a ? "#fff" : "#0b0c10",
-                    }}
-                  >
-                    {q.i}
+                { l: "Ödeme düzeni", v: 92 },
+                { l: "Kart kullanımı", v: 76 },
+                { l: "Borç / gelir", v: 84 },
+              ].map((r) => (
+                <div key={r.l}>
+                  <div className="flex justify-between text-[11.5px] font-medium" style={{ color: SUBTLE }}>
+                    <span>{r.l}</span>
+                    <span style={{ fontFamily: F.mono, color: MUTED }}>{r.v}%</span>
                   </div>
-                  <div className="mt-1 text-[10px] text-[#7e8497]">{q.l}</div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full" style={{ background: "#E2E8F0" }}>
+                    <div className="h-full rounded-full" style={{ width: `${r.v}%`, background: r.v >= 85 ? EMERALD : BLUE }} />
+                  </div>
                 </div>
               ))}
             </div>
-            {/* işlem listesi */}
-            <div className="mt-3.5 space-y-1">
-              {[
-                { t: "Migros", c: "Market", v: "−₺ 540", e: "🛒" },
-                { t: "Maaş", c: "Gelir", v: "+₺ 62.000", e: "💼" },
-                { t: "Netflix", c: "Abonelik", v: "−₺ 199", e: "▶" },
-              ].map((r) => (
-                <div key={r.t} className="flex items-center gap-2.5 rounded-xl bg-white p-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f2ec] text-sm">
-                    {r.e}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[12px] font-semibold text-[#0b0c10]">{r.t}</div>
-                    <div className="text-[10px] text-[#7e8497]">{r.c}</div>
-                  </div>
-                  <span
-                    className={`text-[12px] font-semibold ${r.v.startsWith("+") ? "text-[#0e8a47]" : "text-[#0b0c10]"}`}
-                    style={{ fontFamily: F.mono }}
-                  >
-                    {r.v}
-                  </span>
+
+            {/* bu ay yap */}
+            <div className="mt-3.5 flex items-center gap-2.5 rounded-2xl border p-2.5" style={{ borderColor: "rgba(37,99,235,0.25)", background: "rgba(37,99,235,0.06)" }}>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: BLUE }}>
+                <Sparkles size={15} />
+              </span>
+              <div className="min-w-0">
+                <div className="truncate text-[12px] font-bold" style={{ color: INK }}>
+                  Garanti kart borcunu kapat
                 </div>
-              ))}
+                <div className="text-[10.5px]" style={{ color: MUTED }}>
+                  bu ay önceliğin · +15-20 puan
+                </div>
+              </div>
             </div>
           </div>
-          <div className="absolute bottom-2 left-1/2 h-1 w-28 -translate-x-1/2 rounded-full bg-[#0b0c10] opacity-40" />
+          <div className="absolute bottom-2 left-1/2 h-1 w-28 -translate-x-1/2 rounded-full opacity-30" style={{ background: INK }} />
         </div>
       </div>
 
-      {/* yüzen bildirimler — yalnız geniş ekran */}
+      {/* yüzen rozetler — yalnız geniş ekran */}
       <div
-        className="absolute right-0 top-16 hidden max-w-[230px] items-center gap-3 rounded-[18px] border border-[rgba(11,12,16,0.07)] bg-white p-3.5 shadow-[0_24px_50px_rgba(11,12,16,0.16)] lg:flex"
-        style={{ animation: "nvSubtle 5s ease-in-out infinite 0.6s" }}
+        className="fin-floatb absolute right-0 top-12 hidden max-w-[220px] items-center gap-3 rounded-[18px] border bg-white p-3.5 lg:flex"
+        style={{ borderColor: LINE, boxShadow: "0 24px 50px rgba(15,23,42,0.12)", animationDelay: "0.6s" }}
       >
-        <span
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg font-bold text-white"
-          style={{ background: GRAD }}
-        >
-          ✦
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "rgba(5,150,105,0.1)", color: EMERALD }}>
+          <TrendingUp size={18} />
         </span>
         <div>
-          <div className="text-[13px] font-semibold text-[#0b0c10]">Findeks +38 puan</div>
-          <div className="text-[11.5px] text-[#7e8497]">son 7 gün</div>
+          <div className="text-[13px] font-semibold" style={{ color: INK }}>Findeks +38 puan</div>
+          <div className="text-[11.5px]" style={{ color: MUTED }}>son 30 gün</div>
         </div>
       </div>
       <div
-        className="absolute -left-2 bottom-28 hidden max-w-[230px] items-center gap-3 rounded-[18px] border border-[rgba(11,12,16,0.07)] bg-white p-3.5 shadow-[0_24px_50px_rgba(11,12,16,0.16)] lg:flex"
-        style={{ animation: "nvSubtle 5s ease-in-out infinite 1.4s" }}
+        className="fin-floatb absolute -left-2 bottom-24 hidden max-w-[220px] items-center gap-3 rounded-[18px] border bg-white p-3.5 lg:flex"
+        style={{ borderColor: LINE, boxShadow: "0 24px 50px rgba(15,23,42,0.12)", animationDelay: "1.4s" }}
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(14,138,71,0.1)] text-lg text-[#0e8a47]">
-          ✓
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl text-white" style={{ background: GRAD }}>
+          <CreditCard size={18} />
         </span>
         <div>
-          <div className="text-[13px] font-semibold text-[#0b0c10]">Migros fişi okundu</div>
-          <div className="text-[11.5px] text-[#7e8497]">cihazda · 0,6 sn</div>
+          <div className="text-[13px] font-semibold" style={{ color: INK }}>Kart kullanımı %28</div>
+          <div className="text-[11.5px]" style={{ color: MUTED }}>ideal aralıkta</div>
         </div>
       </div>
     </div>
@@ -202,374 +209,256 @@ function HeroPhone() {
 export function LandingPage() {
   return (
     <div
-      className={`${display.variable} ${body.variable} ${mono.variable} relative min-h-dvh overflow-hidden bg-[#fafaf7] text-[#0b0c10]`}
+      className={`${display.variable} ${body.variable} ${mono.variable} relative min-h-dvh overflow-hidden`}
+      style={{ background: BG, color: INK, fontFamily: "var(--font-body)" }}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-40 -top-60 h-[700px] w-[700px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(32,70,255,0.12) 0%, transparent 65%)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-52 top-[420px] h-[600px] w-[600px] rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(124,92,255,0.1) 0%, transparent 60%)" }}
-      />
+      <style>{`
+        .fin-float { animation: finFloat 6.5s ease-in-out infinite; }
+        .fin-floatb { animation: finFloatB 5s ease-in-out infinite; }
+        @keyframes finFloat { 0%,100%{transform:translateY(0) rotate(-1.4deg)} 50%{transform:translateY(-16px) rotate(1.4deg)} }
+        @keyframes finFloatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
+        @media (prefers-reduced-motion: reduce){ .fin-float,.fin-floatb{animation:none!important} }
+      `}</style>
+
+      {/* arka glow'lar */}
+      <div aria-hidden className="pointer-events-none absolute -right-40 -top-56 h-[680px] w-[680px] rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 65%)" }} />
+      <div aria-hidden className="pointer-events-none absolute -left-52 top-[440px] h-[560px] w-[560px] rounded-full" style={{ background: "radial-gradient(circle, rgba(5,150,105,0.10) 0%, transparent 60%)" }} />
 
       {/* nav */}
-      <header className="relative z-10 flex items-center justify-between gap-4 px-5 py-5 sm:px-8">
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
         <Brand />
-        <nav className="hidden gap-7 text-sm font-medium text-[#2d3038] md:flex">
-          <a href="#ozellikler" className="hover:text-[#2046ff]">Özellikler</a>
-          <a href="#gizlilik" className="hover:text-[#2046ff]">Gizlilik</a>
-          <a href="#findeks" className="hover:text-[#2046ff]">Findeks</a>
-          <a href="#fiyat" className="hover:text-[#2046ff]">Fiyat</a>
+        <nav className="hidden gap-7 text-sm font-medium md:flex" style={{ color: SUBTLE }}>
+          <a href="#nasil" className="transition-colors hover:text-[#2563EB]">Nasıl çalışır</a>
+          <a href="#findeks" className="transition-colors hover:text-[#2563EB]">Kredi notu</a>
+          <a href="#ozellikler" className="transition-colors hover:text-[#2563EB]">Özellikler</a>
+          <a href="#fiyat" className="transition-colors hover:text-[#2563EB]">Fiyat</a>
         </nav>
         <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-[#2d3038] hover:text-[#2046ff]">
-            Giriş
+          <Link href="/login" className="text-sm font-medium transition-colors hover:text-[#2563EB]" style={{ color: SUBTLE }}>
+            Giriş yap
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-[#0b0c10] px-5 py-2.5 text-sm font-semibold text-[#fafaf7] shadow-[0_14px_30px_rgba(11,12,16,0.18)] transition-transform hover:-translate-y-0.5"
+            className="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+            style={{ background: BLUE, boxShadow: "0 12px 26px rgba(37,99,235,0.28)" }}
           >
-            Ücretsiz dene
+            Kayıt ol
           </Link>
         </div>
       </header>
 
       {/* hero */}
-      <section className="relative z-[5] px-5 pt-8 sm:px-8 lg:pt-14">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
+      <section className="relative z-[5] mx-auto max-w-7xl px-5 pt-8 sm:px-8 lg:pt-14">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_1fr]">
           <div>
-            <Badge tone="accent">YENİ · BETA · DAVET KODU GEREKLİ</Badge>
+            <Pill tone="blue">
+              <ShieldCheck size={13} /> ÜCRETSİZ · FINDEKS TAHMİNİ + KOÇLUK
+            </Pill>
             <h1
-              className="mt-6 text-[clamp(2.4rem,7vw,5.5rem)] font-bold leading-[1.02] tracking-[-0.035em] [overflow-wrap:anywhere]"
+              className="mt-6 text-[clamp(2.5rem,7vw,5.2rem)] font-bold leading-[1.03] tracking-[-0.035em] [overflow-wrap:anywhere]"
               style={{ fontFamily: F.display }}
             >
-              Paranı, borçlarını ve{" "}
-              <span
-                style={{
-                  background: GRAD,
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                Findeks skorunu
-              </span>{" "}
-              tek yerde topla.
+              Kredi notunu{" "}
+              <span style={{ background: "linear-gradient(120deg,#2563EB,#059669)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                yükselt
+              </span>
+              , hak ettiğin krediyi al.
             </h1>
-            <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-[#2d3038]">
-              FinOptima; harcama takibi, banka entegrasyonu, ajanda, senaryo
-              simülasyonu ve Findeks tahmin motorunu tek uygulamada birleştirir.
-              Türkiye&apos;de bu kadarını aynı anda çözen başka uygulama yok.
+            <p className="mt-6 max-w-xl text-[17px] leading-relaxed" style={{ color: SUBTLE }}>
+              FinOptima kredi sağlığını tahmin eder, kart borçlarını, taksitlerini ve
+              faturalarını tek ekranda toplar ve <strong style={{ color: INK }}>bu ay tam olarak
+              ne yapman gerektiğini</strong> söyler. Daha iyi krediye ve daha düşük faize giden
+              yol burada başlar.
             </p>
+
+            {/* iki buton — taslaktaki gibi */}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/register"
-                className="rounded-full bg-[#0b0c10] px-7 py-4 text-base font-semibold text-[#fafaf7] shadow-[0_14px_30px_rgba(11,12,16,0.18)] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 rounded-full px-7 py-4 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
+                style={{ background: BLUE, boxShadow: "0 14px 32px rgba(37,99,235,0.3)" }}
               >
-                Davet kodumu kullan →
+                Kayıt ol <ArrowRight size={18} />
               </Link>
               <a
                 href="#nasil"
-                className="rounded-full border border-[rgba(11,12,16,0.12)] px-7 py-4 text-base font-medium text-[#0b0c10]"
+                className="inline-flex items-center gap-2 rounded-full border px-7 py-4 text-base font-semibold transition-colors hover:bg-[rgba(15,23,42,0.03)]"
+                style={{ borderColor: "rgba(15,23,42,0.14)", color: INK }}
               >
-                Nasıl çalışır
+                Bilgi al
               </a>
             </div>
+
             <div className="mt-7 flex flex-wrap items-center gap-2.5">
-              <Badge tone="green">✓ Cihaz-içi OCR</Badge>
-              <Badge>KVKK</Badge>
-              <Badge>Davet kodu ile</Badge>
+              <Pill tone="green"><Check size={13} /> Banka ekstresini AI okur</Pill>
+              <Pill>KVKK uyumlu</Pill>
+              <Pill>Türkiye için</Pill>
             </div>
           </div>
-          <HeroPhone />
+
+          <ScorePhone />
         </div>
 
         {/* güven şeridi */}
-        <div className="mt-16 grid grid-cols-2 overflow-hidden rounded-[20px] border border-[#e9e8e2] bg-white shadow-[0_10px_28px_rgba(11,12,16,0.05)] lg:grid-cols-4">
+        <div className="mt-16 grid grid-cols-2 overflow-hidden rounded-[20px] border bg-white lg:grid-cols-4" style={{ borderColor: LINE, boxShadow: "0 10px 28px rgba(15,23,42,0.05)" }}>
           {[
-            { n: "6", l: "Banka entegrasyonu", s: "Enpara · Garanti · YKB +3" },
-            { n: "5", l: "Findeks faktörü", s: "5 faktörlü tahmin" },
-            { n: "%100", l: "Cihaz-içi OCR", s: "Tesseract.js · WASM" },
-            { n: "6 ay", l: "Öngörü ufku", s: "± güven aralığı" },
+            { n: "Ücretsiz", l: "Kredi notu takibi", s: "tahmini Findeks skoru" },
+            { n: "Her banka", l: "Ekstre / dekont okuma", s: "yapay zekâ ile, her dil" },
+            { n: "Aylık", l: "Kişisel eylem planı", s: "ne yapacağını söyler" },
+            { n: "Tek ekran", l: "Borç · kart · fatura", s: "hepsi bir arada" },
           ].map((s) => (
             <div key={s.l} className="p-6">
-              <div className="text-[clamp(2rem,4vw,3rem)] font-bold leading-none tracking-tight" style={{ fontFamily: F.display }}>
+              <div className="text-[clamp(1.4rem,3vw,2rem)] font-bold leading-none tracking-tight" style={{ fontFamily: F.display, color: BLUE }}>
                 {s.n}
               </div>
-              <div className="mt-2 text-sm font-semibold text-[#2d3038]">{s.l}</div>
-              <div className="mt-0.5 text-[11px] text-[#7e8497]" style={{ fontFamily: F.mono }}>
-                {s.s}
-              </div>
+              <div className="mt-2 text-sm font-semibold" style={{ color: INK }}>{s.l}</div>
+              <div className="mt-0.5 text-[11px]" style={{ fontFamily: F.mono, color: MUTED }}>{s.s}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* nasıl çalışır */}
-      <section id="nasil" className="relative z-[3] px-5 py-20 sm:px-8">
-        <Badge>NASIL ÇALIŞIR</Badge>
-        <h2
-          className="mt-5 max-w-2xl text-[clamp(1.7rem,4vw,3.4rem)] font-bold leading-tight tracking-[-0.03em] [overflow-wrap:anywhere]"
-          style={{ fontFamily: F.display }}
-        >
-          Üç adım. Bir ekran. Tüm finansın.
+      <section id="nasil" className="relative z-[3] mx-auto max-w-7xl px-5 py-20 sm:px-8">
+        <Pill>NASIL ÇALIŞIR</Pill>
+        <h2 className="mt-5 max-w-2xl text-[clamp(1.7rem,4vw,3.2rem)] font-bold leading-tight tracking-[-0.03em]" style={{ fontFamily: F.display }}>
+          Üç adımda kredi sağlığını ele al.
         </h2>
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {[
-            { n: "01", t: "Bağla", d: "Banka dökümünü sürükle bırak. Enpara, Garanti, YKB, Ziraat — kolon eşlemesi yok.", c: "#2046ff" },
-            { n: "02", t: "Tara", d: "Fişi fotoğrafla. OCR senin telefonunda çalışır, fotoğraf sunucuya gitmez.", c: "#7c5cff" },
-            { n: "03", t: "İzle", d: "FinOptima skoru, 6 ay öngörüyü ve öneriyi hazırlar. Sen sadece karar verirsin.", c: "#0e8a47" },
+            { n: "01", t: "Ekle", d: "Banka ekstreni at ya da harcamanı gir. Hangi banka olursa olsun yapay zekâ okur, kategoriye ayırır.", Icon: FileText },
+            { n: "02", t: "Gör", d: "Kredi sağlığını, borçlarını ve hangi alışkanlığın puanını düşürdüğünü tek ekranda gör.", Icon: Gauge },
+            { n: "03", t: "Yükselt", d: "Bu ay ne yapman gerektiğini sırayla söyleriz: hangi kartı kapat, hangi faturayı zamanında öde.", Icon: TrendingUp },
           ].map((s) => (
-            <div
-              key={s.n}
-              className="rounded-[20px] border border-[#e9e8e2] bg-white p-7 shadow-[0_10px_28px_rgba(11,12,16,0.05)]"
-            >
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-bold text-white"
-                style={{ background: s.c, fontFamily: F.mono }}
-              >
-                {s.n}
-              </div>
-              <h3 className="mt-4 text-2xl font-bold tracking-[-0.02em]" style={{ fontFamily: F.display }}>
-                {s.t}
-              </h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-[#2d3038]">{s.d}</p>
+            <div key={s.n} className="rounded-[20px] border bg-white p-7" style={{ borderColor: LINE, boxShadow: "0 10px 28px rgba(15,23,42,0.05)" }}>
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl text-white" style={{ background: GRAD }}>
+                <s.Icon size={22} />
+              </span>
+              <div className="mt-4 text-xs font-bold tracking-[0.1em]" style={{ fontFamily: F.mono, color: MUTED }}>{s.n}</div>
+              <h3 className="mt-1 text-2xl font-bold tracking-[-0.02em]" style={{ fontFamily: F.display }}>{s.t}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed" style={{ color: SUBTLE }}>{s.d}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* gizlilik */}
-      <section id="gizlilik" className="relative z-[3] px-5 py-8 sm:px-8">
-        <div
-          className="relative overflow-hidden rounded-[32px] px-6 py-12 text-[#fafaf7] sm:px-10"
-          style={{ background: "linear-gradient(135deg, #0b0c10 0%, #1d2030 100%)" }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-28 -top-44 h-[480px] w-[480px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(32,70,255,0.3) 0%, transparent 60%)" }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-44 -left-28 h-[420px] w-[420px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(230,255,66,0.12) 0%, transparent 60%)" }}
-          />
-          <div className="relative">
-            <span className="inline-flex rounded-full bg-[rgba(255,255,255,0.12)] px-3.5 py-1.5 text-xs font-semibold">
-              GİZLİLİK MİMARİSİ
-            </span>
-            <h2
-              className="mt-5 max-w-2xl text-[clamp(1.7rem,4vw,3.4rem)] font-bold leading-[1.06] tracking-[-0.03em] [overflow-wrap:anywhere]"
-              style={{ fontFamily: F.display }}
-            >
-              Fiş fotoğrafı senin telefonundan çıkmaz.
-            </h2>
-            <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-[rgba(250,250,247,0.78)]">
-              OCR sunucuda değil, Tesseract.js ile cihazda çalışır. Sunucuya
-              yalnız işlenmiş üç alan gönderilir: tutar, tarih, satıcı.
-              Fotoğrafın hiçbir bulutta saklanmaz.
-            </p>
-            <div className="mt-7 grid max-w-2xl gap-2.5">
-              {[
-                "Tesseract.js — cihaz-içi okuma",
-                "Sunucuya yalnız 3 alan: tutar · tarih · satıcı",
-                "Argon2id şifre hash · 2FA · JWT oturum",
-                "Satır-bazlı izolasyon · Zod doğrulama",
-                "Upstash hız sınırlama · denetim günlüğü",
-              ].map((p) => (
-                <div
-                  key={p}
-                  className="flex items-center gap-3 rounded-2xl border border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.06)] px-4 py-3"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[rgba(63,212,122,0.18)] text-xs text-[#3fd47a]">
-                    ✓
-                  </span>
-                  <span className="text-sm font-medium">{p}</span>
-                </div>
-              ))}
+      {/* findeks kredi notu */}
+      <section id="findeks" className="relative z-[3] mx-auto max-w-7xl px-5 py-8 sm:px-8">
+        <div className="relative overflow-hidden rounded-[28px] px-6 py-12 text-white sm:px-10" style={{ background: DARK }}>
+          <div aria-hidden className="pointer-events-none absolute -right-28 -top-44 h-[460px] w-[460px] rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.4) 0%, transparent 60%)" }} />
+          <div aria-hidden className="pointer-events-none absolute -bottom-44 -left-28 h-[420px] w-[420px] rounded-full" style={{ background: "radial-gradient(circle, rgba(5,150,105,0.22) 0%, transparent 60%)" }} />
+          <div className="relative grid items-center gap-8 lg:grid-cols-[1fr_1.1fr]">
+            <div>
+              <span className="inline-flex rounded-full bg-[rgba(255,255,255,0.12)] px-3.5 py-1.5 text-xs font-semibold">
+                KREDİ NOTU = DAHA İYİ KREDİ
+              </span>
+              <h2 className="mt-5 text-[clamp(1.7rem,4vw,3rem)] font-bold leading-[1.08] tracking-[-0.03em]" style={{ fontFamily: F.display }}>
+                Türkiye&apos;de kredi notun kapıları açar.
+              </h2>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed" style={{ color: "rgba(248,250,252,0.78)" }}>
+                Ev kredisi, taşıt kredisi, daha yüksek kart limiti, daha düşük faiz —
+                hepsi kredi notuna bakar. FinOptima notunu tahmin eder ve onu yükselten
+                somut adımları sıralar. Resmî Findeks raporunu da yükleyebilirsin.
+              </p>
+              <ul className="mt-6 grid gap-2.5">
+                {[
+                  "Yüksek faizli kart borcunu önce kapat",
+                  "Kart kullanımını limitin %30 altında tut",
+                  "Elektrik, doğalgaz, faturaları zamanında öde",
+                  "Taksitlerini ve kredilerini tek yerde izle",
+                ].map((p) => (
+                  <li key={p} className="flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium" style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }}>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full" style={{ background: "rgba(52,211,153,0.18)", color: "#34D399" }}>
+                      <Check size={13} />
+                    </span>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex items-center justify-center gap-6 rounded-[22px] bg-[rgba(255,255,255,0.05)] p-7">
+              <BigGauge />
+              <div className="flex-1">
+                {[
+                  { l: "Ödeme düzeni", v: 92 },
+                  { l: "Kart kullanımı", v: 76 },
+                  { l: "Borç / gelir", v: 84 },
+                  { l: "Kredi yaşı", v: 68 },
+                ].map((r) => (
+                  <div key={r.l} className="mb-2.5">
+                    <div className="flex justify-between text-[13px] font-medium">
+                      <span>{r.l}</span>
+                      <span className="text-[11px]" style={{ fontFamily: F.mono, color: "rgba(248,250,252,0.6)" }}>{r.v}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[rgba(255,255,255,0.12)]">
+                      <div className="h-full rounded-full" style={{ width: `${r.v}%`, background: r.v >= 85 ? "#34D399" : "#60A5FA" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* özellikler */}
-      <section id="ozellikler" className="relative z-[3] px-5 py-16 sm:px-8">
-        <Badge>ÖZELLİKLER</Badge>
-        <h2
-          className="mt-5 max-w-2xl text-[clamp(1.7rem,4vw,3.4rem)] font-bold leading-tight tracking-[-0.03em] [overflow-wrap:anywhere]"
-          style={{ fontFamily: F.display }}
-        >
-          Bankalarınla konuşan, ajandanı bilen, skorunu hesaplayan asistan.
+      <section id="ozellikler" className="relative z-[3] mx-auto max-w-7xl px-5 py-16 sm:px-8">
+        <Pill>ÖZELLİKLER</Pill>
+        <h2 className="mt-5 max-w-2xl text-[clamp(1.7rem,4vw,3.2rem)] font-bold leading-tight tracking-[-0.03em]" style={{ fontFamily: F.display }}>
+          Türk cüzdanına göre tasarlandı.
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { num: "01", title: "Harcama takibi", desc: "Manuel giriş, banka dökümü ve fiş — hepsi kurallarla otomatik kategorilenir.", c: "#2046ff" },
-            { num: "02", title: "Takvim entegre", desc: "Faturalar, hatırlatmalar ve etkinlikler aynı zaman çizgisinde.", c: "#7c5cff" },
-            { num: "03", title: "Cihaz-içi OCR", desc: "Fiş fotoğrafı telefonunda okunur; sunucuya yalnız veri gider.", c: "#0e8a47" },
-            { num: "04", title: "6 aylık öngörü", desc: "Hareketli ortalama + trend ile nakit akışı tahmini ve belirsizlik bandı.", c: "#d97706" },
-            { num: "05", title: "Findeks tahmini", desc: "Beş faktörlü tahmini skor. Resmî KKB raporu PDF'i de yüklenebilir.", c: "#ff6a4d" },
-            { num: "06", title: "Borç & strateji", desc: "Kredi kartı, kredi, BES — agresif / dengeli / güvenli presetler.", c: "#2046ff" },
+            { Icon: Gauge, title: "Kredi notu koçluğu", desc: "Tahmini Findeks skorun + onu yükseltmek için bu ay yapılacaklar, önem sırasıyla.", c: BLUE },
+            { Icon: FileText, title: "Her banka ekstresi", desc: "Garanti, Enpara, Yapı Kredi ya da tanımadığın banka — yapay zekâ ekstreni/dekontunu okur.", c: EMERALD },
+            { Icon: ReceiptText, title: "Fiş & fatura okuma", desc: "Fişin fotoğrafını çek; tutar, tarih, satıcı otomatik çıkar. Faturalarını takvimle izle.", c: BLUE },
+            { Icon: CreditCard, title: "Kart & taksit takibi", desc: "Kredi kartı, taksit, kredi — Türkiye'nin taksit kültürüne göre tek panel.", c: EMERALD },
+            { Icon: TrendingUp, title: "Borç kapatma planı", desc: "Hangi borcu önce kapatmalısın? Faiz yükünü düşüren sırayı hesaplarız.", c: BLUE },
+            { Icon: ShieldCheck, title: "Gizlilik & KVKK", desc: "Argon2 şifre, 2FA, denetim günlüğü. Verilerin Türkiye standartlarında korunur.", c: EMERALD },
           ].map((f) => (
-            <div
-              key={f.num}
-              className="rounded-[20px] border border-[#e9e8e2] bg-white p-6 shadow-[0_10px_28px_rgba(11,12,16,0.05)]"
-            >
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold text-white"
-                style={{ background: f.c, fontFamily: F.mono }}
-              >
-                {f.num}
-              </div>
-              <h3 className="mt-4 text-xl font-bold tracking-[-0.02em]" style={{ fontFamily: F.display }}>
-                {f.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#2d3038]">{f.desc}</p>
+            <div key={f.title} className="rounded-[20px] border bg-white p-6 transition-shadow hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]" style={{ borderColor: LINE, boxShadow: "0 10px 28px rgba(15,23,42,0.05)" }}>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl text-white" style={{ background: f.c }}>
+                <f.Icon size={20} />
+              </span>
+              <h3 className="mt-4 text-xl font-bold tracking-[-0.02em]" style={{ fontFamily: F.display }}>{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: SUBTLE }}>{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* findeks + öngörü */}
-      <section id="findeks" className="relative z-[3] grid gap-5 px-5 py-8 sm:px-8 lg:grid-cols-2">
-        <div className="rounded-[20px] border border-[#e9e8e2] bg-white p-7 shadow-[0_10px_28px_rgba(11,12,16,0.05)]">
-          <Badge tone="accent">FINDEKS TAHMİN MOTORU</Badge>
-          <h3 className="mt-4 text-2xl font-bold tracking-[-0.02em] [overflow-wrap:anywhere] sm:text-3xl" style={{ fontFamily: F.display }}>
-            Skorunu izle, hangi alışkanlığın puanını düşürdüğünü gör.
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#2d3038]">
-            Beş faktörlü model: ödeme düzenliliği, kart kullanımı, borç/gelir,
-            kredi yaşı, çeşitlilik.
-          </p>
-          <div className="mt-6 flex items-center gap-5">
-            <FindeksGauge />
-            <div className="flex-1">
-              {[
-                { l: "Ödeme düzenliliği", v: 92 },
-                { l: "Kart kullanımı", v: 76 },
-                { l: "Borç / gelir", v: 84 },
-                { l: "Kredi yaşı", v: 68 },
-              ].map((r) => (
-                <div key={r.l} className="mb-2.5">
-                  <div className="flex justify-between text-[13px] font-medium">
-                    <span>{r.l}</span>
-                    <span className="text-[11px] text-[#7e8497]" style={{ fontFamily: F.mono }}>
-                      {r.v}%
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#f3f2ec]">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${r.v}%`, background: r.v >= 80 ? "#0e8a47" : "#2046ff" }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="rounded-[20px] border border-[#e9e8e2] bg-white p-7 shadow-[0_10px_28px_rgba(11,12,16,0.05)]">
-          <Badge tone="violet">6 AYLIK NAKİT ÖNGÖRÜSÜ</Badge>
-          <h3 className="mt-4 text-2xl font-bold tracking-[-0.02em] [overflow-wrap:anywhere] sm:text-3xl" style={{ fontFamily: F.display }}>
-            Hangi ay sıfıra yaklaşıyorsun?
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#2d3038]">
-            Hareketli ortalama + trend + belirsizlik bandı. Yaklaşan faturalar
-            takvimden çekilir.
-          </p>
-          <ForecastChart />
-          <div className="mt-3 rounded-2xl bg-[rgba(255,106,77,0.1)] px-3.5 py-2.5 text-[13px] font-semibold text-[#ff6a4d]">
-            ⚠ Ağustos bakiyesi ₺30K&apos;ye yaklaşıyor — tasarrufu gözden geçir.
-          </div>
-        </div>
-      </section>
-
       {/* fiyat */}
-      <section id="fiyat" className="relative z-[3] px-5 py-16 sm:px-8">
-        <Badge>FİYAT</Badge>
-        <h2
-          className="mt-5 max-w-xl text-[clamp(1.7rem,4vw,3rem)] font-bold leading-tight tracking-[-0.03em] [overflow-wrap:anywhere]"
-          style={{ fontFamily: F.display }}
-        >
-          Bireyler için ücretsiz. İleride pro modüller.
+      <section id="fiyat" className="relative z-[3] mx-auto max-w-7xl px-5 py-16 sm:px-8">
+        <Pill>FİYAT</Pill>
+        <h2 className="mt-5 max-w-xl text-[clamp(1.7rem,4vw,2.8rem)] font-bold leading-tight tracking-[-0.03em]" style={{ fontFamily: F.display }}>
+          Başlamak ücretsiz.
         </h2>
         <div className="mt-9 grid gap-4 lg:grid-cols-2">
           {[
-            {
-              name: "ÜCRETSİZ",
-              price: "₺0",
-              desc: "Tüm temel modüller. Davet kodu ile kayıt.",
-              features: ["Sınırsız işlem", "Banka dökümü içe aktarma", "Cihaz-içi fiş OCR", "Findeks tahmini", "6 aylık öngörü", "Tema kişiselleştirme"],
-              pro: false,
-            },
-            {
-              name: "PRO",
-              price: "₺79",
-              desc: "Çok hesaplı aile + ileri strateji modülleri.",
-              features: ["Çoklu kullanıcı", "AI ödeme otomasyonu", "Resmî KKB rapor yükleme", "BES & yatırım takibi", "Öncelikli destek", "Erken erişim"],
-              pro: true,
-            },
+            { name: "ÜCRETSİZ", price: "₺0", desc: "Kredi notu koçluğu ve temel takip.", features: ["Tahmini Findeks notu + koçluk", "Banka ekstresi okuma", "Fiş & fatura takibi", "Borç & kart yönetimi", "Sınırsız işlem"], pro: false },
+            { name: "PRO", price: "Yakında", desc: "Daha derin otomasyon ve aile hesabı.", features: ["Resmî Findeks rapor yükleme", "Otomatik kategori öğrenme", "Çok hesaplı aile", "İleri borç stratejisi", "Öncelikli destek"], pro: true },
           ].map((p) => (
-            <div
-              key={p.name}
-              className="relative overflow-hidden rounded-[24px] p-8"
-              style={{
-                background: p.pro ? "linear-gradient(135deg, #0b0c10 0%, #1d2030 100%)" : "#ffffff",
-                color: p.pro ? "#fafaf7" : "#0b0c10",
-                border: p.pro ? "none" : "1px solid #e9e8e2",
-              }}
-            >
-              {p.pro && (
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full"
-                  style={{ background: "radial-gradient(circle, rgba(124,92,255,0.4) 0%, transparent 60%)" }}
-                />
-              )}
+            <div key={p.name} className="relative overflow-hidden rounded-[24px] p-8" style={{ background: p.pro ? DARK : "#FFFFFF", color: p.pro ? "#F8FAFC" : INK, border: p.pro ? "none" : `1px solid ${LINE}` }}>
+              {p.pro && <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.4) 0%, transparent 60%)" }} />}
               <div className="relative">
-                <div
-                  className="text-xs font-semibold tracking-wide"
-                  style={{ fontFamily: F.mono, color: p.pro ? "#7c5cff" : "#2046ff" }}
-                >
-                  PLAN · {p.name}
-                </div>
-                <div className="mt-3 text-[clamp(2.6rem,7vw,4rem)] font-extrabold tracking-tight" style={{ fontFamily: F.display }}>
+                <div className="text-xs font-semibold tracking-wide" style={{ fontFamily: F.mono, color: p.pro ? "#60A5FA" : BLUE }}>PLAN · {p.name}</div>
+                <div className="mt-3 text-[clamp(2.4rem,6vw,3.6rem)] font-extrabold tracking-tight" style={{ fontFamily: F.display }}>
                   {p.price}
-                  <span className="ml-1 text-base font-normal" style={{ color: p.pro ? "rgba(250,250,247,0.6)" : "#7e8497" }}>
-                    / ay
-                  </span>
+                  {!p.pro && <span className="ml-1 text-base font-normal" style={{ color: MUTED }}>/ ay</span>}
                 </div>
-                <p className="mt-2 text-[15px]" style={{ color: p.pro ? "rgba(250,250,247,0.78)" : "#2d3038" }}>
-                  {p.desc}
-                </p>
+                <p className="mt-2 text-[15px]" style={{ color: p.pro ? "rgba(248,250,252,0.78)" : SUBTLE }}>{p.desc}</p>
                 <ul className="my-6 space-y-2.5">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm">
-                      <span
-                        className="flex h-[18px] w-[18px] items-center justify-center rounded-md text-[10px]"
-                        style={{
-                          background: p.pro ? "rgba(250,250,247,0.12)" : "rgba(14,138,71,0.1)",
-                          color: p.pro ? "#fafaf7" : "#0e8a47",
-                        }}
-                      >
-                        ✓
+                      <span className="flex h-[18px] w-[18px] items-center justify-center rounded-md" style={{ background: p.pro ? "rgba(248,250,252,0.12)" : "rgba(5,150,105,0.1)", color: p.pro ? "#F8FAFC" : EMERALD }}>
+                        <Check size={11} />
                       </span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/register"
-                  className="block rounded-full py-3.5 text-center text-[15px] font-bold"
-                  style={{
-                    background: p.pro ? "#fafaf7" : "#0b0c10",
-                    color: p.pro ? "#0b0c10" : "#fafaf7",
-                  }}
-                >
-                  {p.pro ? "Pro'ya geç" : "Davet kodumu kullan"} →
+                <Link href="/register" className="block rounded-full py-3.5 text-center text-[15px] font-bold transition-transform hover:-translate-y-0.5" style={{ background: p.pro ? "#F8FAFC" : BLUE, color: p.pro ? INK : "#FFFFFF" }}>
+                  {p.pro ? "Haber ver" : "Ücretsiz kayıt ol"} →
                 </Link>
               </div>
             </div>
@@ -577,69 +466,58 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* CTA şeridi */}
-      <section className="relative z-[3] px-5 py-8 sm:px-8">
-        <div
-          className="relative overflow-hidden rounded-[28px] px-6 py-14 text-white sm:px-12"
-          style={{ background: GRAD }}
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-32 h-[460px] w-[460px] rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(230,255,66,0.38) 0%, transparent 60%)" }}
-          />
+      {/* CTA */}
+      <section className="relative z-[3] mx-auto max-w-7xl px-5 py-8 sm:px-8">
+        <div className="relative overflow-hidden rounded-[28px] px-6 py-14 text-white sm:px-12" style={{ background: GRAD }}>
+          <div aria-hidden className="pointer-events-none absolute -right-24 -top-32 h-[460px] w-[460px] rounded-full" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.22) 0%, transparent 60%)" }} />
           <div className="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
             <div>
-              <h2 className="text-[clamp(1.7rem,4vw,3rem)] font-bold leading-tight tracking-[-0.03em]" style={{ fontFamily: F.display }}>
-                Paranı tanı. Geleceğini planla.
+              <h2 className="text-[clamp(1.7rem,4vw,2.8rem)] font-bold leading-tight tracking-[-0.03em]" style={{ fontFamily: F.display }}>
+                Kredi notunu bugün öğren.
               </h2>
-              <p className="mt-3 max-w-lg text-[15px] text-[rgba(255,255,255,0.85)]">
-                Davet kodun varsa hemen başla — birkaç dakikada kurulur.
+              <p className="mt-3 max-w-lg text-[15px]" style={{ color: "rgba(255,255,255,0.9)" }}>
+                Birkaç dakikada kurulur. Ücretsiz başla, notunu yükseltmeye başla.
               </p>
             </div>
-            <Link
-              href="/register"
-              className="shrink-0 rounded-full bg-white px-8 py-4 text-base font-bold text-[#2046ff] shadow-[0_14px_30px_rgba(0,0,0,0.18)]"
-            >
-              Hemen başla →
-            </Link>
+            <div className="flex shrink-0 gap-3">
+              <Link href="/register" className="rounded-full bg-white px-8 py-4 text-base font-bold" style={{ color: BLUE, boxShadow: "0 14px 30px rgba(0,0,0,0.16)" }}>
+                Kayıt ol →
+              </Link>
+              <Link href="/login" className="rounded-full border border-white/40 px-7 py-4 text-base font-semibold text-white">
+                Giriş yap
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* footer */}
-      <footer className="relative z-[3] px-5 pb-10 pt-8 sm:px-8">
-        <div className="grid gap-8 border-t border-[rgba(11,12,16,0.07)] py-9 sm:grid-cols-2 lg:grid-cols-4">
+      <footer className="relative z-[3] mx-auto max-w-7xl px-5 pb-10 pt-8 sm:px-8">
+        <div className="grid gap-8 border-t py-9 sm:grid-cols-2 lg:grid-cols-4" style={{ borderColor: "rgba(15,23,42,0.08)" }}>
           <div>
             <Brand />
-            <p className="mt-3.5 max-w-[240px] text-sm leading-relaxed text-[#2d3038]">
-              Paranı tanı, geleceğini planla.
+            <p className="mt-3.5 max-w-[240px] text-sm leading-relaxed" style={{ color: SUBTLE }}>
+              Kredi notunu yükselt, paranı kontrol et.
             </p>
           </div>
           {[
-            { h: "ÜRÜN", items: ["Özellikler", "Findeks", "Fiyat"] },
+            { h: "ÜRÜN", items: ["Kredi notu", "Özellikler", "Fiyat"] },
             { h: "ŞİRKET", items: ["Hakkımızda", "İletişim"] },
             { h: "YASAL", items: ["Gizlilik", "KVKK", "Çerezler"] },
           ].map((col) => (
             <div key={col.h}>
-              <div className="mb-3.5 text-[12.5px] font-bold tracking-[0.06em] text-[#0b0c10]">
-                {col.h}
-              </div>
+              <div className="mb-3.5 text-[12.5px] font-bold tracking-[0.06em]" style={{ color: INK }}>{col.h}</div>
               {col.items.map((l) => (
-                <Link
-                  key={l}
-                  href="/gizlilik"
-                  className="block py-1 text-sm font-medium text-[#2d3038] hover:text-[#2046ff]"
-                >
+                <Link key={l} href="/gizlilik" className="block py-1 text-sm font-medium transition-colors hover:text-[#2563EB]" style={{ color: SUBTLE }}>
                   {l}
                 </Link>
               ))}
             </div>
           ))}
         </div>
-        <div className="flex flex-col gap-1 border-t border-[rgba(11,12,16,0.07)] pt-4 text-[13px] text-[#7e8497] sm:flex-row sm:justify-between">
-          <span>© 2026 FinOptima · Made in Türkiye</span>
-          <span>v 0.3.0 · BETA</span>
+        <div className="flex flex-col gap-1 border-t pt-4 text-[13px] sm:flex-row sm:justify-between" style={{ borderColor: "rgba(15,23,42,0.08)", color: MUTED }}>
+          <span>© 2026 FinOptima · Türkiye&apos;de geliştirildi</span>
+          <span>BETA</span>
         </div>
       </footer>
     </div>
@@ -648,76 +526,50 @@ export function LandingPage() {
 
 /* ---------- görseller ---------- */
 
-function FindeksGauge() {
-  const r = 58;
+function ScoreRing({ value, max }: { value: number; max: number }) {
+  const r = 26;
   const circ = 2 * Math.PI * r;
-  const pct = 1642 / 1900;
+  const frac = Math.max(0, Math.min(1, value / max));
   return (
-    <div className="relative hidden h-36 w-36 shrink-0 sm:block">
-      <svg viewBox="0 0 150 150" className="h-full w-full">
+    <div className="relative h-[68px] w-[68px] shrink-0">
+      <svg viewBox="0 0 68 68" className="h-full w-full">
         <defs>
-          <linearGradient id="lg-fg" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#2046ff" />
-            <stop offset="100%" stopColor="#7c5cff" />
+          <linearGradient id="sr" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#34D399" />
+            <stop offset="100%" stopColor="#60A5FA" />
           </linearGradient>
         </defs>
-        <circle cx="75" cy="75" r={r} fill="none" stroke="#f3f2ec" strokeWidth="11" />
-        <circle
-          cx="75"
-          cy="75"
-          r={r}
-          fill="none"
-          stroke="url(#lg-fg)"
-          strokeWidth="11"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={circ * (1 - pct)}
-          transform="rotate(-90 75 75)"
-        />
+        <circle cx="34" cy="34" r={r} fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="6" />
+        <circle cx="34" cy="34" r={r} fill="none" stroke="url(#sr)" strokeWidth="6" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - frac)} transform="rotate(-90 34 34)" />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ fontFamily: F.mono }}>
-        <span className="text-[9px] font-semibold tracking-[0.1em] text-[#7e8497]">FINDEKS</span>
-        <span className="text-[34px] font-extrabold leading-none tracking-tight" style={{ fontFamily: F.display }}>
-          1642
-        </span>
-        <span className="text-[11px] font-semibold text-[#0e8a47]">+38 ↑</span>
+      <div className="absolute inset-0 flex items-center justify-center text-[13px] font-extrabold" style={{ fontFamily: F.display }}>
+        {Math.round(frac * 100)}
       </div>
     </div>
   );
 }
 
-function ForecastChart() {
-  const w = 520;
-  const h = 190;
-  const vals = [38, 36, 32, 30, 33, 31];
-  const months = ["MAY", "HAZ", "TEM", "AĞU", "EYL", "EKİ"];
-  const max = 48;
-  const min = 18;
-  const sx = (i: number) => 28 + (i * (w - 56)) / (vals.length - 1);
-  const sy = (v: number) => h - 34 - ((v - min) / (max - min)) * (h - 64);
-  const line = vals.map((v, i) => (i === 0 ? "M " : "L ") + sx(i) + " " + sy(v)).join(" ");
-  const upper = vals.map((v) => v + 6);
-  const lower = vals.map((v) => v - 5);
-  const band =
-    upper.map((v, i) => (i === 0 ? "M " : "L ") + sx(i) + " " + sy(v)).join(" ") +
-    " " +
-    lower.map((_, i) => "L " + sx(lower.length - 1 - i) + " " + sy(lower[lower.length - 1 - i])).join(" ") +
-    " Z";
+function BigGauge() {
+  const r = 56;
+  const circ = 2 * Math.PI * r;
+  const pct = 1420 / 1900;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-5 w-full">
-      {[20, 30, 40].map((y) => (
-        <line key={y} x1={28} x2={w - 28} y1={sy(y)} y2={sy(y)} stroke="rgba(11,12,16,0.07)" strokeWidth="0.5" />
-      ))}
-      <path d={band} fill="#7c5cff" opacity={0.14} />
-      <path d={line} fill="none" stroke="#2046ff" strokeWidth="2.4" />
-      {vals.map((v, i) => (
-        <circle key={i} cx={sx(i)} cy={sy(v)} r={4} fill="#ffffff" stroke="#2046ff" strokeWidth="2" />
-      ))}
-      {months.map((m, i) => (
-        <text key={m} x={sx(i)} y={h - 10} fontFamily="var(--font-mono)" fontSize="10" textAnchor="middle" fill="#7e8497">
-          {m}
-        </text>
-      ))}
-    </svg>
+    <div className="relative hidden h-36 w-36 shrink-0 sm:block">
+      <svg viewBox="0 0 150 150" className="h-full w-full">
+        <defs>
+          <linearGradient id="bg-fg" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#34D399" />
+            <stop offset="100%" stopColor="#60A5FA" />
+          </linearGradient>
+        </defs>
+        <circle cx="75" cy="75" r={r} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="11" />
+        <circle cx="75" cy="75" r={r} fill="none" stroke="url(#bg-fg)" strokeWidth="11" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)} transform="rotate(-90 75 75)" />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[9px] font-semibold tracking-[0.1em]" style={{ fontFamily: F.mono, color: "rgba(248,250,252,0.6)" }}>FINDEKS</span>
+        <span className="text-[32px] font-extrabold leading-none tracking-tight" style={{ fontFamily: F.display }}>1.420</span>
+        <span className="text-[11px] font-semibold" style={{ color: "#34D399" }}>+38 ↑ İyi</span>
+      </div>
+    </div>
   );
 }
