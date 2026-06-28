@@ -87,7 +87,7 @@ export default async function TransactionsPage({
           <StatCard
             kicker="ortalama gider"
             value={formatTL(avgSpend)}
-            hue="violet"
+            hue="primary"
             sub="işlem başına"
           />
         </div>

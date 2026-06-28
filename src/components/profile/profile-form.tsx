@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { CheckCircle2, User, Building2 } from "lucide-react";
+import { CheckCircle2, User, Building2, Gauge } from "lucide-react";
 import {
   updateFinanceProfile,
   type ProfileActionState,
@@ -171,11 +171,19 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
       {/* Canlı güven skoru */}
       <div className="rounded-[calc(var(--app-radius)*0.7)] bg-surface-2 p-3.5">
-        <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-sm font-medium text-ink">
-            Güven Skoru: %{liveTrust.score}
+        <div className="mb-1.5 flex items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-ink">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <Gauge size={15} />
+            </span>
+            Güven Skoru:{" "}
+            <span className="font-heading font-bold tabular-nums">
+              %{liveTrust.score}
+            </span>
           </span>
-          <span className="text-xs text-muted">{liveBand.label}</span>
+          <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-1 text-xs font-semibold text-muted">
+            {liveBand.label}
+          </span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[var(--app-border)]">
           <div
@@ -315,9 +323,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         </p>
       )}
       {state.ok && (
-        <p className="flex items-center gap-1.5 text-sm font-medium text-accent">
-          <CheckCircle2 size={16} /> Bilgilerin kaydedildi.
-        </p>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+          <CheckCircle2 size={14} /> Bilgilerin kaydedildi.
+        </span>
       )}
 
       <SubmitButton className="w-full sm:w-auto">

@@ -10,6 +10,7 @@ import {
   ArrowDownLeft,
   Loader2,
   ScanText,
+  ReceiptText,
 } from "lucide-react";
 import {
   uploadReceipt,
@@ -137,13 +138,19 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--app-radius)] border-2 border-dashed border-line py-12 text-center transition-colors hover:border-primary hover:bg-surface-2"
+          className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-[var(--app-radius)] border-2 border-dashed border-line py-12 text-center transition-colors hover:border-primary hover:bg-surface-2"
         >
-          <Camera size={28} className="text-primary" />
+          <span
+            className="flex h-14 w-14 items-center justify-center rounded-xl text-white"
+            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+          >
+            <ReceiptText size={26} />
+          </span>
           <span className="text-sm font-medium text-ink">
             Fiş fotoğrafı çek veya seç
           </span>
-          <span className="text-xs text-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
+            <Camera size={13} />
             Önce cihazda okunur; okunamazsa yapay zekâya gönderilir
           </span>
         </button>
@@ -205,6 +212,14 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
         >
           <ArrowDownLeft size={15} /> Gelir
         </button>
+      </div>
+
+      <div className="flex items-center gap-2 pt-1">
+        <ScanText size={15} className="shrink-0 text-muted" />
+        <span className="text-xs font-semibold text-muted">
+          Çıkarılan bilgiler
+        </span>
+        <span className="h-px flex-1 bg-[var(--app-border)]" />
       </div>
 
       <Field

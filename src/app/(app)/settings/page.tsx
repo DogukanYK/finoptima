@@ -58,7 +58,16 @@ export default async function SettingsPage({
                   : "border-transparent text-muted hover:text-ink",
               )}
             >
-              <t.icon size={16} />
+              <span
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center rounded-lg transition-colors",
+                  active
+                    ? "bg-primary-soft text-primary"
+                    : "text-muted",
+                )}
+              >
+                <t.icon size={15} />
+              </span>
               {t.label}
             </Link>
           );

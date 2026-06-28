@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Trash2, Copy, Check, Ticket } from "lucide-react";
+import { Plus, Trash2, Copy, Check, Ticket, CircleDot } from "lucide-react";
 import { createInviteCode, deleteInviteCode } from "@/lib/actions/settings";
 import { formatDateShort } from "@/lib/format";
 
@@ -42,7 +42,8 @@ export function InvitesManager({ invites }: { invites: Invite[] }) {
       <button
         onClick={generate}
         disabled={pending}
-        className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] bg-primary py-3 text-sm font-semibold text-white disabled:opacity-60"
+        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+        className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
       >
         <Plus size={16} /> Yeni davet kodu üret
       </button>
@@ -57,20 +58,43 @@ export function InvitesManager({ invites }: { invites: Invite[] }) {
         ) : (
           invites.map((inv) => (
             <div key={inv.id} className="flex items-center gap-3 p-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary">
-                <Ticket size={17} />
-              </span>
+              {inv.used ? (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(15,23,42,0.05)] text-muted">
+                  <Ticket size={18} />
+                </span>
+              ) : (
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
+                  style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+                >
+                  <Ticket size={18} />
+                </span>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-sm font-semibold tracking-wider text-ink">
                   {inv.code}
                 </p>
-                <p className="text-xs text-muted">
-                  {inv.used
-                    ? `Kullanıldı${inv.usedByName ? ` · ${inv.usedByName}` : ""}`
-                    : inv.expiresAt
-                      ? `Son geçerlilik ${formatDateShort(inv.expiresAt)}`
-                      : "Aktif"}
-                </p>
+                <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                  {inv.used ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-xs font-semibold text-muted">
+                      <Check size={11} />
+                      Kullanıldı
+                      {inv.usedByName ? ` · ${inv.usedByName}` : ""}
+                    </span>
+                  ) : (
+                    <>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent">
+                        <CircleDot size={11} />
+                        Aktif
+                      </span>
+                      {inv.expiresAt && (
+                        <span className="text-xs text-muted">
+                          Son geçerlilik {formatDateShort(inv.expiresAt)}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
               {!inv.used && (
                 <>
@@ -98,11 +122,6 @@ export function InvitesManager({ invites }: { invites: Invite[] }) {
                     <Trash2 size={15} />
                   </button>
                 </>
-              )}
-              {inv.used && (
-                <span className="rounded-full bg-surface-2 px-2 py-1 text-xs text-muted">
-                  Dolu
-                </span>
               )}
             </div>
           ))

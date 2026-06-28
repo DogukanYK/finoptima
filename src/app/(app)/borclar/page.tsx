@@ -78,7 +78,7 @@ export default async function DebtsPage() {
         <StatCard
           kicker="Faiz yükü"
           value={formatTL(interestCost)}
-          hue="violet"
+          hue="primary"
           sub="6 aylık tahmini"
         />
         <StatCard

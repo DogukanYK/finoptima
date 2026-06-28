@@ -34,19 +34,27 @@ export default async function AddPage() {
         }))}
       />
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <MethodCard
-          href="/receipts"
-          icon={<ReceiptText size={20} />}
-          title="Fiş fotoğrafı"
-          desc="Fişini yükle, sakla"
-        />
-        <MethodCard
-          href="/import"
-          icon={<Upload size={20} />}
-          title="Banka dökümü"
-          desc="Excel / CSV içe aktar"
-        />
+      <div className="mt-6 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-1 text-xs font-semibold text-muted">
+            Diğer yöntemler
+          </span>
+          <div className="h-px flex-1 bg-line" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <MethodCard
+            href="/receipts"
+            icon={<ReceiptText size={20} />}
+            title="Fiş fotoğrafı"
+            desc="Fişini yükle, sakla"
+          />
+          <MethodCard
+            href="/import"
+            icon={<Upload size={20} />}
+            title="Banka dökümü"
+            desc="Excel / CSV içe aktar"
+          />
+        </div>
       </div>
     </div>
   );
@@ -66,16 +74,23 @@ function MethodCard({
   return (
     <Link
       href={href}
-      className="card flex items-center gap-3 p-4 transition-colors hover:bg-surface-2"
+      className="card card-hover group flex items-center gap-3.5 p-5"
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft text-primary">
+      <span
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+      >
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-ink">{title}</p>
+        <p className="font-heading font-bold tracking-tight text-ink">
+          {title}
+        </p>
         <p className="text-sm text-muted">{desc}</p>
       </div>
-      <ChevronRight size={18} className="text-muted" />
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary transition-transform group-hover:translate-x-0.5">
+        <ChevronRight size={18} />
+      </span>
     </Link>
   );
 }

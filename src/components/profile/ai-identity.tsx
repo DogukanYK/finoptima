@@ -40,13 +40,18 @@ export function AiIdentity({ initialText }: { initialText: string | null }) {
       {!editing && text ? (
         <div className="space-y-3">
           <div className="flex items-start gap-3 rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft p-3.5 text-sm text-ink">
-            <Sparkles size={17} className="mt-0.5 shrink-0 text-primary" />
-            <p className="whitespace-pre-wrap">{text}</p>
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white"
+              style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+            >
+              <Sparkles size={17} />
+            </span>
+            <p className="whitespace-pre-wrap pt-1">{text}</p>
           </div>
           {saved && (
-            <p className="flex items-center gap-1.5 text-sm font-medium text-accent">
-              <CheckCircle2 size={16} /> AI profil tanımın kaydedildi.
-            </p>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
+              <CheckCircle2 size={14} /> AI profil tanımın kaydedildi.
+            </span>
           )}
           <Button
             type="button"

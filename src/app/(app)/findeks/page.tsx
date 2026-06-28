@@ -3,6 +3,16 @@ import { getFindeksSignals, getLatestFindeksReport } from "@/lib/queries";
 import { computeFindeks, type FindeksAdvice } from "@/lib/findeks";
 import { findeksAdvice } from "@/lib/findeksReport";
 import { formatTL, formatDate } from "@/lib/format";
+import {
+  Gauge,
+  Clock,
+  ShieldCheck,
+  AlertTriangle,
+  TrendingUp,
+  Sparkles,
+  BarChart3,
+  Cpu,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { FindeksUpload } from "@/components/findeks/findeks-upload";
@@ -10,8 +20,6 @@ import { CreditCoach } from "@/components/findeks/credit-coach";
 
 // AI kredi koçu çağrısı için sunucu fonksiyon süresini uzat.
 export const maxDuration = 60;
-
-const MONO = { fontFamily: "ui-monospace,Menlo,monospace" } as const;
 
 export default async function FindeksPage() {
   const user = await requireUser();
@@ -210,78 +218,52 @@ function ScoreHero({
   body: string;
 }) {
   return (
-    <div
-      className="relative overflow-hidden rounded-[var(--app-radius)] p-8"
-      style={{
-        background:
-          "linear-gradient(135deg, var(--app-text) 0%, #1a1d2c 100%)",
-        boxShadow: "0 24px 60px rgba(13,14,18,0.16)",
-      }}
-    >
+    <div className="card-dark relative overflow-hidden p-8">
       <div
         aria-hidden
-        className="pointer-events-none absolute"
+        className="pointer-events-none absolute -right-44 -top-52 h-[600px] w-[600px] rounded-full"
         style={{
-          top: -200,
-          right: -180,
-          width: 600,
-          height: 600,
           background:
-            "radial-gradient(circle, color-mix(in srgb, var(--app-primary) 40%, transparent) 0%, transparent 60%)",
+            "radial-gradient(circle, rgba(37,99,235,0.45) 0%, transparent 60%)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute"
+        className="pointer-events-none absolute -bottom-44 -left-44 h-[500px] w-[500px] rounded-full"
         style={{
-          bottom: -160,
-          left: -180,
-          width: 500,
-          height: 500,
-          background:
-            "radial-gradient(circle, rgba(5,150,105,0.20) 0%, transparent 60%)",
+          background: "radial-gradient(circle, rgba(5,150,105,0.22) 0%, transparent 60%)",
         }}
       />
 
       <div className="relative">
         <div className="flex items-center justify-between">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-            style={{ ...MONO, color: "rgba(245,244,239,0.7)" }}
-          >
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/85">
+            <Gauge size={13} />
             {kicker}
           </span>
-          <span
-            className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-            style={{ ...MONO, color: "rgba(245,244,239,0.7)" }}
-          >
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/85">
+            <Clock size={13} />
             güncel
           </span>
         </div>
 
-        <div className="mt-4 grid items-center gap-6 sm:grid-cols-[220px_1fr]">
+        <div className="mt-5 grid items-center gap-6 sm:grid-cols-[220px_1fr]">
           <GaugeRing score={score} max={max} />
           <div>
             <span
-              className="inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide"
-              style={{
-                ...MONO,
-                background: "var(--app-signal)",
-                color: "#0d0e12",
-              }}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide"
+              style={{ background: "var(--app-signal)", color: "#0d1117" }}
             >
+              <ShieldCheck size={13} />
               {band}
             </span>
             <p
-              className="mt-3.5 font-heading text-2xl font-bold leading-tight tracking-tight"
-              style={{ color: "var(--app-bg)", textWrap: "balance" }}
+              className="mt-3.5 font-heading text-2xl font-bold leading-tight tracking-tight text-white"
+              style={{ textWrap: "balance" }}
             >
               {headline}
             </p>
-            <p
-              className="mt-2.5 max-w-sm text-sm leading-relaxed"
-              style={{ color: "rgba(245,244,239,0.78)" }}
-            >
+            <p className="mt-2.5 max-w-sm text-sm leading-relaxed text-white/75">
               {body}
             </p>
           </div>
@@ -301,8 +283,9 @@ function GaugeRing({ score, max }: { score: number; max: number }) {
       <svg viewBox="0 0 220 220" className="h-full w-full">
         <defs>
           <linearGradient id="fkGauge" x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="var(--app-signal)" />
-            <stop offset="100%" stopColor="var(--app-violet)" />
+            <stop offset="0%" stopColor="#0EA5E9" />
+            <stop offset="55%" stopColor="#2563EB" />
+            <stop offset="100%" stopColor="#10B981" />
           </linearGradient>
         </defs>
         <circle
@@ -310,7 +293,7 @@ function GaugeRing({ score, max }: { score: number; max: number }) {
           cy="110"
           r={r}
           fill="none"
-          stroke="rgba(245,244,239,0.12)"
+          stroke="rgba(255,255,255,0.12)"
           strokeWidth="14"
         />
         <circle
@@ -338,34 +321,23 @@ function GaugeRing({ score, max }: { score: number; max: number }) {
               y1={y1}
               x2={x2}
               y2={y2}
-              stroke="rgba(245,244,239,0.3)"
+              stroke="rgba(255,255,255,0.28)"
               strokeWidth="1.5"
             />
           );
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span
-          className="text-[10px] font-semibold tracking-[0.14em]"
-          style={{ ...MONO, color: "rgba(245,244,239,0.6)" }}
-        >
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55">
           SKOR
         </span>
         <span
-          className="mt-1 font-medium leading-none tabular-nums"
-          style={{
-            ...MONO,
-            fontSize: 64,
-            letterSpacing: "-0.05em",
-            color: "var(--app-bg)",
-          }}
+          className="mt-1 font-heading font-bold leading-none tabular-nums text-white"
+          style={{ fontSize: 64, letterSpacing: "-0.04em" }}
         >
           {score.toLocaleString("tr-TR")}
         </span>
-        <span
-          className="mt-1 text-[11px] font-semibold"
-          style={{ ...MONO, color: "rgba(245,244,239,0.6)" }}
-        >
+        <span className="mt-1 text-[11px] font-semibold tabular-nums text-white/55">
           / {max.toLocaleString("tr-TR")}
         </span>
       </div>
@@ -376,9 +348,9 @@ function GaugeRing({ score, max }: { score: number; max: number }) {
 /* ---------- Öneri kartları (glass) ---------- */
 
 const SEVERITY = {
-  high: { label: "destructive", color: "var(--app-destructive)" },
-  medium: { label: "primary", color: "var(--app-primary)" },
-  low: { label: "accent", color: "var(--app-accent)" },
+  high: { color: "var(--app-destructive)", icon: AlertTriangle },
+  medium: { color: "var(--app-primary)", icon: TrendingUp },
+  low: { color: "var(--app-accent)", icon: Sparkles },
 } as const;
 
 function AdviceGlassCard({
@@ -391,35 +363,37 @@ function AdviceGlassCard({
   factor: string;
 }) {
   const tone = SEVERITY[advice.severity];
+  const Icon = tone.icon;
   return (
-    <div className="card flex flex-1 flex-col p-5">
-      <div className="flex items-center justify-between">
+    <div className="card card-hover flex flex-1 flex-col p-5">
+      <div className="flex items-center justify-between gap-2">
         <span
-          className="text-[10px] font-bold uppercase tracking-[0.1em]"
-          style={{ ...MONO, color: tone.color }}
-        >
-          {rank}
-        </span>
-        <span
-          className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
           style={{
-            ...MONO,
             background: `color-mix(in srgb, ${tone.color} 12%, transparent)`,
             color: tone.color,
           }}
         >
-          {priorityLabel(advice.severity)}
+          <Icon size={18} />
+        </span>
+        <span
+          className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+          style={{
+            background: `color-mix(in srgb, ${tone.color} 12%, transparent)`,
+            color: tone.color,
+          }}
+        >
+          {rank}
         </span>
       </div>
-      <h4 className="mt-2.5 font-heading text-lg font-bold tracking-tight text-ink">
+      <h4 className="mt-3 font-heading text-lg font-bold tracking-tight text-ink">
         {advice.title}
       </h4>
       <p className="mt-2 text-sm leading-relaxed text-muted">{advice.body}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3.5 flex flex-wrap gap-2">
         <span
-          className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+          className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
           style={{
-            ...MONO,
             background: `color-mix(in srgb, ${tone.color} 12%, transparent)`,
             color: tone.color,
           }}
@@ -430,11 +404,11 @@ function AdviceGlassCard({
               ? "ORTA VADE"
               : "İYİLEŞTİRME"}
         </span>
-        <span
-          className="rounded-full bg-surface-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted"
-          style={MONO}
-        >
+        <span className="rounded-full bg-surface-2 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
           {factor}
+        </span>
+        <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+          {priorityLabel(advice.severity)}
         </span>
       </div>
     </div>
@@ -443,12 +417,18 @@ function AdviceGlassCard({
 
 function AdviceRow({ advice }: { advice: FindeksAdvice }) {
   const tone = SEVERITY[advice.severity];
+  const Icon = tone.icon;
   return (
     <div className="flex items-start gap-3 rounded-[var(--app-radius)] border border-line p-3.5">
       <span
-        className="mt-0.5 h-2 w-2 shrink-0 rounded-full"
-        style={{ background: tone.color }}
-      />
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+        style={{
+          background: `color-mix(in srgb, ${tone.color} 12%, transparent)`,
+          color: tone.color,
+        }}
+      >
+        <Icon size={15} />
+      </span>
       <div>
         <p className="text-sm font-semibold text-ink">{advice.title}</p>
         <p className="mt-0.5 text-sm text-muted">{advice.body}</p>
@@ -485,20 +465,21 @@ function FactorTable({
 }) {
   return (
     <section className="card p-6">
-      <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="font-heading text-base font-bold text-ink">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 font-heading text-base font-bold text-ink">
           <span
-            className="mr-2 text-[11px] font-bold tracking-[0.06em] text-muted"
-            style={MONO}
+            className="flex h-8 w-8 items-center justify-center rounded-xl"
+            style={{
+              background: "linear-gradient(120deg,#2563EB,#0EA5E9)",
+              color: "#fff",
+            }}
           >
-            05
+            <BarChart3 size={17} />
           </span>
           Faktörler
         </h2>
-        <span
-          className="rounded-full bg-surface-2 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted"
-          style={MONO}
-        >
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+          <Cpu size={13} />
           {engineLabel}
         </span>
       </div>
@@ -507,7 +488,6 @@ function FactorTable({
       <div
         className="grid items-center gap-3 border-b border-line py-2.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted"
         style={{
-          ...MONO,
           gridTemplateColumns: "40px minmax(0,2.4fr) 0.7fr 0.7fr minmax(0,1.6fr)",
         }}
       >
@@ -531,30 +511,21 @@ function FactorTable({
                 i < rows.length - 1 ? "1px solid var(--app-border)" : "none",
             }}
           >
-            <span
-              className="text-[11px] font-semibold tracking-[0.04em] text-muted"
-              style={MONO}
-            >
+            <span className="text-[11px] font-semibold tracking-[0.04em] tabular-nums text-muted">
               {r.n}
             </span>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-ink">{r.label}</div>
-              <div
-                className="mt-0.5 truncate text-[10.5px] tracking-[0.02em] text-muted"
-                style={MONO}
-              >
+              <div className="mt-0.5 truncate text-[11px] text-muted">
                 {r.note}
               </div>
             </div>
-            <span
-              className="text-[13px] font-medium text-muted"
-              style={MONO}
-            >
+            <span className="text-[13px] font-semibold tabular-nums text-muted">
               %{r.weight}
             </span>
             <span
-              className="text-[17px] font-semibold tabular-nums"
-              style={{ ...MONO, letterSpacing: "-0.02em", color: st.color }}
+              className="font-heading text-[17px] font-bold tabular-nums"
+              style={{ letterSpacing: "-0.02em", color: st.color }}
             >
               {r.score}
             </span>
@@ -569,9 +540,8 @@ function FactorTable({
                 />
               </div>
               <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide"
+                className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
                 style={{
-                  ...MONO,
                   background: `color-mix(in srgb, ${st.color} 14%, transparent)`,
                   color: st.color,
                 }}

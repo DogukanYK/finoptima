@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Trash2, Loader2, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  Trash2,
+  Loader2,
+  ChevronDown,
+  MoreHorizontal,
+  TrendingUp,
+  CreditCard,
+  ArrowLeftRight,
+} from "lucide-react";
 import { CategoryIcon } from "@/components/ui/icon";
 import {
   deleteTransaction,
@@ -20,8 +28,6 @@ function dayLabel(dateKey: string): string {
   return formatDate(dateKey);
 }
 
-const MONO = { fontFamily: "ui-monospace,Menlo,monospace" } as const;
-
 function formatTime(d: string): string {
   return new Date(d).toLocaleTimeString("tr-TR", {
     hour: "2-digit",
@@ -33,11 +39,14 @@ function formatTime(d: string): string {
 function sourcePill(source: string): { label: string; cls: string } {
   switch (source) {
     case "STATEMENT":
-      return { label: "BANKA", cls: "bg-primary-soft text-primary" };
+      return { label: "Banka", cls: "bg-primary-soft text-primary" };
     case "RECEIPT":
       return { label: "OCR", cls: "bg-accent-soft text-accent" };
     default:
-      return { label: "MANUEL", cls: "bg-surface-2 text-muted" };
+      return {
+        label: "Manuel",
+        cls: "bg-[rgba(15,23,42,0.05)] text-muted",
+      };
   }
 }
 
@@ -86,28 +95,24 @@ export function TransactionList({
         return (
           <div
             key={dateKey}
-            className="card overflow-hidden p-0"
+            className="card card-hover overflow-hidden p-0"
             style={{ borderRadius: "var(--app-radius)" }}
           >
             {/* gün başlığı */}
-            <div className="flex items-center justify-between gap-3 border-b border-line bg-surface-2/60 px-5 py-3.5">
+            <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
               <div className="flex items-baseline gap-3">
-                <span className="font-heading text-lg font-extrabold tracking-tight text-ink">
+                <span className="font-heading text-lg font-bold tracking-tight text-ink">
                   {dayLabel(dateKey)}
                 </span>
-                <span
-                  className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted"
-                  style={MONO}
-                >
+                <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-0.5 text-xs font-semibold text-muted">
                   {txs.length} işlem
                 </span>
               </div>
               <span
                 className={cn(
-                  "text-sm font-semibold tabular-nums",
+                  "text-sm font-bold tabular-nums",
                   dayTotal >= 0 ? "text-accent" : "text-ink",
                 )}
-                style={MONO}
               >
                 {dayTotal >= 0 ? "+" : "−"}
                 {formatTL(Math.abs(dayTotal))}
@@ -128,7 +133,7 @@ export function TransactionList({
         <button
           onClick={loadMore}
           disabled={pending}
-          className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] border border-line py-3 text-sm font-medium text-primary transition-colors hover:bg-surface-2 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-full border border-line bg-surface py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft disabled:opacity-60"
         >
           {pending ? (
             <Loader2 size={16} className="animate-spin" />
@@ -148,16 +153,31 @@ function TransactionRow({ tx }: { tx: PlainTransaction }) {
   const [pending, startTransition] = useTransition();
 
   const pill = sourcePill(tx.source);
-  const accent = tx.category?.color ?? "#94A3B8";
+
+  // Landing 'Son işlemler' çip dili: gelir=zümrüt, gider=nötr, transfer=mavi
+  const ChipIcon =
+    tx.kind === "INCOME"
+      ? TrendingUp
+      : tx.kind === "TRANSFER"
+        ? ArrowLeftRight
+        : CreditCard;
+  const chipCls =
+    tx.kind === "INCOME"
+      ? "bg-accent-soft text-accent"
+      : tx.kind === "TRANSFER"
+        ? "bg-primary-soft text-primary"
+        : "bg-[rgba(15,23,42,0.05)] text-muted";
 
   return (
     <div className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-2/50">
-      {/* ikon kutusu */}
+      {/* ikon çipi — gelir=accent, gider=nötr */}
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-line"
-        style={{ background: accent + "1c", color: accent }}
+        className={cn(
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+          chipCls,
+        )}
       >
-        <CategoryIcon name={tx.category?.icon ?? "tag"} size={18} />
+        <ChipIcon size={18} />
       </span>
 
       {/* açıklama + kaynak/not */}
@@ -168,59 +188,44 @@ function TransactionRow({ tx }: { tx: PlainTransaction }) {
         <div className="mt-1 flex items-center gap-1.5">
           <span
             className={cn(
-              "rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.04em]",
+              "rounded-full px-2 py-0.5 text-[10.5px] font-semibold",
               pill.cls,
             )}
-            style={MONO}
           >
             {pill.label}
           </span>
           {tx.note && (
-            <span
-              className="truncate text-[10.5px] tracking-[0.01em] text-muted"
-              style={MONO}
-            >
-              // {tx.note}
-            </span>
+            <span className="truncate text-[11px] text-muted">{tx.note}</span>
           )}
         </div>
       </div>
 
       {/* kategori chip */}
-      <span
-        className="hidden shrink-0 rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-semibold text-ink sm:inline"
-        style={MONO}
-      >
+      <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-0.5 text-[11px] font-semibold text-muted sm:inline-flex">
+        <CategoryIcon name={tx.category?.icon ?? "tag"} size={13} />
         {tx.category?.name ?? "Kategorisiz"}
       </span>
 
       {/* hesap */}
-      <span
-        className="hidden w-24 shrink-0 truncate text-right text-[11.5px] tracking-[0.02em] text-muted md:inline"
-        style={MONO}
-      >
+      <span className="hidden w-24 shrink-0 truncate text-right text-[11.5px] text-muted md:inline">
         {tx.account?.label ?? "—"}
       </span>
 
       {/* saat */}
-      <span
-        className="hidden w-14 shrink-0 text-right text-[11px] text-muted sm:inline"
-        style={MONO}
-      >
+      <span className="hidden w-14 shrink-0 text-right text-[11px] tabular-nums text-muted sm:inline">
         {formatTime(tx.date)}
       </span>
 
       {/* tutar */}
       <p
         className={cn(
-          "w-28 shrink-0 text-right text-[15px] font-semibold tracking-tight tabular-nums",
+          "w-28 shrink-0 text-right text-[15px] font-bold tracking-tight tabular-nums",
           tx.kind === "INCOME"
             ? "text-accent"
             : tx.kind === "TRANSFER"
               ? "text-muted"
               : "text-ink",
         )}
-        style={MONO}
       >
         {tx.kind === "INCOME" ? "+" : tx.kind === "TRANSFER" ? "↔ " : "−"}
         {formatTL(tx.amount)}
@@ -236,7 +241,7 @@ function TransactionRow({ tx }: { tx: PlainTransaction }) {
               })
             }
             disabled={pending}
-            className="rounded-[calc(var(--app-radius)*0.5)] bg-destructive px-2 py-1 text-xs font-medium text-white"
+            className="rounded-full bg-destructive px-3 py-1 text-xs font-semibold text-white"
           >
             {pending ? <Loader2 size={13} className="animate-spin" /> : "Sil"}
           </button>
@@ -245,7 +250,7 @@ function TransactionRow({ tx }: { tx: PlainTransaction }) {
               setConfirming(false);
               setMenuOpen(false);
             }}
-            className="rounded-[calc(var(--app-radius)*0.5)] px-2 py-1 text-xs text-muted"
+            className="rounded-full px-3 py-1 text-xs font-medium text-muted"
           >
             Vazgeç
           </button>
@@ -261,7 +266,7 @@ function TransactionRow({ tx }: { tx: PlainTransaction }) {
           </button>
           <button
             onClick={() => setMenuOpen(false)}
-            className="rounded-[calc(var(--app-radius)*0.5)] px-2 py-1 text-xs text-muted"
+            className="rounded-full px-3 py-1 text-xs font-medium text-muted"
           >
             Kapat
           </button>

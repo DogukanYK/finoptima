@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal, Wallet } from "lucide-react";
 import { monthLabel, toMonthKey } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -60,11 +60,8 @@ export function TransactionFilters({
       style={{ borderRadius: "var(--app-radius)" }}
     >
       <div className="flex flex-wrap items-center gap-2.5">
-        <span
-          className="text-[11px] font-semibold uppercase tracking-[0.07em] text-muted"
-          style={{ fontFamily: "ui-monospace,Menlo,monospace" }}
-        >
-          Filtre ·
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted">
+          <SlidersHorizontal size={14} /> Filtre
         </span>
 
         {chips.map((c) => {
@@ -74,12 +71,11 @@ export function TransactionFilters({
               key={c.v || "all"}
               onClick={() => update({ kind: c.v })}
               className={cn(
-                "rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] transition-colors",
+                "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
                 active
-                  ? "bg-ink text-canvas"
+                  ? "bg-primary text-white"
                   : "bg-surface-2 text-muted hover:text-ink",
               )}
-              style={{ fontFamily: "ui-monospace,Menlo,monospace" }}
             >
               {c.l}
             </button>
@@ -93,12 +89,11 @@ export function TransactionFilters({
           onChange={(e) => update({ category: e.target.value })}
           aria-label="Kategoriye göre filtrele"
           className={cn(
-            "h-8 rounded-full border px-3 text-[11px] font-semibold uppercase tracking-[0.04em] outline-none transition-colors focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]",
+            "h-8 rounded-full border px-3.5 text-xs font-semibold outline-none transition-colors focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]",
             category
               ? "border-[var(--app-primary)] bg-primary-soft text-primary"
               : "border-line bg-surface-2 text-muted",
           )}
-          style={{ fontFamily: "ui-monospace,Menlo,monospace" }}
         >
           <option value="">Tüm kategoriler</option>
           {categories.map((c) => (
@@ -115,12 +110,11 @@ export function TransactionFilters({
           onChange={(e) => update({ month: e.target.value })}
           aria-label="Aya göre filtrele"
           className={cn(
-            "h-8 rounded-full border px-3 text-[11px] font-semibold uppercase tracking-[0.04em] outline-none transition-colors focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]",
+            "h-8 rounded-full border px-3.5 text-xs font-semibold outline-none transition-colors focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]",
             month
               ? "border-[var(--app-accent)] bg-accent-soft text-accent"
               : "border-line bg-surface-2 text-muted",
           )}
-          style={{ fontFamily: "ui-monospace,Menlo,monospace" }}
         >
           <option value="">Tüm zamanlar</option>
           {months.map((m) => (
@@ -130,11 +124,8 @@ export function TransactionFilters({
           ))}
         </select>
 
-        <span
-          className="rounded-full bg-surface-2 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted"
-          style={{ fontFamily: "ui-monospace,Menlo,monospace" }}
-        >
-          {accountCount} Hesap
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(15,23,42,0.05)] px-3 py-1.5 text-xs font-semibold text-muted">
+          <Wallet size={13} /> {accountCount} Hesap
         </span>
       </div>
 

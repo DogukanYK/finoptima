@@ -1,4 +1,4 @@
-import { ReceiptText } from "lucide-react";
+import { ReceiptText, ShieldCheck } from "lucide-react";
 import { requireUser } from "@/lib/auth-helpers";
 import { getCategories } from "@/lib/queries";
 import { db } from "@/lib/db";
@@ -30,8 +30,11 @@ export default async function ReceiptsPage() {
         description="Fiş fotoğrafını çek — cihazında okunsun, harcaman kaydedilsin."
       />
 
-      <div className="mb-5 rounded-[var(--app-radius)] bg-primary-soft p-3.5 text-sm text-primary">
-        <p>
+      <div className="mb-5 flex items-start gap-3 rounded-[var(--app-radius)] bg-primary-soft p-3.5 text-sm text-primary">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+          <ShieldCheck size={18} />
+        </span>
+        <p className="pt-1">
           Fiş fotoğrafın <strong>önce cihazında okunur</strong>; cihazda
           okunamazsa daha doğru sonuç için yapay zekâya gönderilir.
         </p>
@@ -80,8 +83,10 @@ export default async function ReceiptsPage() {
           </SectionCard>
         </div>
       ) : (
-        <div className="mt-5 flex items-center gap-3 rounded-[var(--app-radius)] bg-surface-2 p-4 text-sm text-muted">
-          <ReceiptText size={20} className="shrink-0 text-primary" />
+        <div className="card mt-5 flex items-center gap-3.5 p-5 text-sm text-muted">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <ReceiptText size={20} />
+          </span>
           Henüz fiş eklemedin. Fişten eklediğin işlemler burada görünecek.
         </div>
       )}

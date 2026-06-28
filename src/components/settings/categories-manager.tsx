@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 import {
   createCategory,
   deleteCategory,
@@ -50,13 +50,33 @@ export function CategoriesManager({
   return (
     <div className="space-y-4">
       {[
-        { label: "Gider kategorileri", list: expense },
-        { label: "Gelir kategorileri", list: income },
+        {
+          label: "Gider kategorileri",
+          list: expense,
+          icon: TrendingDown,
+          chip: "bg-destructive-soft text-destructive",
+        },
+        {
+          label: "Gelir kategorileri",
+          list: income,
+          icon: TrendingUp,
+          chip: "bg-accent-soft text-accent",
+        },
       ].map((group) => (
         <div key={group.label}>
-          <p className="mb-1.5 px-1 text-sm font-semibold text-ink">
-            {group.label}
-          </p>
+          <div className="mb-1.5 flex items-center gap-2 px-1">
+            <span
+              className={cn(
+                "flex h-6 w-6 items-center justify-center rounded-lg",
+                group.chip,
+              )}
+            >
+              <group.icon size={14} />
+            </span>
+            <p className="text-sm font-semibold tracking-tight text-ink">
+              {group.label}
+            </p>
+          </div>
           <div className="card flex flex-wrap gap-2 p-3">
             {group.list.map((c) => (
               <span

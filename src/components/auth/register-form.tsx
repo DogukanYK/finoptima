@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { AlertCircle, ShieldCheck } from "lucide-react";
+import { AlertCircle, ShieldCheck, UserPlus, ArrowRight } from "lucide-react";
 import { registerAction, type ActionState } from "@/lib/actions/auth";
 import { Field, FieldError } from "@/components/ui/field";
 import { PasswordField } from "@/components/ui/password-field";
@@ -15,9 +15,25 @@ export function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
   );
 
   return (
-    <div>
-      <h2 className="font-heading text-2xl font-extrabold text-ink">
-        Hesap oluştur
+    <div className="card p-5 sm:p-7">
+      <span
+        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+      >
+        <UserPlus size={20} />
+      </span>
+      <h2 className="mt-4 font-heading text-2xl font-extrabold tracking-tight text-ink">
+        Hesap{" "}
+        <span
+          style={{
+            background: "linear-gradient(120deg,#2563EB,#059669)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          oluştur
+        </span>
       </h2>
       <p className="mt-1.5 text-sm text-muted">
         {isFirstUser
@@ -105,6 +121,7 @@ export function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
           pendingText="Hesap oluşturuluyor…"
         >
           Hesap oluştur
+          <ArrowRight size={18} />
         </SubmitButton>
       </form>
 

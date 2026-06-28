@@ -73,13 +73,25 @@ export function AccountsManager({ accounts }: { accounts: Account[] }) {
             const card = a.type === "CREDIT_CARD";
             return (
               <div key={a.id} className="flex items-center gap-3 p-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                  {card ? <CreditCard size={18} /> : <Landmark size={18} />}
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+                  style={{
+                    background: card
+                      ? "linear-gradient(120deg,#2563EB,#0EA5E9)"
+                      : "linear-gradient(120deg,#2563EB,#059669)",
+                  }}
+                >
+                  {card ? <CreditCard size={19} /> : <Landmark size={19} />}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-ink">{a.label}</p>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <p className="truncate font-medium text-ink">{a.label}</p>
+                    <span className="inline-flex items-center rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">
+                      {TYPE_LABELS[a.type] ?? a.type}
+                    </span>
+                  </div>
                   <p className="truncate text-xs text-muted">
-                    {a.bankName} · {TYPE_LABELS[a.type] ?? a.type}
+                    {a.bankName}
                     {card && a.cardLast4 && ` · •••• ${a.cardLast4}`}
                     {!card && a.iban && ` · ${a.iban}`}
                   </p>

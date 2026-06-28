@@ -46,22 +46,51 @@ export function TwoFactorManager({ enabled }: { enabled: boolean }) {
 
   return (
     <div className="max-w-xl space-y-4">
-      <div className="card p-5">
-        <div className="flex items-start gap-3">
+      <div className={enabled ? "card-dark relative overflow-hidden p-5" : "card p-5"}>
+        {enabled && (
+          <div
+            className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(5,150,105,0.45), transparent 70%)",
+            }}
+          />
+        )}
+        <div className="relative flex items-start gap-3">
           <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
               enabled
-                ? "bg-accent-soft text-accent"
-                : "bg-surface-2 text-muted"
+                ? "bg-white/15 text-white"
+                : "bg-primary-soft text-primary"
             }`}
           >
             {enabled ? <ShieldCheck size={20} /> : <ShieldAlert size={20} />}
           </span>
           <div>
-            <h2 className="font-heading font-bold text-ink">
-              İki Adımlı Doğrulama (2FA)
-            </h2>
-            <p className="mt-0.5 text-sm text-muted">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2
+                className={`font-heading font-bold tracking-tight ${
+                  enabled ? "text-white" : "text-ink"
+                }`}
+              >
+                İki Adımlı Doğrulama (2FA)
+              </h2>
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  enabled
+                    ? "bg-white/15 text-white"
+                    : "bg-[rgba(15,23,42,0.05)] text-muted"
+                }`}
+              >
+                {enabled ? <ShieldCheck size={12} /> : <ShieldAlert size={12} />}
+                {enabled ? "Etkin" : "Kapalı"}
+              </span>
+            </div>
+            <p
+              className={`mt-0.5 text-sm ${
+                enabled ? "text-white/75" : "text-muted"
+              }`}
+            >
               {enabled
                 ? "Hesabın authenticator kodu ile korunuyor."
                 : "Girişte şifrenin yanında authenticator kodu da istenir — hesabını çok daha güvenli yapar."}
@@ -70,7 +99,7 @@ export function TwoFactorManager({ enabled }: { enabled: boolean }) {
         </div>
 
         {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-destructive-soft px-3 py-2.5 text-sm text-destructive">
+          <div className="relative mt-4 flex items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-destructive-soft px-3 py-2.5 text-sm text-destructive">
             <AlertCircle size={16} className="shrink-0" />
             {error}
           </div>
@@ -120,8 +149,8 @@ export function TwoFactorManager({ enabled }: { enabled: boolean }) {
 
         {/* Etkin: devre dışı bırakma */}
         {enabled && (
-          <div className="mt-4 space-y-3">
-            <p className="text-sm text-muted">
+          <div className="relative mt-4 space-y-3">
+            <p className="text-sm text-white/75">
               Devre dışı bırakmak için authenticator kodunu gir.
             </p>
             <Field

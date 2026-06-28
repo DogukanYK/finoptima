@@ -8,8 +8,7 @@ export function BrandMark({ size = 36 }: { size?: number }) {
       style={{
         width: size,
         height: size,
-        background:
-          "linear-gradient(135deg, var(--app-primary) 0%, var(--app-violet) 100%)",
+        background: "linear-gradient(120deg, #2563EB 0%, #0EA5E9 100%)",
         borderRadius: size * 0.32,
         fontSize: size * 0.46,
         lineHeight: 1,

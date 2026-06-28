@@ -9,6 +9,9 @@ import {
   Loader2,
   ArrowRight,
   Sparkles,
+  FileUp,
+  Wallet,
+  ShieldCheck,
 } from "lucide-react";
 import {
   parseStatement,
@@ -18,6 +21,7 @@ import {
 } from "@/lib/actions/import";
 import { formatTL, formatDateShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { Button, LinkButton } from "@/components/ui/button";
 
 type Account = { id: string; label: string; bankName: string; type: string };
 type TxKind = "INCOME" | "EXPENSE" | "TRANSFER";
@@ -151,32 +155,37 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
 
   if (stage === "done") {
     return (
-      <div className="card flex flex-col items-center px-6 py-12 text-center">
-        <CheckCircle2 size={48} className="text-accent" />
-        <p className="mt-3 font-heading text-lg font-bold text-ink">
+      <div className="card card-hover flex flex-col items-center px-6 py-12 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent-soft text-accent">
+          <CheckCircle2 size={30} />
+        </span>
+        <p className="mt-4 font-heading text-lg font-bold tracking-tight text-ink">
           İçe aktarma tamamlandı
         </p>
         <p className="mt-1 text-sm text-muted">
-          {result.imported} işlem eklendi
+          <span className="font-semibold tabular-nums text-ink">
+            {result.imported}
+          </span>{" "}
+          işlem eklendi
           {result.skipped > 0 && `, ${result.skipped} tekrar atlandı`}.
         </p>
-        <div className="mt-5 flex gap-2">
-          <a
-            href="/transactions"
-            className="rounded-[calc(var(--app-radius)*0.75)] bg-primary px-4 py-2.5 text-sm font-semibold text-white"
-          >
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <LinkButton href="/transactions" variant="primary" size="sm">
+            <Wallet size={16} />
             İşlemleri gör
-          </a>
-          <button
+          </LinkButton>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => {
               setStage("upload");
               setRows([]);
               setPicked("");
             }}
-            className="rounded-[calc(var(--app-radius)*0.75)] border border-line px-4 py-2.5 text-sm font-medium text-ink"
           >
+            <FileUp size={16} />
             Yeni döküm
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -187,27 +196,40 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
     const dupCount = rows.filter((r) => r.duplicate).length;
     return (
       <div className="space-y-4">
-        <div className="card flex flex-wrap items-center gap-3 p-4">
-          <FileSpreadsheet size={22} className="text-primary" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-ink">{fileName}</p>
-            <p className="text-xs text-muted">
-              {detectedBank && `${detectedBank} · `}
-              {accountType === "CREDIT_CARD" ? "Kredi kartı · " : ""}
-              {rows.length} satır · {dupCount} tekrar
-            </p>
+        <div className="card flex flex-wrap items-center gap-3 p-5">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <FileSpreadsheet size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-ink">{fileName}</p>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              {detectedBank && (
+                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">
+                  {detectedBank}
+                </span>
+              )}
+              {accountType === "CREDIT_CARD" && (
+                <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-xs font-semibold text-muted">
+                  Kredi kartı
+                </span>
+              )}
+              <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2 py-0.5 text-xs font-semibold text-muted tabular-nums">
+                {rows.length} satır · {dupCount} tekrar
+              </span>
+            </div>
           </div>
-          <span className="rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent">
+          <span className="rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold tabular-nums text-accent">
             {includedCount} işlem
           </span>
         </div>
 
         {/* AI gözden geçir */}
         <div>
-          <button
+          <Button
             onClick={reviewAI}
             disabled={pending}
-            className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] border border-primary bg-primary-soft px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-2 disabled:opacity-60"
+            variant="primary"
+            className="w-full"
           >
             {pending ? (
               <Loader2 size={16} className="animate-spin" />
@@ -215,7 +237,7 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
               <Sparkles size={16} />
             )}
             Yapay zekâ gözden geçirsin
-          </button>
+          </Button>
           <p className="mt-1.5 text-xs text-muted">
             Yön, tutar ve açıklamaları yapay zekâ ile yeniden, daha doğru çıkarır
             (banka tanınmasa bile). Belge yapay zekâya gönderilir.
@@ -342,10 +364,12 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
         </p>
 
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={commit}
             disabled={pending || includedCount === 0}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-[calc(var(--app-radius)*0.75)] bg-primary px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
             {pending ? (
               <Loader2 size={16} className="animate-spin" />
@@ -353,13 +377,10 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
               <Upload size={16} />
             )}
             {includedCount} işlemi içe aktar
-          </button>
-          <button
-            onClick={() => setStage("upload")}
-            className="rounded-[calc(var(--app-radius)*0.75)] border border-line px-4 text-sm font-medium text-ink"
-          >
+          </Button>
+          <Button onClick={() => setStage("upload")} variant="outline" size="lg">
             Geri
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -367,13 +388,27 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="card space-y-4 p-5">
-        <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--app-radius)] border-2 border-dashed border-line py-10 text-center transition-colors hover:border-primary hover:bg-surface-2">
-          <Upload size={26} className="text-primary" />
+      <div className="card space-y-5 p-5">
+        <label
+          className={cn(
+            "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[var(--app-radius)] border-2 border-dashed border-line bg-surface px-6 py-12 text-center transition-colors hover:border-primary hover:bg-primary-soft",
+            picked && "border-primary bg-primary-soft",
+          )}
+        >
+          <span
+            className="flex h-12 w-12 items-center justify-center rounded-xl text-white"
+            style={{
+              background: "linear-gradient(120deg,#2563EB,#0EA5E9)",
+            }}
+          >
+            <Upload size={22} />
+          </span>
           <span className="text-sm font-medium text-ink">
             {picked || "Excel, CSV, PDF ya da ekran görüntüsü seç"}
           </span>
-          <span className="text-xs text-muted">en fazla 10 MB</span>
+          <span className="rounded-full bg-[rgba(15,23,42,0.05)] px-2.5 py-0.5 text-xs font-semibold text-muted">
+            en fazla 10 MB
+          </span>
           <input
             ref={fileRef}
             type="file"
@@ -384,16 +419,18 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
         </label>
 
         {error && (
-          <div className="flex items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-destructive-soft px-3 py-2.5 text-sm text-destructive">
+          <div className="flex items-center gap-2 rounded-full bg-destructive-soft px-3.5 py-2 text-sm font-medium text-destructive">
             <AlertCircle size={16} className="shrink-0" />
             {error}
           </div>
         )}
 
-        <button
+        <Button
           onClick={analyze}
           disabled={pending}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-[calc(var(--app-radius)*0.75)] bg-primary px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+          variant="primary"
+          size="lg"
+          className="w-full"
         >
           {pending ? (
             <Loader2 size={16} className="animate-spin" />
@@ -401,16 +438,25 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
             <ArrowRight size={16} />
           )}
           Dosyayı çözümle
-        </button>
+        </Button>
       </div>
 
-      <div className="rounded-[var(--app-radius)] bg-surface-2 p-4 text-sm text-muted">
-        <p className="font-medium text-ink">Desteklenen formatlar</p>
-        <p className="mt-1">
-          Excel/CSV, <strong>her bankanın</strong> PDF ekstresi ve fiş/ekstre{" "}
-          <strong>ekran görüntüsü</strong>. Önce cihazda (offline) okunur; sistem
-          okuyamazsa otomatik olarak yapay zekâya gönderilip sonuç alınır. Çok
-          dilli; kategoriye ayırır, tekrarları eler, önizleme gösterir.
+      <div className="card p-5">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-soft text-accent">
+            <ShieldCheck size={18} />
+          </span>
+          <p className="font-heading text-sm font-bold tracking-tight text-ink">
+            Desteklenen formatlar
+          </p>
+        </div>
+        <p className="mt-3 text-sm text-muted">
+          Excel/CSV, <strong className="text-ink">her bankanın</strong> PDF
+          ekstresi ve fiş/ekstre{" "}
+          <strong className="text-ink">ekran görüntüsü</strong>. Önce cihazda
+          (offline) okunur; sistem okuyamazsa otomatik olarak yapay zekâya
+          gönderilip sonuç alınır. Çok dilli; kategoriye ayırır, tekrarları eler,
+          önizleme gösterir.
         </p>
       </div>
     </div>

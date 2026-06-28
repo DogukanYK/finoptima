@@ -1,7 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { Sparkles, AlertCircle, ArrowUpCircle } from "lucide-react";
+import {
+  Sparkles,
+  AlertCircle,
+  ArrowUpCircle,
+  ListChecks,
+  TrendingUp,
+} from "lucide-react";
 import {
   generateCoachPlan,
   type CreditCoachState,
@@ -22,10 +28,16 @@ export function CreditCoach() {
 
   return (
     <div className="card p-5">
-      <h2 className="flex items-center gap-2 font-heading text-base font-bold text-ink">
-        <Sparkles size={18} className="text-primary" /> Kredi koçu
+      <h2 className="flex items-center gap-2.5 font-heading text-base font-bold text-ink">
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
+          style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+        >
+          <Sparkles size={18} />
+        </span>
+        Kredi koçu
       </h2>
-      <p className="mt-1 text-sm text-muted">
+      <p className="mt-2 text-sm text-muted">
         Yapay zeka, verilerine bakıp kredi sağlığını yükseltmen için bu ay yapman
         gerekenleri önceliklendirir.
       </p>
@@ -39,34 +51,43 @@ export function CreditCoach() {
 
       {state.status === "ok" && (
         <div className="mt-4 space-y-3">
-          <p className="text-sm text-ink">{state.plan.summary}</p>
+          <div className="flex items-start gap-3 rounded-[var(--app-radius)] bg-surface-2 p-3.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <ListChecks size={16} />
+            </span>
+            <p className="text-sm text-ink">{state.plan.summary}</p>
+          </div>
           <ol className="space-y-3">
             {state.plan.steps.map((s, i) => {
               const p = PRIORITY[s.priority];
               return (
                 <li
                   key={i}
-                  className="rounded-[var(--app-radius)] border border-line p-4"
+                  className="card card-hover p-4"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-heading text-sm font-bold text-ink">
+                    <h3 className="flex items-center gap-2.5 font-heading text-sm font-bold text-ink">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary-soft font-heading text-xs font-bold tabular-nums text-primary">
+                        {i + 1}
+                      </span>
                       {s.title}
                     </h3>
                     <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${p.cls}`}
+                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.cls}`}
                     >
                       {p.label}
                     </span>
                   </div>
-                  <p className="mt-1.5 text-sm text-muted">{s.why}</p>
-                  <p className="mt-2 flex items-start gap-1.5 text-sm text-ink">
+                  <p className="mt-2 text-sm text-muted">{s.why}</p>
+                  <p className="mt-2.5 flex items-start gap-2 rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft px-3 py-2 text-sm text-ink">
                     <ArrowUpCircle
                       size={15}
                       className="mt-0.5 shrink-0 text-primary"
                     />
                     <span>{s.action}</span>
                   </p>
-                  <span className="mt-2 inline-block text-xs text-accent">
+                  <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
+                    <TrendingUp size={13} />
                     {s.impact}
                   </span>
                 </li>

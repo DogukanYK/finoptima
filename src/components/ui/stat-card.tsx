@@ -1,4 +1,6 @@
-// KPI kartı — hue-blob ışıltılı glass yüzey (Neo banking v2).
+// KPI kartı — landing'in temiz stat kartı: accent çizgi + kicker + büyük rakam + delta.
+
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 export type StatHue = "primary" | "accent" | "destructive" | "violet";
 
@@ -25,14 +27,7 @@ export function StatCard({
   deltaUp?: boolean;
 }) {
   return (
-    <div className="card relative overflow-hidden p-4 sm:p-5">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-7 -top-9 h-28 w-28 rounded-full"
-        style={{
-          background: `radial-gradient(circle, color-mix(in srgb, ${HUE[hue]} 24%, transparent) 0%, transparent 70%)`,
-        }}
-      />
+    <div className="card card-hover p-4 sm:p-5">
       <span
         className="mb-3 block h-1 w-7 rounded-full"
         style={{ background: HUE[hue] }}
@@ -46,10 +41,13 @@ export function StatCard({
         </p>
         {delta && (
           <span
-            className={`text-xs font-semibold tabular-nums ${
-              deltaUp ? "text-accent" : "text-destructive"
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
+              deltaUp
+                ? "bg-accent-soft text-accent"
+                : "bg-destructive-soft text-destructive"
             }`}
           >
+            {deltaUp ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
             {delta}
           </span>
         )}

@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 
 export const inputClass =
   "h-11 w-full rounded-[calc(var(--app-radius)*0.7)] border border-line bg-surface " +
-  "px-3.5 text-ink text-base outline-none transition-colors " +
-  "focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]";
+  "px-3.5 text-ink text-base outline-none transition-[border-color,box-shadow] " +
+  "focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)] focus:ring-offset-0 " +
+  "focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]";
 
 export function Label({
   htmlFor,

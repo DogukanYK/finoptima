@@ -48,29 +48,32 @@ export function TrendChart({ data }: { data: Point[] }) {
             </linearGradient>
           </defs>
           <CartesianGrid
-            strokeDasharray="3 3"
+            strokeDasharray="4 4"
             stroke="var(--app-border)"
+            strokeOpacity={0.6}
             vertical={false}
           />
           <XAxis
             dataKey="label"
-            tick={{ fill: "var(--app-muted)", fontSize: 12 }}
+            tick={{ fill: "var(--app-muted)", fontSize: 12, fontWeight: 500 }}
             axisLine={false}
             tickLine={false}
+            dy={4}
           />
           <YAxis
-            tick={{ fill: "var(--app-muted)", fontSize: 11 }}
+            tick={{ fill: "var(--app-muted)", fontSize: 11, fontWeight: 500 }}
             axisLine={false}
             tickLine={false}
             width={48}
             tickFormatter={(v) => formatTLCompact(v)}
           />
           <Tooltip
-            cursor={{ stroke: "var(--app-border)" }}
+            cursor={{ stroke: "var(--app-border)", strokeWidth: 1.5 }}
             contentStyle={{
               background: "var(--app-surface)",
               border: "1px solid var(--app-border)",
-              borderRadius: "var(--app-radius)",
+              borderRadius: "12px",
+              boxShadow: "0 10px 28px rgba(15, 23, 42, 0.1)",
               color: "var(--app-text)",
               fontSize: 13,
             }}

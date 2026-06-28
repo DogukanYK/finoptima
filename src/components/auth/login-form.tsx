@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { AlertCircle, ShieldCheck } from "lucide-react";
+import { AlertCircle, ShieldCheck, LogIn, KeyRound, ArrowRight } from "lucide-react";
 import { loginAction, type ActionState } from "@/lib/actions/auth";
 import { Field } from "@/components/ui/field";
 import { PasswordField } from "@/components/ui/password-field";
@@ -20,8 +20,14 @@ export function LoginForm() {
   const totpStep = Boolean(state.needTotp);
 
   return (
-    <div>
-      <h2 className="font-heading text-2xl font-extrabold text-ink">
+    <div className="card p-5 sm:p-7">
+      <span
+        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
+        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+      >
+        {totpStep ? <KeyRound size={20} /> : <LogIn size={20} />}
+      </span>
+      <h2 className="mt-4 font-heading text-2xl font-extrabold tracking-tight text-ink">
         {totpStep ? "Doğrulama kodu" : "Tekrar hoş geldin"}
       </h2>
       <p className="mt-1.5 text-sm text-muted">
@@ -95,6 +101,7 @@ export function LoginForm() {
 
         <SubmitButton className="w-full" size="lg" pendingText="Giriş yapılıyor…">
           {totpStep ? "Doğrula ve gir" : "Giriş yap"}
+          <ArrowRight size={18} />
         </SubmitButton>
       </form>
 

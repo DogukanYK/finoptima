@@ -10,12 +10,14 @@ import {
   ArrowRight,
   ArrowLeft,
   Loader2,
+  Rocket,
 } from "lucide-react";
 import { DEFAULT_THEME, THEME_PRESETS, type ThemeSettings } from "@/lib/theme";
 import { HEADING_FONTS, BODY_FONTS } from "@/lib/fonts";
 import { completeOnboarding } from "@/lib/actions/theme";
 import { ThemePreview } from "@/components/theme/theme-preview";
 import { ColorInput } from "@/components/ui/color-input";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -49,6 +51,15 @@ export function OnboardingWizard({ userName }: { userName: string }) {
       {/* Sol: adımlar */}
       <div className="flex flex-col">
         {/* İlerleme */}
+        <div className="mb-3 flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary">
+            <Sparkles size={13} />
+            FinOptima kurulumu
+          </span>
+          <span className="text-xs font-semibold tabular-nums text-muted">
+            {step + 1} / {STEPS.length}
+          </span>
+        </div>
         <div className="mb-8 flex items-center gap-1.5">
           {STEPS.map((s, i) => (
             <div
@@ -61,21 +72,23 @@ export function OnboardingWizard({ userName }: { userName: string }) {
           ))}
         </div>
 
-        <div className="flex-1">
+        <div className="card flex-1 p-5 sm:p-6">
           {step === 0 && (
             <Section
               eyebrow="Başlayalım"
               title={`Merhaba ${userName}, FinOptima'ya hoş geldin`}
               desc="FinOptima tamamen senin. Renkler, yazı tipleri ve biçim — her ayrıntıyı kendine göre ayarlayabilirsin. Birkaç adımda görünümünü kuralım; istediğin an Ayarlar'dan değiştirebilirsin."
             >
-              <ul className="mt-2 space-y-2.5 text-sm text-muted">
+              <ul className="mt-2 space-y-2.5 text-sm text-ink">
                 {[
                   "Hazır temalardan başla, sonra ince ayar yap",
                   "Açık / koyu / sistem modu",
                   "Yazı tipi, köşe yumuşaklığı, yoğunluk ve fazlası",
                 ].map((t) => (
-                  <li key={t} className="flex items-center gap-2.5">
-                    <Check size={16} className="text-accent" />
+                  <li key={t} className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                      <Check size={15} />
+                    </span>
                     {t}
                   </li>
                 ))}
@@ -113,7 +126,7 @@ export function OnboardingWizard({ userName }: { userName: string }) {
                         set({ ...preset.values, presetName: preset.name })
                       }
                       className={cn(
-                        "rounded-[var(--app-radius)] border p-3 text-left transition-colors",
+                        "card-hover rounded-[var(--app-radius)] border p-3 text-left transition-colors",
                         active
                           ? "border-primary bg-primary-soft"
                           : "border-line bg-surface hover:bg-surface-2",
@@ -121,11 +134,11 @@ export function OnboardingWizard({ userName }: { userName: string }) {
                     >
                       <div className="mb-2 flex gap-1">
                         <span
-                          className="h-6 w-6 rounded-full"
+                          className="h-6 w-6 rounded-full ring-2 ring-white"
                           style={{ background: swatch }}
                         />
                         <span
-                          className="h-6 w-6 rounded-full"
+                          className="-ml-2 h-6 w-6 rounded-full ring-2 ring-white"
                           style={{
                             background:
                               preset.values.accentColor ?? "#059669",
@@ -303,9 +316,34 @@ export function OnboardingWizard({ userName }: { userName: string }) {
               title="Harika görünüyor!"
               desc="Görünümün hazır. İstediğin an Ayarlar bölümünden en küçük ayrıntısına kadar değiştirebilirsin. Şimdi FinOptima'yı kullanmaya başlayabilirsin."
             >
-              <div className="rounded-[var(--app-radius)] border border-line bg-surface-2 p-4 text-sm text-muted">
-                Sıradaki: ilk harcamanı ekle, hesaplarını tanımla ve panelinde
-                özetini gör.
+              <div className="card-dark relative overflow-hidden p-5">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(37,99,235,0.45) 0%, rgba(37,99,235,0) 70%)",
+                  }}
+                />
+                <div className="relative flex items-start gap-3.5">
+                  <span
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
+                    style={{
+                      background: "linear-gradient(120deg,#2563EB,#0EA5E9)",
+                    }}
+                  >
+                    <Rocket size={20} />
+                  </span>
+                  <div>
+                    <p className="font-heading text-sm font-bold tracking-tight text-white">
+                      Sıradaki adımlar
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                      Sıradaki: ilk harcamanı ekle, hesaplarını tanımla ve
+                      panelinde özetini gör.
+                    </p>
+                  </div>
+                </div>
               </div>
             </Section>
           )}
@@ -313,28 +351,32 @@ export function OnboardingWizard({ userName }: { userName: string }) {
 
         {/* Gezinme */}
         <div className="mt-8 flex items-center justify-between">
-          <button
+          <Button
+            variant="ghost"
+            size="md"
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             disabled={step === 0 || pending}
-            className="inline-flex items-center gap-1.5 rounded-[calc(var(--app-radius)*0.7)] px-3 py-2 text-sm font-medium text-muted disabled:opacity-0"
+            className="text-muted disabled:opacity-0"
           >
             <ArrowLeft size={16} />
             Geri
-          </button>
+          </Button>
 
           {step < last ? (
-            <button
+            <Button
+              variant="primary"
+              size="md"
               onClick={() => setStep((s) => Math.min(last, s + 1))}
-              className="inline-flex items-center gap-2 rounded-[calc(var(--app-radius)*0.75)] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95"
             >
               {step === 0 ? "Kişiselleştir" : "Devam"}
               <ArrowRight size={16} />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
+              variant="accent"
+              size="md"
               onClick={finish}
               disabled={pending}
-              className="inline-flex items-center gap-2 rounded-[calc(var(--app-radius)*0.75)] bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-transform active:scale-95 disabled:opacity-60"
             >
               {pending ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -342,16 +384,17 @@ export function OnboardingWizard({ userName }: { userName: string }) {
                 <Check size={16} />
               )}
               FinOptima'yı aç
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
       {/* Sağ: canlı önizleme */}
       <aside className="lg:sticky lg:top-12 lg:self-start">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
+          <Sparkles size={13} />
           Canlı önizleme
-        </p>
+        </span>
         <ThemePreview theme={theme} />
       </aside>
     </div>

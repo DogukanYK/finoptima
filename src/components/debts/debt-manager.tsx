@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CreditCard,
+  Landmark,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import {
   createDebt,
   deleteDebt,
@@ -12,8 +19,6 @@ import { formatTL } from "@/lib/format";
 import { Field } from "@/components/ui/field";
 import { Select } from "@/components/ui/select";
 import { SubmitButton } from "@/components/ui/submit-button";
-
-const MONO = { fontFamily: "ui-monospace,Menlo,monospace" } as const;
 
 type DebtRow = {
   id: string;
@@ -54,13 +59,10 @@ export function DebtManager({ debts }: { debts: DebtRow[] }) {
       {debts.length > 0 && (
         <div className="card p-5 sm:p-6">
           {/* başlık satırı */}
-          <div className="mb-5 flex items-baseline justify-between gap-3">
-            <p
-              className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted"
-              style={MONO}
-            >
-              01 · Aktif borçlar
-            </p>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="font-heading text-base font-bold tracking-tight text-ink">
+              Aktif borçlar
+            </h2>
             <div className="flex gap-1.5">
               {(
                 [
@@ -73,10 +75,9 @@ export function DebtManager({ debts }: { debts: DebtRow[] }) {
                   key={key}
                   type="button"
                   onClick={() => setFilter(key)}
-                  style={MONO}
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                     filter === key
-                      ? "bg-ink text-canvas"
+                      ? "bg-primary text-white"
                       : "bg-surface-2 text-muted hover:text-ink"
                   }`}
                 >
@@ -108,9 +109,14 @@ export function DebtManager({ debts }: { debts: DebtRow[] }) {
 
       {showForm ? (
         <form action={formAction} className="card space-y-3 p-5">
-          <p className="font-heading text-sm font-bold text-ink">
-            Yeni borç ekle
-          </p>
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <Plus size={18} />
+            </span>
+            <p className="font-heading text-base font-bold tracking-tight text-ink">
+              Yeni borç ekle
+            </p>
+          </div>
           <Field
             name="name"
             label="Ad"
@@ -193,7 +199,7 @@ function DebtItem({
   onDelete: (cb: () => void) => void;
 }) {
   const card = d.kind === "CREDIT_CARD";
-  const hue = card ? "var(--app-violet)" : "var(--app-primary)";
+  const hue = card ? "var(--app-accent)" : "var(--app-primary)";
   const urgent = d.scoreImpact <= -35;
 
   const original = d.balance + d.paidTotal;
@@ -204,15 +210,15 @@ function DebtItem({
 
   return (
     <div className="grid grid-cols-[42px_1fr_auto] items-center gap-3 py-4 sm:grid-cols-[42px_2.4fr_1fr_1fr_1fr_auto] sm:gap-4">
-      {/* ikon */}
+      {/* ikon çipi */}
       <span
-        className="flex h-[42px] w-[42px] items-center justify-center rounded-xl text-[19px]"
+        className="flex h-[42px] w-[42px] items-center justify-center rounded-xl"
         style={{
           background: `color-mix(in srgb, ${hue} 12%, transparent)`,
-          border: `1px solid color-mix(in srgb, ${hue} 22%, transparent)`,
+          color: hue,
         }}
       >
-        {card ? "💳" : "🏦"}
+        {card ? <CreditCard size={20} /> : <Landmark size={20} />}
       </span>
 
       {/* ad + pill'ler + progress */}
@@ -220,19 +226,18 @@ function DebtItem({
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-sm font-semibold text-ink">{d.name}</p>
           <span
-            style={MONO}
-            className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] ${
-              card ? "bg-accent-soft text-accent" : "bg-surface-2 text-muted"
+            className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+              card
+                ? "bg-accent-soft text-accent"
+                : "bg-primary-soft text-primary"
             }`}
           >
+            {card ? <CreditCard size={12} /> : <Landmark size={12} />}
             {card ? "Kart" : "Kredi"}
           </span>
           {urgent && (
-            <span
-              style={MONO}
-              className="shrink-0 rounded-full bg-destructive-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-destructive"
-            >
-              ⚠ Acil
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive-soft px-2 py-0.5 text-xs font-semibold text-destructive">
+              <AlertTriangle size={12} /> Acil
             </span>
           )}
         </div>
@@ -243,58 +248,38 @@ function DebtItem({
             style={{ width: `${paidPct}%`, background: hue }}
           />
         </div>
-        <p
-          style={MONO}
-          className="mt-1 text-[10.5px] uppercase tracking-[0.04em] text-muted"
-        >
+        <p className="mt-1 text-[11px] font-medium tabular-nums text-muted">
           %{paidPct} ödendi
         </p>
       </div>
 
       {/* KALAN */}
       <div className="col-start-2 sm:col-auto">
-        <p
-          style={MONO}
-          className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-muted"
-        >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
           Kalan
         </p>
-        <p
-          style={MONO}
-          className="text-[17px] font-semibold tracking-tight text-ink"
-        >
+        <p className="font-heading text-[17px] font-bold tabular-nums tracking-tight text-ink">
           {formatTL(d.balance)}
         </p>
       </div>
 
       {/* FAİZ + APR */}
       <div className="hidden sm:block">
-        <p
-          style={MONO}
-          className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-muted"
-        >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
           Aylık faiz
         </p>
-        <p style={MONO} className="text-[14px] font-semibold text-ink">
-          %{d.apr}
-        </p>
-        <p
-          style={MONO}
-          className="mt-0.5 text-[10.5px] text-muted"
-        >
+        <p className="text-sm font-semibold tabular-nums text-ink">%{d.apr}</p>
+        <p className="mt-0.5 text-[11px] text-muted">
           {card ? "Kredi kartı" : "Kredi"}
         </p>
       </div>
 
       {/* ÖDEME GÜNÜ */}
       <div className="hidden sm:block">
-        <p
-          style={MONO}
-          className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-muted"
-        >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
           Ödeme günü
         </p>
-        <p style={MONO} className="text-[14px] font-semibold text-ink">
+        <p className="text-sm font-semibold tabular-nums text-ink">
           {d.dueDay ? `Ayın ${d.dueDay}` : "—"}
         </p>
       </div>
@@ -303,9 +288,9 @@ function DebtItem({
       <div className="col-start-3 row-start-1 flex items-center gap-1.5 self-start sm:col-auto sm:row-auto sm:self-center">
         <Link
           href={`/borclar/${d.id}`}
-          className="rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary"
+          className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-primary-soft hover:text-primary"
         >
-          Detay →
+          Detay <ArrowRight size={13} />
         </Link>
         <button
           type="button"

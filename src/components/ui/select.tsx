@@ -15,7 +15,7 @@ export function Select({ label, id, className, children, ...props }: SelectProps
         <select
           id={fieldId}
           className={cn(
-            "h-11 w-full appearance-none rounded-[calc(var(--app-radius)*0.7)] border border-line bg-surface pl-3.5 pr-10 text-base text-ink outline-none transition-colors focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]",
+            "h-11 w-full appearance-none rounded-[calc(var(--app-radius)*0.7)] border border-line bg-surface pl-3.5 pr-10 text-base text-ink outline-none transition-[border-color,box-shadow] focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)] focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]",
             className,
           )}
           {...props}

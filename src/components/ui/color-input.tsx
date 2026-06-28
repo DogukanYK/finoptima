@@ -31,7 +31,7 @@ export function ColorInput({
           }}
           aria-label={`${label} — onaltılık renk kodu`}
           spellCheck={false}
-          className="h-9 w-24 rounded-[calc(var(--app-radius)*0.5)] border border-line bg-surface px-2 text-xs uppercase tabular-nums text-ink outline-none focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary-soft)]"
+          className="h-9 w-24 rounded-[calc(var(--app-radius)*0.5)] border border-line bg-surface px-2 text-xs uppercase tabular-nums text-ink outline-none transition-[border-color,box-shadow] focus:border-[var(--app-primary)] focus:ring-2 focus:ring-[var(--app-primary)] focus-visible:border-[var(--app-primary)] focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]"
         />
         <label
           className={cn(

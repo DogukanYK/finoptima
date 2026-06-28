@@ -56,42 +56,58 @@ export default async function DebtDetailPage({
         <ChevronLeft size={16} /> Borçlar
       </Link>
 
-      {/* Başlık kartı */}
-      <div className="card flex items-center gap-4 p-5">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-          {card ? <CreditCard size={26} /> : <Landmark size={26} />}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="truncate font-heading text-xl font-extrabold text-ink">
-              {debt.name}
-            </h1>
-            <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted">
-              {card ? "Kredi Kartı" : "Kredi"}
-            </span>
+      {/* Başlık kartı — koyu hero */}
+      <div className="card-dark relative overflow-hidden p-6">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-16 h-56 w-56 rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(37,99,235,0.45) 0%, rgba(37,99,235,0) 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <span
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-white"
+            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+          >
+            {card ? <CreditCard size={26} /> : <Landmark size={26} />}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate font-heading text-xl font-extrabold tracking-tight text-white">
+                {debt.name}
+              </h1>
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white/80">
+                {card ? <CreditCard size={13} /> : <Landmark size={13} />}
+                {card ? "Kredi Kartı" : "Kredi"}
+              </span>
+            </div>
+            <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-white/70">
+              <Percent size={13} className="text-sky-300" />%{debt.apr} aylık faiz
+              {debt.dueDay != null && ` · her ayın ${debt.dueDay}. günü`}
+            </p>
           </div>
-          <p className="mt-0.5 text-xs text-muted">
-            %{debt.apr} aylık faiz
-            {debt.dueDay != null && ` · her ayın ${debt.dueDay}. günü`}
-          </p>
-        </div>
-        <div className="shrink-0 text-right">
-          <p className="text-xs text-muted">Güncel bakiye</p>
-          <p className="font-heading text-2xl font-extrabold tabular-nums text-destructive">
-            {formatTL(debt.balance)}
-          </p>
+          <div className="shrink-0 text-right">
+            <p className="text-xs font-medium uppercase tracking-[0.08em] text-white/60">
+              Güncel bakiye
+            </p>
+            <p className="font-heading text-2xl font-extrabold tabular-nums text-white sm:text-3xl">
+              {formatTL(debt.balance)}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* AI Mikro Analiz */}
       <SectionCard
-        title="🤖 AI Mikro Analiz"
+        title="AI Mikro Analiz"
         subtitle="Borcunun finansal sağlığına etkisi"
       >
         <div className="grid gap-3 lg:grid-cols-3">
           <AnalysisPanel
-            icon={<TrendingUp size={16} />}
-            title="📊 Kredi Skoruna Etkisi"
+            icon={<TrendingUp size={18} />}
+            title="Kredi Skoruna Etkisi"
           >
             <p
               className={`font-heading text-lg font-extrabold tabular-nums ${
@@ -104,10 +120,10 @@ export default async function DebtDetailPage({
           </AnalysisPanel>
 
           <AnalysisPanel
-            icon={<Percent size={16} />}
-            title="💰 6 Aylık Faiz Yükü"
+            icon={<Percent size={18} />}
+            title="6 Aylık Faiz Yükü"
           >
-            <p className="font-heading text-lg font-extrabold tabular-nums text-warning">
+            <p className="font-heading text-lg font-extrabold tabular-nums text-primary">
               {formatTL(analysis.sixMonthInterest)}
             </p>
             <p className="mt-1 text-xs text-muted">
@@ -116,8 +132,8 @@ export default async function DebtDetailPage({
           </AnalysisPanel>
 
           <AnalysisPanel
-            icon={<Target size={16} />}
-            title="🎯 Borç Yönlendirme Stratejisi"
+            icon={<Target size={18} />}
+            title="Borç Yönlendirme Stratejisi"
           >
             <p className="text-sm text-ink">
               Önerilen aylık ödeme:{" "}
@@ -145,13 +161,16 @@ export default async function DebtDetailPage({
           </AnalysisPanel>
         </div>
 
-        <div className="mt-3 flex items-start gap-3 rounded-[var(--app-radius)] bg-primary-soft p-3.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-            <Lightbulb size={17} />
+        <div className="mt-3 flex items-start gap-3 rounded-[var(--app-radius)] bg-primary-soft p-4">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
+            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+          >
+            <Lightbulb size={18} />
           </span>
           <div>
             <p className="text-sm font-semibold text-primary">
-              🤖 AI Mikro-Aksiyon Önerisi
+              AI Mikro-Aksiyon Önerisi
             </p>
             <p className="mt-0.5 text-sm text-ink">{analysis.microAction}</p>
           </div>
@@ -205,10 +224,12 @@ function AnalysisPanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[var(--app-radius)] border border-line p-4">
-      <div className="mb-2 flex items-center gap-1.5 text-muted">
-        {icon}
-        <p className="text-xs font-medium">{title}</p>
+    <div className="rounded-[var(--app-radius)] border border-line bg-surface p-4">
+      <div className="mb-2.5 flex items-center gap-2">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+          {icon}
+        </span>
+        <p className="text-xs font-semibold text-muted">{title}</p>
       </div>
       {children}
     </div>

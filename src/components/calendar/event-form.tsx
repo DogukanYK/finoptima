@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { CalendarPlus } from "lucide-react";
 import { createEvent, type EventActionState } from "@/lib/actions/events";
 import { Field } from "@/components/ui/field";
 import { Select } from "@/components/ui/select";
@@ -25,8 +26,16 @@ export function EventForm({
   return (
     <form
       action={formAction}
-      className="space-y-3 rounded-[var(--app-radius)] border border-line bg-surface-2 p-4"
+      className="card space-y-4 p-4"
     >
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary-soft text-primary">
+          <CalendarPlus size={16} />
+        </span>
+        <span className="font-heading text-sm font-bold tracking-tight text-ink">
+          Yeni etkinlik
+        </span>
+      </div>
       <input type="hidden" name="date" value={date} />
       <Field
         name="title"
@@ -56,7 +65,7 @@ export function EventForm({
         <button
           type="button"
           onClick={onDone}
-          className="rounded-[calc(var(--app-radius)*0.6)] px-3 py-2 text-sm font-medium text-muted"
+          className="rounded-full px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-2"
         >
           Vazgeç
         </button>

@@ -155,10 +155,9 @@ export function AppShell({
               href="/add"
               aria-label="Harcama ekle"
               style={{
-                background:
-                  "linear-gradient(135deg, var(--app-primary), var(--app-violet))",
+                background: "linear-gradient(120deg, #2563EB 0%, #0EA5E9 100%)",
               }}
-              className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[var(--app-shadow-lg)] transition-transform active:scale-95"
+              className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[var(--app-shadow-lg)] transition-transform hover:brightness-105 active:scale-95"
             >
               <Plus size={26} />
             </Link>
@@ -246,13 +245,26 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-[calc(var(--app-radius)*0.7)] px-3 py-2.5 text-sm font-medium transition-colors",
+        "group relative flex items-center gap-3 rounded-[calc(var(--app-radius)*0.7)] px-3 py-2.5 text-sm font-medium transition-colors",
         active
           ? "bg-primary-soft text-primary"
           : "text-muted hover:bg-surface-2 hover:text-ink",
       )}
     >
-      <Icon size={19} />
+      {active && (
+        <span
+          aria-hidden
+          className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full"
+          style={{ background: "linear-gradient(180deg, #2563EB 0%, #0EA5E9 100%)" }}
+        />
+      )}
+      <Icon
+        size={19}
+        className={cn(
+          "shrink-0 transition-colors",
+          active ? "text-primary" : "text-muted group-hover:text-ink",
+        )}
+      />
       {item.label}
     </Link>
   );
@@ -265,11 +277,18 @@ function BottomLink({ item, active }: { item: NavItem; active: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium",
+        "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
         active ? "text-primary" : "text-muted",
       )}
     >
-      <Icon size={22} />
+      <span
+        className={cn(
+          "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+          active ? "bg-primary-soft" : "bg-transparent",
+        )}
+      >
+        <Icon size={21} />
+      </span>
       {item.label}
     </Link>
   );
