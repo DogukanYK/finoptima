@@ -10,7 +10,6 @@ import {
   ArrowRight,
   Check,
   FileText,
-  Wifi,
   ArrowLeftRight,
   Plus,
   User,
@@ -109,29 +108,46 @@ function ScorePhone() {
         <span aria-hidden className="absolute -left-[2px] top-[216px] z-0 h-[44px] w-[3px] rounded-l-[2px]" style={{ background: "linear-gradient(90deg,#15171b,#3d4047)" }} />
         <span aria-hidden className="absolute -right-[2px] top-[174px] z-0 h-[64px] w-[3px] rounded-r-[2px]" style={{ background: "linear-gradient(270deg,#15171b,#3d4047)" }} />
 
-        {/* titanyum çerçeve */}
-        <div className="relative z-10 rounded-[54px] p-[3px]" style={{ background: "linear-gradient(145deg,#71747d 0%,#1b1d22 36%,#43464d 62%,#14161a 100%)" }}>
-          {/* siyah bezel */}
-          <div className="rounded-[52px] bg-black p-[7px]">
+        {/* titanyum çerçeve — doğal titanyum, hafif parlama */}
+        <div
+          className="relative z-10 rounded-[56px] p-[2.5px]"
+          style={{
+            background:
+              "linear-gradient(135deg,#efede6 0%,#9c9992 13%,#dcd9d1 30%,#86837d 50%,#e8e5dd 70%,#827f79 88%,#cdcac2 100%)",
+            boxShadow:
+              "inset 0 1.5px 1px rgba(255,255,255,0.75), inset 0 -1.5px 1px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(0,0,0,0.08)",
+          }}
+        >
+          {/* siyah bezel — ince */}
+          <div className="rounded-[54px] bg-black p-[3.5px]">
             {/* ekran */}
-            <div className="relative flex flex-col overflow-hidden rounded-[45px]" style={{ background: BG, aspectRatio: "9 / 19.3" }}>
+            <div className="relative flex flex-col overflow-hidden rounded-[50px]" style={{ background: BG, aspectRatio: "9 / 19.3" }}>
               {/* dynamic island */}
               <div className="absolute left-1/2 top-[11px] z-30 h-[26px] w-[86px] -translate-x-1/2 rounded-full bg-black" />
 
               {/* durum çubuğu */}
               <div className="relative z-20 flex items-center justify-between px-6 pt-3.5 text-[12px] font-semibold" style={{ color: INK }}>
                 <span style={{ fontFamily: F.display }}>9:41</span>
-                <span className="flex items-center gap-[5px]">
-                  <span className="flex items-end gap-[2px]">
-                    {[5, 8, 11, 14].map((h, i) => (
-                      <span key={i} className="w-[3px] rounded-[1px]" style={{ height: h, background: INK }} />
-                    ))}
-                  </span>
-                  <Wifi size={14} strokeWidth={2.5} />
-                  <span className="relative ml-[1px] flex h-[12px] w-[22px] items-center rounded-[3px]" style={{ border: "1px solid rgba(15,23,42,0.45)" }}>
-                    <span className="ml-[1.5px] h-[7px] w-[14px] rounded-[1.5px]" style={{ background: INK }} />
-                    <span className="absolute -right-[3px] h-[4px] w-[1.5px] rounded-r-[1px]" style={{ background: "rgba(15,23,42,0.45)" }} />
-                  </span>
+                <span className="flex items-center gap-[6px]" style={{ color: INK }}>
+                  {/* sinyal */}
+                  <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden>
+                    <rect x="0" y="8" width="3" height="4" rx="1" />
+                    <rect x="4.7" y="5.5" width="3" height="6.5" rx="1" />
+                    <rect x="9.3" y="3" width="3" height="9" rx="1" />
+                    <rect x="14" y="0.5" width="3" height="11.5" rx="1" />
+                  </svg>
+                  {/* wifi */}
+                  <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden>
+                    <path d="M8 2.1c2.6 0 5 1 6.9 2.8l-1.5 1.6A7.6 7.6 0 0 0 8 4.4 7.6 7.6 0 0 0 2.6 6.5L1.1 4.9A9.8 9.8 0 0 1 8 2.1Z" />
+                    <path d="M8 5.5c1.6 0 3.1.6 4.3 1.8L10.7 8.9A3.8 3.8 0 0 0 8 7.7c-1 0-2 .4-2.7 1.2L3.7 7.3A6.1 6.1 0 0 1 8 5.5Z" />
+                    <circle cx="8" cy="10.4" r="1.5" />
+                  </svg>
+                  {/* batarya */}
+                  <svg width="26" height="13" viewBox="0 0 26 13" aria-hidden>
+                    <rect x="0.5" y="0.5" width="22" height="12" rx="3.6" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
+                    <rect x="2" y="2" width="16" height="9" rx="2" fill="currentColor" />
+                    <rect x="24" y="4" width="1.6" height="5" rx="0.8" fill="currentColor" opacity="0.4" />
+                  </svg>
                 </span>
               </div>
 
@@ -187,6 +203,32 @@ function ScorePhone() {
                     <div className="text-[10px]" style={{ color: MUTED }}>bu ay önceliğin · +15-20 puan</div>
                   </div>
                 </div>
+
+                {/* son işlemler */}
+                <div className="mt-3">
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <span className="text-[11px] font-bold tracking-wide" style={{ color: INK }}>Son işlemler</span>
+                    <span className="text-[10px] font-semibold" style={{ color: BLUE }}>Tümü</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {[
+                      { t: "Maaş", c: "Gelir · bugün", v: "+₺32.000", out: false },
+                      { t: "Migros", c: "Market · dün", v: "−₺540", out: true },
+                      { t: "Elektrik faturası", c: "Fatura · 2 gün önce", v: "−₺487", out: true },
+                    ].map((r) => (
+                      <div key={r.t} className="flex items-center gap-2.5 rounded-xl border p-2" style={{ borderColor: LINE, background: "#fff" }}>
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ background: r.out ? "rgba(15,23,42,0.05)" : "rgba(5,150,105,0.1)", color: r.out ? SUBTLE : EMERALD }}>
+                          {r.out ? <CreditCard size={13} /> : <TrendingUp size={13} />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[11.5px] font-semibold" style={{ color: INK }}>{r.t}</div>
+                          <div className="text-[9.5px]" style={{ color: MUTED }}>{r.c}</div>
+                        </div>
+                        <span className="text-[11.5px] font-bold" style={{ fontFamily: F.mono, color: r.out ? INK : EMERALD }}>{r.v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* alt tab bar */}
@@ -208,7 +250,7 @@ function ScorePhone() {
               <div className="absolute bottom-[8px] left-1/2 z-30 h-[4px] w-[104px] -translate-x-1/2 rounded-full" style={{ background: "rgba(15,23,42,0.3)" }} />
 
               {/* ekran parlaması */}
-              <div aria-hidden className="pointer-events-none absolute inset-0 z-40 rounded-[45px]" style={{ background: "linear-gradient(125deg, rgba(255,255,255,0.2) 0%, transparent 22%, transparent 74%, rgba(255,255,255,0.06) 100%)" }} />
+              <div aria-hidden className="pointer-events-none absolute inset-0 z-40 rounded-[50px]" style={{ background: "linear-gradient(125deg, rgba(255,255,255,0.2) 0%, transparent 22%, transparent 74%, rgba(255,255,255,0.06) 100%)" }} />
             </div>
           </div>
         </div>
