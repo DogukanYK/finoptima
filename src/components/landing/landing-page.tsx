@@ -152,7 +152,7 @@ function ScorePhone() {
               </div>
 
               {/* içerik */}
-              <div className="relative z-10 flex-1 px-4 pt-2">
+              <div className="relative z-10 flex-1 min-h-0 px-4 pt-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-[11px] font-medium" style={{ color: MUTED }}>Merhaba, Doğukan</div>
@@ -214,7 +214,6 @@ function ScorePhone() {
                     {[
                       { t: "Maaş", c: "Gelir · bugün", v: "+₺32.000", out: false },
                       { t: "Migros", c: "Market · dün", v: "−₺540", out: true },
-                      { t: "Elektrik faturası", c: "Fatura · 2 gün önce", v: "−₺487", out: true },
                     ].map((r) => (
                       <div key={r.t} className="flex items-center gap-2.5 rounded-xl border p-2" style={{ borderColor: LINE, background: "#fff" }}>
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ background: r.out ? "rgba(15,23,42,0.05)" : "rgba(5,150,105,0.1)", color: r.out ? SUBTLE : EMERALD }}>
@@ -231,23 +230,24 @@ function ScorePhone() {
                 </div>
               </div>
 
-              {/* alt tab bar */}
-              <div className="relative z-20 flex items-center justify-between border-t px-6 pb-8 pt-2.5" style={{ borderColor: LINE, background: "rgba(255,255,255,0.9)" }}>
-                {[
-                  { Icon: Gauge, a: true },
-                  { Icon: ArrowLeftRight, a: false },
-                  { Icon: Plus, a: false },
-                  { Icon: CreditCard, a: false },
-                  { Icon: User, a: false },
-                ].map((t, i) => (
-                  <span key={i} className="flex h-7 w-7 items-center justify-center rounded-xl" style={{ color: t.a ? BLUE : MUTED, background: t.a ? "rgba(37,99,235,0.1)" : "transparent" }}>
-                    <t.Icon size={17} strokeWidth={t.a ? 2.5 : 2} />
-                  </span>
-                ))}
+              {/* alt tab bar + home indicator (istiflenmiş — çakışma yok) */}
+              <div className="relative z-20 shrink-0 border-t" style={{ borderColor: LINE, background: "rgba(255,255,255,0.95)" }}>
+                <div className="flex items-center justify-between px-6 pt-2 pb-1.5">
+                  {[
+                    { Icon: Gauge, a: true },
+                    { Icon: ArrowLeftRight, a: false },
+                    { Icon: Plus, a: false },
+                    { Icon: CreditCard, a: false },
+                    { Icon: User, a: false },
+                  ].map((t, i) => (
+                    <span key={i} className="flex h-7 w-7 items-center justify-center rounded-xl" style={{ color: t.a ? BLUE : MUTED, background: t.a ? "rgba(37,99,235,0.1)" : "transparent" }}>
+                      <t.Icon size={17} strokeWidth={t.a ? 2.5 : 2} />
+                    </span>
+                  ))}
+                </div>
+                {/* iOS home indicator */}
+                <div className="mx-auto mb-2 h-[4px] w-[110px] rounded-full" style={{ background: "rgba(15,23,42,0.26)" }} />
               </div>
-
-              {/* home indicator */}
-              <div className="absolute bottom-[8px] left-1/2 z-30 h-[4px] w-[104px] -translate-x-1/2 rounded-full" style={{ background: "rgba(15,23,42,0.3)" }} />
 
               {/* ekran parlaması */}
               <div aria-hidden className="pointer-events-none absolute inset-0 z-40 rounded-[50px]" style={{ background: "linear-gradient(125deg, rgba(255,255,255,0.2) 0%, transparent 22%, transparent 74%, rgba(255,255,255,0.06) 100%)" }} />
