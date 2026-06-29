@@ -68,7 +68,7 @@ export function AppShell({
       </a>
 
       {/* ===== Masaüstü kenar çubuğu ===== */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface/75 backdrop-blur-2xl lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-white/40 bg-surface/55 backdrop-blur-2xl backdrop-saturate-150 lg:flex">
         <div className="flex h-16 items-center px-5">
           <Link href="/findeks" aria-label="Findeks'e git">
             <Brand size={34} />
@@ -118,7 +118,7 @@ export function AppShell({
       {/* ===== İçerik ===== */}
       <div className="lg:pl-64">
         {/* Mobil üst bar */}
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line bg-surface/75 px-4 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-white/40 bg-surface/55 px-4 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
           <Link href="/findeks" aria-label="Findeks'e git">
             <Brand size={30} />
           </Link>
@@ -140,7 +140,7 @@ export function AppShell({
       </div>
 
       {/* ===== Mobil alt gezinme ===== */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/75 backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-white/40 bg-surface/55 backdrop-blur-xl backdrop-saturate-150 lg:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pb-[env(safe-area-inset-bottom)]">
           <BottomLink
             item={MOBILE_NAV[0]}
