@@ -6,6 +6,7 @@ export type NavItem = {
 
 // Masaüstü kenar çubuğu — kredi-notu MVP'si
 export const PRIMARY_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Panel", icon: "layout-dashboard" },
   { href: "/findeks", label: "Findeks", icon: "gauge" },
   { href: "/borclar", label: "Borçlar", icon: "credit-card" },
   { href: "/transactions", label: "İşlemler", icon: "arrow-left-right" },
@@ -22,13 +23,14 @@ export const SECONDARY_NAV: NavItem[] = [
 
 // Mobil alt gezinme — en sık 3 + orta FAB (Harcama Ekle)
 export const MOBILE_NAV: NavItem[] = [
+  { href: "/dashboard", label: "Panel", icon: "layout-dashboard" },
   { href: "/findeks", label: "Findeks", icon: "gauge" },
-  { href: "/borclar", label: "Borçlar", icon: "credit-card" },
   { href: "/transactions", label: "İşlemler", icon: "arrow-left-right" },
 ];
 
 // Mobil "Daha" menüsü
 export const MOBILE_MORE: NavItem[] = [
+  { href: "/borclar", label: "Borçlar", icon: "credit-card" },
   { href: "/calendar", label: "Takvim", icon: "calendar-days" },
   { href: "/import", label: "Banka Dökümü", icon: "upload" },
   { href: "/receipts", label: "Fişler", icon: "receipt-text" },

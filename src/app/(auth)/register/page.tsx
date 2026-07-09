@@ -5,7 +5,7 @@ import { RegisterForm } from "@/components/auth/register-form";
 
 export default async function RegisterPage() {
   const session = await auth();
-  if (session?.user) redirect("/findeks");
+  if (session?.user) redirect("/dashboard");
 
   const userCount = await db.user.count();
   return <RegisterForm isFirstUser={userCount === 0} />;

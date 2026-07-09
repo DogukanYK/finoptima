@@ -70,7 +70,7 @@ export function AppShell({
       {/* ===== Masaüstü kenar çubuğu ===== */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-surface/75 backdrop-blur-2xl lg:flex">
         <div className="flex h-16 items-center px-5">
-          <Link href="/findeks" aria-label="Findeks'e git">
+          <Link href="/dashboard" aria-label="Panel'e git">
             <Brand size={34} />
           </Link>
         </div>
@@ -119,7 +119,7 @@ export function AppShell({
       <div className="lg:pl-64">
         {/* Mobil üst bar */}
         <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line bg-surface/75 px-4 backdrop-blur-xl lg:hidden">
-          <Link href="/findeks" aria-label="Findeks'e git">
+          <Link href="/dashboard" aria-label="Panel'e git">
             <Brand size={30} />
           </Link>
           <button

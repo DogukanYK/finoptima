@@ -58,5 +58,5 @@ export async function completeOnboarding(data: unknown): Promise<void> {
     }),
   ]);
 
-  redirect("/findeks");
+  redirect("/dashboard");
 }

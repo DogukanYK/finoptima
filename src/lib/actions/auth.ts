@@ -217,7 +217,7 @@ export async function loginAction(
     metadata: { email },
   });
 
-  redirect("/findeks");
+  redirect("/dashboard");
 }
 
 export async function logoutAction() {
