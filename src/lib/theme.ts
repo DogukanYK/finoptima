@@ -75,61 +75,127 @@ export type ThemePreset = {
   values: Partial<ThemeSettings>;
 };
 
+// Küratörlü tam paletler — her biri light + dark renk setini birlikte taşır ki
+// mode bağımsız çalışsın ve kontrast her modda tutarlı olsun. Tipografi/köşe/
+// yoğunluk preset'e dahil DEĞİL (daima DEFAULT_THEME).
 export const THEME_PRESETS: ThemePreset[] = [
   {
-    name: "Kobalt",
-    description: "Kobalt → mor gradient, premium fintech — varsayılan",
+    name: "Mavi",
+    description: "Güven mavisi + zümrüt — dengeli, varsayılan.",
     values: {
-      primaryColor: "#2046FF",
-      accentColor: "#0E8A47",
-      backgroundColor: "#FAFAF7",
+      primaryColor: "#2563EB",
+      accentColor: "#059669",
+      destructiveColor: "#DC2626",
+      backgroundColor: "#F8FAFC",
       surfaceColor: "#FFFFFF",
-      textColor: "#0B0C10",
-      mutedTextColor: "#7E8497",
-      borderColor: "#E9E8E2",
+      textColor: "#0F172A",
+      mutedTextColor: "#64748B",
+      borderColor: "#E2E8F0",
+      darkBackgroundColor: "#0B1120",
+      darkSurfaceColor: "#111827",
+      darkTextColor: "#F1F5F9",
+      darkMutedTextColor: "#94A3B8",
+      darkBorderColor: "#1E293B",
+      chartColors: ["#2563EB", "#059669", "#F59E0B", "#0EA5E9", "#6366F1", "#EF4444"],
     },
   },
   {
-    name: "Gece",
-    description: "Koyu, liquid glass, odaklanmış",
+    name: "Zümrüt",
+    description: "Zümrüt yeşili — sakin, doğal, para odaklı.",
     values: {
-      mode: "DARK",
-      primaryColor: "#5E7EFF",
-      accentColor: "#3FD47A",
-      darkBackgroundColor: "#0C0D12",
-      darkSurfaceColor: "#16181F",
-      darkTextColor: "#F5F4EF",
-      darkMutedTextColor: "#8C91A6",
-      darkBorderColor: "#26282F",
+      primaryColor: "#047857",
+      accentColor: "#0D9488",
+      destructiveColor: "#DC2626",
+      backgroundColor: "#F5FAF7",
+      surfaceColor: "#FFFFFF",
+      textColor: "#0C1512",
+      mutedTextColor: "#5C6F66",
+      borderColor: "#DCE7E1",
+      darkBackgroundColor: "#09110E",
+      darkSurfaceColor: "#101B16",
+      darkTextColor: "#ECFDF5",
+      darkMutedTextColor: "#8DA69A",
+      darkBorderColor: "#1E2C26",
+      chartColors: ["#047857", "#0D9488", "#2563EB", "#D97706", "#6366F1", "#DC2626"],
     },
   },
   {
-    name: "Krem",
-    description: "Toprak tonları, sıcak ve sakin",
+    name: "Gece Mavisi",
+    description: "İndigo — modern, teknolojik, koyuya yatkın.",
     values: {
-      primaryColor: "#B85A3A",
-      accentColor: "#3D6643",
-      backgroundColor: "#F4EFE6",
+      primaryColor: "#4F46E5",
+      accentColor: "#0EA5E9",
+      destructiveColor: "#DC2626",
+      backgroundColor: "#F7F8FD",
       surfaceColor: "#FFFFFF",
-      textColor: "#1A0F08",
-      mutedTextColor: "#8A7B68",
-      borderColor: "#E7DECF",
+      textColor: "#111327",
+      mutedTextColor: "#666A85",
+      borderColor: "#E2E4F0",
+      darkBackgroundColor: "#0A0D1E",
+      darkSurfaceColor: "#121531",
+      darkTextColor: "#EEF0FB",
+      darkMutedTextColor: "#9297B8",
+      darkBorderColor: "#20244A",
+      chartColors: ["#4F46E5", "#0EA5E9", "#059669", "#F59E0B", "#EC4899", "#EF4444"],
+    },
+  },
+  {
+    name: "Bordo",
+    description: "Bordo + amber — sıcak, klasik, güçlü.",
+    values: {
+      primaryColor: "#9F1239",
+      accentColor: "#B45309",
+      destructiveColor: "#DC2626",
+      backgroundColor: "#FBF7F7",
+      surfaceColor: "#FFFFFF",
+      textColor: "#1C0D12",
+      mutedTextColor: "#7A6068",
+      borderColor: "#EFDFE3",
+      darkBackgroundColor: "#150A0E",
+      darkSurfaceColor: "#1F1216",
+      darkTextColor: "#FBF1F3",
+      darkMutedTextColor: "#B08E97",
+      darkBorderColor: "#332026",
+      chartColors: ["#9F1239", "#B45309", "#0F766E", "#2563EB", "#7C3AED", "#DC2626"],
     },
   },
   {
     name: "Mono",
-    description: "Tek renk disiplini, nötr gri",
+    description: "Tek renk disiplini — nötr, minimal.",
     values: {
-      primaryColor: "#0D0E12",
-      accentColor: "#525866",
-      backgroundColor: "#F2F2F0",
+      primaryColor: "#27272A",
+      accentColor: "#52525B",
+      destructiveColor: "#DC2626",
+      backgroundColor: "#F4F4F5",
       surfaceColor: "#FFFFFF",
-      textColor: "#0D0E12",
-      mutedTextColor: "#7A7E8F",
-      borderColor: "#E2E2DE",
+      textColor: "#111113",
+      mutedTextColor: "#71717A",
+      borderColor: "#E4E4E7",
+      darkBackgroundColor: "#09090B",
+      darkSurfaceColor: "#151518",
+      darkTextColor: "#F4F4F5",
+      darkMutedTextColor: "#A1A1AA",
+      darkBorderColor: "#26262B",
+      chartColors: ["#27272A", "#52525B", "#2563EB", "#059669", "#D97706", "#DC2626"],
     },
   },
 ];
+
+// Kullanıcının kaydından SADECE mode + presetName okunur; renkler koddan çözülür.
+// Bilinmeyen preset (eski satırlar) → DEFAULT_THEME. Tipografi/köşe/yoğunluk DAİMA
+// DEFAULT_THEME → yazı/kontrast tutarlı, DB'deki eski font/renk sızmaz.
+export function appliedThemeFromUser(
+  row: { mode?: string | null; presetName?: string | null } | null | undefined,
+): ThemeSettings {
+  const mode = normalizeMode(row?.mode);
+  const preset = THEME_PRESETS.find((p) => p.name === row?.presetName);
+  const base = preset ? { ...DEFAULT_THEME, ...preset.values } : DEFAULT_THEME;
+  return { ...base, mode };
+}
+
+function normalizeMode(m: unknown): ThemeMode {
+  return m === "LIGHT" || m === "DARK" || m === "SYSTEM" ? m : DEFAULT_THEME.mode;
+}
 
 const SHADOW_MAP: Record<string, { card: string; cardLg: string }> = {
   none: { card: "none", cardLg: "none" },

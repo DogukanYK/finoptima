@@ -142,7 +142,7 @@ export function ReceiptForm({ categories }: { categories: Category[] }) {
         >
           <span
             className="flex h-14 w-14 items-center justify-center rounded-xl text-white"
-            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+            style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
           >
             <ReceiptText size={26} />
           </span>

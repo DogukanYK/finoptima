@@ -42,7 +42,7 @@ export function AiIdentity({ initialText }: { initialText: string | null }) {
           <div className="flex items-start gap-3 rounded-[calc(var(--app-radius)*0.7)] bg-primary-soft p-3.5 text-sm text-ink">
             <span
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white"
-              style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+              style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
             >
               <Sparkles size={17} />
             </span>

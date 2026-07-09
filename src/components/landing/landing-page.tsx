@@ -340,7 +340,7 @@ export function LandingPage() {
               style={{ fontFamily: F.display }}
             >
               Kredi notunu{" "}
-              <span style={{ background: "linear-gradient(120deg,#2563EB,#059669)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 yükselt
               </span>
               , hak ettiğin krediyi al.

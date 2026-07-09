@@ -155,7 +155,7 @@ export function AppShell({
               href="/add"
               aria-label="Harcama ekle"
               style={{
-                background: "linear-gradient(120deg, #2563EB 0%, #0EA5E9 100%)",
+                background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))",
               }}
               className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[var(--app-shadow-lg)] transition-transform hover:brightness-105 active:scale-95"
             >
@@ -255,7 +255,7 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
         <span
           aria-hidden
           className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full"
-          style={{ background: "linear-gradient(180deg, #2563EB 0%, #0EA5E9 100%)" }}
+          style={{ background: "linear-gradient(180deg, var(--app-primary), var(--app-accent))" }}
         />
       )}
       <Icon

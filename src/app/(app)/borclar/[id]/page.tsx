@@ -69,7 +69,7 @@ export default async function DebtDetailPage({
         <div className="relative flex items-center gap-4">
           <span
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+            style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
           >
             {card ? <CreditCard size={26} /> : <Landmark size={26} />}
           </span>
@@ -164,7 +164,7 @@ export default async function DebtDetailPage({
         <div className="mt-3 flex items-start gap-3 rounded-[var(--app-radius)] bg-primary-soft p-4">
           <span
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+            style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
           >
             <Lightbulb size={18} />
           </span>

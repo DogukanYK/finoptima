@@ -42,7 +42,7 @@ export function InvitesManager({ invites }: { invites: Invite[] }) {
       <button
         onClick={generate}
         disabled={pending}
-        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+        style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
         className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-95 disabled:opacity-60"
       >
         <Plus size={16} /> Yeni davet kodu üret
@@ -65,7 +65,7 @@ export function InvitesManager({ invites }: { invites: Invite[] }) {
               ) : (
                 <span
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-                  style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+                  style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
                 >
                   <Ticket size={18} />
                 </span>

@@ -1,9 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireUserId } from "@/lib/auth-helpers";
+import { THEME_PRESETS } from "@/lib/theme";
+import { logAudit } from "@/lib/audit";
 
 const hex = z.string().regex(/^#([0-9a-fA-F]{6})$/, "Geçersiz renk");
 
@@ -59,4 +62,29 @@ export async function completeOnboarding(data: unknown): Promise<void> {
   ]);
 
   redirect("/dashboard");
+}
+
+const themeSaveSchema = z.object({
+  mode: z.enum(["LIGHT", "DARK", "SYSTEM"]),
+  presetName: z.string().max(40),
+});
+
+// Ayarlar > Görünüm: yalnız mode + preset kaydeder (renkler render'da preset'ten
+// çözülür). Bilinmeyen preset reddedilir. Redirect YOK — sayfada kalır.
+export async function updateThemeAction(
+  data: unknown,
+): Promise<{ ok: boolean; error?: string }> {
+  const userId = await requireUserId();
+  const parsed = themeSaveSchema.safeParse(data);
+  if (!parsed.success) return { ok: false, error: "Geçersiz tema seçimi." };
+  if (!THEME_PRESETS.some((p) => p.name === parsed.data.presetName)) {
+    return { ok: false, error: "Bilinmeyen renk paleti." };
+  }
+  await db.themeSettings.update({
+    where: { userId },
+    data: { mode: parsed.data.mode, presetName: parsed.data.presetName },
+  });
+  await logAudit({ userId, action: "theme.update", entityType: "ThemeSettings" });
+  revalidatePath("/", "layout");
+  return { ok: true };
 }

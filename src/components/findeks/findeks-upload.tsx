@@ -21,7 +21,7 @@ export function FindeksUpload({ hasReport }: { hasReport: boolean }) {
       <h2 className="flex items-center gap-2.5 font-heading text-base font-bold text-ink">
         <span
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white"
-          style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+          style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
         >
           <FileText size={18} />
         </span>

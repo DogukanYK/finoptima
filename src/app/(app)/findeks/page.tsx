@@ -407,7 +407,7 @@ function FactorTable({
           <span
             className="flex h-8 w-8 items-center justify-center rounded-xl"
             style={{
-              background: "linear-gradient(120deg,#2563EB,#0EA5E9)",
+              background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))",
               color: "#fff",
             }}
           >

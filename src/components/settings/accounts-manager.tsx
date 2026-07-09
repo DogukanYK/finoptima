@@ -77,8 +77,8 @@ export function AccountsManager({ accounts }: { accounts: Account[] }) {
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white"
                   style={{
                     background: card
-                      ? "linear-gradient(120deg,#2563EB,#0EA5E9)"
-                      : "linear-gradient(120deg,#2563EB,#059669)",
+                      ? "linear-gradient(120deg, var(--app-primary), var(--app-accent))"
+                      : "linear-gradient(120deg, var(--app-primary), var(--app-accent))",
                   }}
                 >
                   {card ? <CreditCard size={19} /> : <Landmark size={19} />}

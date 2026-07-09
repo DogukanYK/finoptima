@@ -18,7 +18,7 @@ export function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
     <div className="card p-5 sm:p-7">
       <span
         className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white"
-        style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+        style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
       >
         <UserPlus size={20} />
       </span>
@@ -26,7 +26,7 @@ export function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
         Hesap{" "}
         <span
           style={{
-            background: "linear-gradient(120deg,#2563EB,#059669)",
+            background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             WebkitTextFillColor: "transparent",

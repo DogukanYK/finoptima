@@ -5,21 +5,25 @@ import {
   Ticket,
   ShieldCheck,
   DatabaseBackup,
+  Palette,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { getAccounts, getCategories } from "@/lib/queries";
+import { DEFAULT_THEME, THEME_PRESETS, type ThemeMode } from "@/lib/theme";
 import { PageHeader } from "@/components/ui/page-header";
 import { AccountsManager } from "@/components/settings/accounts-manager";
 import { CategoriesManager } from "@/components/settings/categories-manager";
 import { InvitesManager } from "@/components/settings/invites-manager";
 import { TwoFactorManager } from "@/components/settings/two-factor-manager";
 import { DataPrivacy } from "@/components/settings/data-privacy";
+import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { id: "accounts", label: "Hesaplar", icon: Landmark },
   { id: "categories", label: "Kategoriler", icon: Tags },
+  { id: "appearance", label: "Görünüm", icon: Palette },
   { id: "security", label: "Güvenlik", icon: ShieldCheck },
   { id: "data", label: "Veri & Gizlilik", icon: DatabaseBackup },
   { id: "invites", label: "Davet Kodları", icon: Ticket, adminOnly: true },
@@ -35,6 +39,14 @@ export default async function SettingsPage({
   const isAdmin = user.role === "ADMIN";
   const tabs = TABS.filter((t) => !t.adminOnly || isAdmin);
   const tab = tabs.some((t) => t.id === sp.tab) ? sp.tab! : "accounts";
+
+  const themePreset = THEME_PRESETS.some((p) => p.name === user.theme?.presetName)
+    ? user.theme!.presetName
+    : DEFAULT_THEME.presetName;
+  const validMode = ["LIGHT", "DARK", "SYSTEM"].includes(user.theme?.mode ?? "");
+  const themeMode = (
+    validMode ? user.theme!.mode : DEFAULT_THEME.mode
+  ) as ThemeMode;
 
   return (
     <div>
@@ -103,6 +115,10 @@ export default async function SettingsPage({
             }))}
           />
         </div>
+      )}
+
+      {tab === "appearance" && (
+        <AppearanceSettings initialMode={themeMode} initialPreset={themePreset} />
       )}
 
       {tab === "security" && (

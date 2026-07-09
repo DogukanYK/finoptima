@@ -56,7 +56,7 @@ export default async function ProfilPage() {
       <div className="card flex items-center gap-4 p-5">
         <span
           className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full font-heading text-xl font-extrabold text-white shadow-[var(--app-shadow)]"
-          style={{ background: "linear-gradient(120deg,#2563EB,#0EA5E9)" }}
+          style={{ background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))" }}
         >
           {initial}
         </span>
@@ -148,7 +148,7 @@ export default async function ProfilPage() {
                       <span
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
                         style={{
-                          background: "linear-gradient(120deg,#2563EB,#0EA5E9)",
+                          background: "linear-gradient(120deg, var(--app-primary), var(--app-accent))",
                         }}
                       >
                         <Landmark size={18} />
