@@ -164,6 +164,9 @@ export const SEED_CATEGORIES: SeedCategory[] = [
   },
 ];
 
+// Claude'un categoryHint için seçebileceği kategori anahtarları (enum drift'e karşı).
+export const SEED_CATEGORY_KEYS = SEED_CATEGORIES.map((c) => c.key);
+
 export const SEED_ACCOUNTS: {
   bankName: string;
   type: "CHECKING" | "CREDIT_CARD" | "SAVINGS" | "CASH" | "OTHER";

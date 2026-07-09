@@ -2,6 +2,7 @@
 // Ücretsiz, internetsiz. Görüntü OCR'ı tarayıcıda yapılır; bu motor metin/PDF-metni üzerinde çalışır.
 
 import { parseGenericStatement } from "@/lib/extract/genericText";
+import { detectBankName } from "@/lib/extract/bankDetect";
 import type { ExtractInput, ExtractResult, DocKind } from "@/lib/extract/types";
 
 function guessDocKind(text: string, rowCount: number): DocKind {
@@ -22,5 +23,6 @@ export function offlineExtract(input: ExtractInput): ExtractResult {
     currency,
     confidence,
     engine: "offline",
+    meta: { bank: detectBankName(text) ?? undefined },
   };
 }

@@ -14,6 +14,7 @@ import {
 import { transactionSchema } from "@/lib/validation";
 import { categorize } from "@/lib/categorize";
 import { dateFromInput } from "@/lib/format";
+import { makeDedupHash } from "@/lib/dedup";
 
 export const runtime = "nodejs";
 
@@ -107,17 +108,19 @@ export async function POST(req: NextRequest) {
     categoryId = categorize(data.description, rules) ?? undefined;
   }
 
+  const date = dateFromInput(data.date);
   const tx = await db.transaction.create({
     data: {
       userId: auth.userId,
       kind: data.kind,
       amount: data.amount,
       description: data.description,
-      date: dateFromInput(data.date),
+      date,
       categoryId: categoryId ?? null,
       accountId: data.accountId ?? null,
       note: data.note ?? null,
       source: "MANUAL",
+      dedupHash: makeDedupHash(date, data.amount, data.description),
     },
     include: { category: true, account: true },
   });

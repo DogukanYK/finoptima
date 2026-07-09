@@ -118,7 +118,11 @@ export function ImportWizard({ accounts }: { accounts: Account[] }) {
   }
 
   function commit() {
-    const included = rows.filter((_, i) => !excluded.has(i));
+    // Kullanıcının dahil ettiği "tekrar" satırlarını force ile gönder — sunucu
+    // otoritesi bunları atmasın (bilerek dahil edildi).
+    const included = rows
+      .filter((_, i) => !excluded.has(i))
+      .map((r) => (r.duplicate ? { ...r, force: true } : r));
     const isNew = accountChoice === "__new__";
     startTransition(async () => {
       const res = await commitStatement({

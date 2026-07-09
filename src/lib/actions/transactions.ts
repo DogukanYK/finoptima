@@ -6,6 +6,7 @@ import { requireUserId } from "@/lib/auth-helpers";
 import { transactionSchema } from "@/lib/validation";
 import { categorize } from "@/lib/categorize";
 import { parseAmount, dateFromInput } from "@/lib/format";
+import { makeDedupHash } from "@/lib/dedup";
 import {
   getTransactions,
   type TransactionFilters,
@@ -64,17 +65,19 @@ export async function createTransaction(
     categoryId = categorize(data.description, rules) ?? undefined;
   }
 
+  const date = dateFromInput(data.date);
   await db.transaction.create({
     data: {
       userId,
       kind: data.kind,
       amount: data.amount,
       description: data.description,
-      date: dateFromInput(data.date),
+      date,
       categoryId: categoryId ?? null,
       accountId: data.accountId ?? null,
       note: data.note ?? null,
       source: "MANUAL",
+      dedupHash: makeDedupHash(date, data.amount, data.description),
     },
   });
 

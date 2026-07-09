@@ -10,6 +10,8 @@ export type ExtractedRow = {
   amount: number; // her zaman pozitif
   direction: ExtractDirection;
   currency: string | null;
+  merchant?: string | null; // işyeri/kurum adı (varsa)
+  categoryHint?: string | null; // seed kategori anahtarı (açıklamadan anlaşıldıysa)
 };
 
 export type DocKind =

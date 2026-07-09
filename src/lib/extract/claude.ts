@@ -9,17 +9,24 @@ import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { getAnthropic, EXTRACT_MODEL, AI_DEMO } from "@/lib/ai/client";
 import type { ExtractInput, ExtractResult, ExtractedRow } from "@/lib/extract/types";
+import { SEED_CATEGORY_KEYS } from "@/lib/seed-data";
+import { detectBankName } from "@/lib/extract/bankDetect";
+
+const CATEGORY_KEYS = SEED_CATEGORY_KEYS as [string, ...string[]];
 
 const rowSchema = z.object({
   date: z.string(), // ISO yyyy-mm-dd
   description: z.string(),
   amount: z.number(), // pozitif
   direction: z.enum(["in", "out"]), // in = gelir/alacak, out = gider/borç
+  merchant: z.string().nullable(), // işyeri/kurum adı
+  categoryHint: z.enum(CATEGORY_KEYS).nullable(), // açıklamadan çıkan kategori anahtarı
 });
 
 const docSchema = z.object({
   docKind: z.enum(["receipt", "statement", "card_statement", "invoice", "unknown"]),
   currency: z.string().nullable(),
+  bank: z.string().nullable(), // belgeyi düzenleyen banka/kurum
   rows: z.array(rowSchema),
 });
 
@@ -31,7 +38,10 @@ KURALLAR:
 3. Tarihi belgedeki formattan doğru çöz (dd/mm vs mm/dd ayrımına dikkat); belirsizse en mantıklısını seç.
 4. Tutarda binlik/ondalık ayıracını doğru yorumla (1.234,56 ve 1,234.56 ikisi de 1234.56'dır).
 5. Para birimini belirle (TRY, USD, EUR, GBP...); belirsizse null.
-6. docKind'i belge tipine göre seç. Belgede gerçekten olan veriyi çıkar, ASLA uydurma.`;
+6. docKind'i belge tipine göre seç. Belgede gerçekten olan veriyi çıkar, ASLA uydurma.
+7. bank: Belgeyi düzenleyen banka/kurumu belirle (ör. "Garanti BBVA", "Enpara", "Yapı Kredi"); başlık/logo/IBAN'dan çöz, emin değilsen null.
+8. merchant: Her satırda işyeri/kurum adını çıkar (ör. "Migros", "Netflix", "Elektrik Dağıtım"); yoksa null.
+9. categoryHint: Açıklamadan işlemin ne olduğu anlaşılıyorsa listeden EN UYGUN anahtarı seç; emin değilsen null. Örnekler: elektrik/su/doğalgaz faturası→faturalar, market/Migros/BIM→market, maaş/bordro→maas, Netflix/Spotify→abonelikler, benzin/akaryakıt→akaryakit, kira→kira, restoran/yemek→yeme-icme. Geçerli anahtarlar: ${SEED_CATEGORY_KEYS.join(", ")}.`;
 
 // MIME → izinli görüntü medya tipi (SDK union'ı).
 type ImageMedia = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
@@ -80,7 +90,7 @@ function demoExtract(input: ExtractInput): ExtractResult {
       { date: d(15), description: "Taksitli alışveriş (1/6)", amount: 520, direction: "out", currency: "TRY" },
       { date: d(18), description: "Asgari ödeme", amount: 1500, direction: "in", currency: "TRY" },
     ];
-    return { rows, docKind: "card_statement", currency: "TRY", confidence: 0.95, engine: "claude" };
+    return { rows, docKind: "card_statement", currency: "TRY", confidence: 0.95, engine: "claude", meta: { bank: "Yapı Kredi" } };
   }
 
   // Senaryo 3 — Banka hesap dökümü.
@@ -94,7 +104,7 @@ function demoExtract(input: ExtractInput): ExtractResult {
     { date: d(14), description: "Gelen havale", amount: 1500, direction: "in", currency: "TRY" },
     { date: d(18), description: "Akaryakıt", amount: 850, direction: "out", currency: "TRY" },
   ];
-  return { rows, docKind: "statement", currency: "TRY", confidence: 0.94, engine: "claude" };
+  return { rows, docKind: "statement", currency: "TRY", confidence: 0.94, engine: "claude", meta: { bank: "Garanti BBVA" } };
 }
 
 export async function claudeExtract(input: ExtractInput): Promise<ExtractResult> {
@@ -139,6 +149,8 @@ export async function claudeExtract(input: ExtractInput): Promise<ExtractResult>
       amount: Math.abs(r.amount),
       direction: r.direction,
       currency: out.currency,
+      merchant: r.merchant ?? null,
+      categoryHint: r.categoryHint ?? null,
     }))
     .filter((r) => !Number.isNaN(r.date.getTime()) && r.amount > 0);
 
@@ -148,5 +160,6 @@ export async function claudeExtract(input: ExtractInput): Promise<ExtractResult>
     currency: out.currency,
     confidence: 0.97,
     engine: "claude",
+    meta: { bank: out.bank ?? detectBankName(input.text ?? "") ?? undefined },
   };
 }

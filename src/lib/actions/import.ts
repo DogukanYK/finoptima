@@ -16,7 +16,9 @@ import {
 import { parsePdfStatement, extractPdfText } from "@/lib/pdfStatements";
 import { extractDocument } from "@/lib/extract";
 import { claudeExtract } from "@/lib/extract/claude";
-import { toDateKey } from "@/lib/format";
+import { detectBankName } from "@/lib/extract/bankDetect";
+import { makeDedupHash } from "@/lib/dedup";
+import { SEED_CATEGORIES } from "@/lib/seed-data";
 
 export type ParsedRow = {
   date: string; // ISO
@@ -27,6 +29,7 @@ export type ParsedRow = {
   categoryName: string | null;
   dedupHash: string;
   duplicate: boolean;
+  force?: boolean; // kullanıcı "tekrar" satırını bilerek dahil ettiyse
 };
 
 export type ParseResult = {
@@ -56,8 +59,19 @@ function readGrid(name: string, buffer: ArrayBuffer): unknown[][] {
   return XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, raw: false });
 }
 
-function makeHash(dateKey: string, amount: number, desc: string): string {
-  return `${dateKey}|${amount.toFixed(2)}|${desc.slice(0, 60).toLowerCase()}`;
+// Claude'un verdiği categoryHint (seed anahtarı) → kullanıcının o adlı kategorisi.
+function mapHintToCategory(
+  hint: string | null | undefined,
+  categories: { id: string; name: string }[],
+): string | null {
+  if (!hint) return null;
+  const seed = SEED_CATEGORIES.find((c) => c.key === hint);
+  if (!seed) return null;
+  const target = seed.name.toLocaleLowerCase("tr");
+  const match = categories.find(
+    (c) => c.name.toLocaleLowerCase("tr") === target,
+  );
+  return match?.id ?? null;
 }
 
 export async function parseStatement(formData: FormData): Promise<ParseResult> {
@@ -96,7 +110,13 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
   const isImage =
     /^image\//.test(file.type) || /\.(png|jpe?g|webp|gif)$/i.test(file.name);
 
-  type Raw = { date: Date; description: string; amount: number; kind: TxKind };
+  type Raw = {
+    date: Date;
+    description: string;
+    amount: number;
+    kind: TxKind;
+    categoryHint?: string | null;
+  };
   let raw: Raw[] = [];
   let detectedBank: string | undefined;
   let accountType: "DEBIT" | "CREDIT_CARD" = "DEBIT";
@@ -144,9 +164,11 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
         description: r.description,
         amount: r.amount,
         kind: (r.direction === "in" ? "INCOME" : "EXPENSE") as TxKind,
+        categoryHint: r.categoryHint,
       }));
       detectedBank =
-        result.engine === "claude" ? "AI ile okundu" : "Otomatik tanındı";
+        result.meta?.bank ??
+        (result.engine === "claude" ? "AI ile okundu" : "Otomatik tanındı");
       accountType =
         result.docKind === "card_statement" ? "CREDIT_CARD" : "DEBIT";
     }
@@ -168,8 +190,9 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
       description: r.description,
       amount: r.amount,
       kind: (r.direction === "in" ? "INCOME" : "EXPENSE") as TxKind,
+      categoryHint: r.categoryHint,
     }));
-    detectedBank = "AI ile okundu";
+    detectedBank = result.meta?.bank ?? "AI ile okundu";
     accountType =
       result.docKind === "card_statement" ? "CREDIT_CARD" : "DEBIT";
   } else {
@@ -182,6 +205,13 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
     if (grid.length < 2) {
       return { ok: false, error: "Dosyada yeterli satır yok." };
     }
+
+    // Banka adı genelde başlık satırının üstünde; ilk ~25 satırın metninden tanı.
+    const gridText = grid
+      .slice(0, 25)
+      .map((r) => (r ?? []).map(cellText).join(" "))
+      .join("\n");
+    detectedBank = detectBankName(gridText) ?? undefined;
 
     let headerIdx = -1;
     let columns = null;
@@ -236,10 +266,16 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
     return { ok: false, error: "Geçerli işlem satırı bulunamadı." };
   }
 
+  const batchSeen = new Set<string>();
   const rows: ParsedRow[] = raw.map((r) => {
     const matchedCat =
-      r.kind === "TRANSFER" ? null : categorize(r.description, rules);
-    const hash = makeHash(toDateKey(r.date), r.amount, r.description);
+      r.kind === "TRANSFER"
+        ? null
+        : (categorize(r.description, rules) ??
+          mapHintToCategory(r.categoryHint, categories));
+    const hash = makeDedupHash(r.date, r.amount, r.description);
+    const duplicate = existingHashes.has(hash) || batchSeen.has(hash);
+    batchSeen.add(hash);
     return {
       date: r.date.toISOString(),
       description: r.description,
@@ -248,7 +284,7 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
       categoryId: matchedCat,
       categoryName: matchedCat ? (catName.get(matchedCat) ?? null) : null,
       dedupHash: hash,
-      duplicate: existingHashes.has(hash),
+      duplicate,
     };
   });
 
@@ -269,7 +305,23 @@ export async function commitStatement(payload: {
   rows: ParsedRow[];
 }): Promise<{ ok: boolean; imported: number; skipped: number }> {
   const userId = await requireUserId();
-  const rows = payload.rows.filter((r) => !r.duplicate);
+
+  // Sunucu otoritesi: istemcinin duplicate bayrağına güvenme; hash'leri yeniden
+  // hesapla, DB'de ya da bu partide zaten olanı atla — force'lu satırlar hariç
+  // (kullanıcı önizlemede "tekrar"ı bilerek geri dahil etti).
+  const existing = await db.transaction.findMany({
+    where: { userId, dedupHash: { not: null } },
+    select: { dedupHash: true },
+  });
+  const existingHashes = new Set(existing.map((e) => e.dedupHash));
+  const seen = new Set<string>();
+  const rows: (ParsedRow & { hash: string })[] = [];
+  for (const r of payload.rows) {
+    const hash = makeDedupHash(new Date(r.date), r.amount, r.description);
+    if (!r.force && (existingHashes.has(hash) || seen.has(hash))) continue;
+    seen.add(hash);
+    rows.push({ ...r, hash });
+  }
 
   if (rows.length === 0) {
     return { ok: true, imported: 0, skipped: payload.rows.length };
@@ -313,7 +365,7 @@ export async function commitStatement(payload: {
           categoryId: r.kind === "TRANSFER" ? null : r.categoryId,
           accountId,
           source: "STATEMENT" as const,
-          dedupHash: r.dedupHash,
+          dedupHash: r.hash,
         })),
       });
     },
@@ -383,10 +435,15 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
     return { ok: false, error: "Belgeden işlem çıkarılamadı." };
   }
 
+  const batchSeen = new Set<string>();
   const rows: ParsedRow[] = result.rows.map((r) => {
     const kind: TxKind = r.direction === "in" ? "INCOME" : "EXPENSE";
-    const matchedCat = categorize(r.description, rules);
-    const hash = makeHash(toDateKey(r.date), r.amount, r.description);
+    const matchedCat =
+      categorize(r.description, rules) ??
+      mapHintToCategory(r.categoryHint, categories);
+    const hash = makeDedupHash(r.date, r.amount, r.description);
+    const duplicate = existingHashes.has(hash) || batchSeen.has(hash);
+    batchSeen.add(hash);
     return {
       date: r.date.toISOString(),
       description: r.description,
@@ -395,7 +452,7 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
       categoryId: matchedCat,
       categoryName: matchedCat ? (catName.get(matchedCat) ?? null) : null,
       dedupHash: hash,
-      duplicate: existingHashes.has(hash),
+      duplicate,
     };
   });
 
@@ -403,7 +460,7 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
     ok: true,
     rows,
     fileName: file.name,
-    detectedBank: "AI ile okundu",
+    detectedBank: result.meta?.bank ?? "AI ile okundu",
     accountType: result.docKind === "card_statement" ? "CREDIT_CARD" : "DEBIT",
   };
 }
