@@ -412,6 +412,10 @@ model FinanceProfile {
   incomeRange    String?
   aiIdentityText String?
 
+  // Kredi koçu son planı (kalıcı — sayfa yenileyince kaybolmasın)
+  coachPlanJson        Json?
+  coachPlanGeneratedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

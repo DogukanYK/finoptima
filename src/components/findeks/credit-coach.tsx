@@ -12,7 +12,9 @@ import {
   generateCoachPlan,
   type CreditCoachState,
 } from "@/lib/actions/credit-coach";
+import type { CoachPlan } from "@/lib/ai/coachSchema";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { formatDate } from "@/lib/format";
 
 const PRIORITY = {
   high: { label: "Yüksek öncelik", cls: "bg-destructive-soft text-destructive" },
@@ -20,10 +22,21 @@ const PRIORITY = {
   low: { label: "Düşük öncelik", cls: "bg-surface-2 text-muted" },
 } as const;
 
-export function CreditCoach() {
+export function CreditCoach({
+  initialPlan = null,
+  initialGeneratedAt = null,
+}: {
+  initialPlan?: CoachPlan | null;
+  initialGeneratedAt?: string | null;
+}) {
+  // Kalıcı plan varsa idle yerine "ok" ile başla → sayfa yenilenince kaybolmaz.
+  const initial: CreditCoachState =
+    initialPlan && initialGeneratedAt
+      ? { status: "ok", plan: initialPlan, generatedAt: initialGeneratedAt }
+      : { status: "idle" };
   const [state, formAction] = useActionState<CreditCoachState, FormData>(
     generateCoachPlan,
-    { status: "idle" },
+    initial,
   );
 
   return (
@@ -61,10 +74,7 @@ export function CreditCoach() {
             {state.plan.steps.map((s, i) => {
               const p = PRIORITY[s.priority];
               return (
-                <li
-                  key={i}
-                  className="card card-hover p-4"
-                >
+                <li key={i} className="card card-hover p-4">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="flex items-center gap-2.5 font-heading text-sm font-bold text-ink">
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary-soft font-heading text-xs font-bold tabular-nums text-primary">
@@ -95,8 +105,8 @@ export function CreditCoach() {
             })}
           </ol>
           <p className="text-xs text-muted">
-            Bu plan tahmini kredi sağlığı verilerinden üretildi; resmî Findeks notu
-            değildir.
+            {formatDate(state.generatedAt)} tarihinde üretildi. Bu plan tahmini
+            kredi sağlığı verilerinden üretildi; resmî Findeks notu değildir.
           </p>
         </div>
       )}

@@ -1,5 +1,9 @@
 import { requireUser } from "@/lib/auth-helpers";
-import { getFindeksSignals, getLatestFindeksReport } from "@/lib/queries";
+import {
+  getFindeksSignals,
+  getLatestFindeksReport,
+  getCoachPlan,
+} from "@/lib/queries";
 import { computeFindeks, type FindeksAdvice } from "@/lib/findeks";
 import { findeksAdvice } from "@/lib/findeksReport";
 import { formatTL, formatDate } from "@/lib/format";
@@ -24,9 +28,10 @@ export const maxDuration = 60;
 
 export default async function FindeksPage() {
   const user = await requireUser();
-  const [signals, report] = await Promise.all([
+  const [signals, report, coachPlan] = await Promise.all([
     getFindeksSignals(user.id),
     getLatestFindeksReport(user.id),
+    getCoachPlan(user.id),
   ]);
 
   const headerTitle = report
@@ -55,7 +60,10 @@ export default async function FindeksPage() {
       )}
 
       {/* AI kredi koçu — deterministik skor verisinden kişisel eylem planı */}
-      <CreditCoach />
+      <CreditCoach
+        initialPlan={coachPlan?.plan ?? null}
+        initialGeneratedAt={coachPlan?.generatedAt ?? null}
+      />
 
       <FindeksUpload hasReport={Boolean(report)} />
     </div>

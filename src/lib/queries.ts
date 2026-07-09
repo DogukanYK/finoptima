@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { toMonthKey, toDateKey } from "@/lib/format";
 import { decryptField } from "@/lib/crypto";
+import { coachPlanSchema, type CoachPlan } from "@/lib/ai/coachSchema";
 
 export type TxKind = "INCOME" | "EXPENSE" | "TRANSFER";
 
@@ -373,6 +374,24 @@ export async function getLatestFindeksReport(userId: string) {
       restructured: boolean;
       openedAt: string | null;
     }[],
+  };
+}
+
+// Kredi koçunun son ürettiği plan (kalıcı). DB'den okur, şemayla doğrular;
+// şema drift'inde güvenle null döner.
+export async function getCoachPlan(
+  userId: string,
+): Promise<{ plan: CoachPlan; generatedAt: string } | null> {
+  const profile = await db.financeProfile.findUnique({
+    where: { userId },
+    select: { coachPlanJson: true, coachPlanGeneratedAt: true },
+  });
+  if (!profile?.coachPlanJson || !profile.coachPlanGeneratedAt) return null;
+  const parsed = coachPlanSchema.safeParse(profile.coachPlanJson);
+  if (!parsed.success) return null;
+  return {
+    plan: parsed.data,
+    generatedAt: profile.coachPlanGeneratedAt.toISOString(),
   };
 }
 

@@ -4,28 +4,15 @@
 // ALTIN KURAL: Skoru/matematiği LLM hesaplamaz. Sayılar `findeks.ts`/`debt.ts`'ten gelir;
 // Claude sadece bu sayıları YORUMLAR, önceliklendirir ve Türkçe anlatır.
 
-import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { getAnthropic, CREDIT_COACH_MODEL, AI_DEMO } from "@/lib/ai/client";
 import type { FindeksResult } from "@/lib/findeks";
 import type { PlainDebt } from "@/lib/queries";
 
-// --- Yapısal çıktı şeması (Claude bu şekle uymak zorunda) ---
-export const coachStepSchema = z.object({
-  priority: z.enum(["high", "medium", "low"]),
-  title: z.string(), // kısa başlık
-  why: z.string(), // neden önemli — kullanıcının gerçek sayılarına dayalı
-  action: z.string(), // bu ay atılacak somut adım
-  impact: z.string(), // beklenen etki (nitel: "yüksek etki" gibi; sayı uydurmaz)
-});
-
-export const coachPlanSchema = z.object({
-  summary: z.string(), // 1-2 cümlelik dürüst genel durum
-  steps: z.array(coachStepSchema), // önceliklendirilmiş eylem listesi
-});
-
-export type CoachStep = z.infer<typeof coachStepSchema>;
-export type CoachPlan = z.infer<typeof coachPlanSchema>;
+// Yapısal çıktı şeması artık SDK'sız coachSchema.ts'te (queries.ts de oradan okur).
+import { coachPlanSchema, type CoachStep, type CoachPlan } from "./coachSchema";
+export { coachStepSchema, coachPlanSchema } from "./coachSchema";
+export type { CoachStep, CoachPlan } from "./coachSchema";
 
 const SYSTEM_PROMPT = `Sen "Akça"nın kredi sağlığı koçusun. Görevin, kullanıcının finansal verilerine bakarak kredi notunu (kredi sağlığını) yükseltmesi için kişiselleştirilmiş, somut ve önceliklendirilmiş bir aylık eylem planı üretmek.
 
