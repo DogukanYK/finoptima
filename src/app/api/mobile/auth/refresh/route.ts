@@ -10,10 +10,19 @@ import {
   ACCESS_TTL_SECONDS,
 } from "@/lib/mobile/tokens";
 import { apiError } from "@/lib/mobile/guard";
+import { rateLimit } from "@/lib/rate-limit";
+import { clientIp } from "@/lib/mobile/loginGuard";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const burst = await rateLimit(`mrefresh:${clientIp(req)}`, 30, 60_000);
+  if (!burst.ok) {
+    return NextResponse.json(
+      { error: { code: "rate_limited", message: "Çok fazla istek." } },
+      { status: 429, headers: { "Retry-After": String(burst.retryAfter) } },
+    );
+  }
   let body: { refreshToken?: string };
   try {
     body = await req.json();
