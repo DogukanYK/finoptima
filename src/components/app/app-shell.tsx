@@ -31,6 +31,11 @@ import {
 } from "@/lib/nav";
 import { Brand } from "@/components/brand";
 import { logoutAction } from "@/lib/actions/auth";
+import {
+  AppChromeProvider,
+  SearchTrigger,
+  AiTrigger,
+} from "@/components/app/app-chrome";
 
 const NAV_ICONS: Record<string, LucideIcon> = {
   "layout-dashboard": LayoutDashboard,
@@ -62,6 +67,7 @@ export function AppShell({
   const [moreOpen, setMoreOpen] = useState(false);
 
   return (
+    <AppChromeProvider>
     <div className="min-h-dvh bg-canvas">
       <a href="#main" className="sr-only skip-link">
         İçeriğe geç
@@ -117,15 +123,25 @@ export function AppShell({
 
       {/* ===== İçerik ===== */}
       <div className="lg:pl-64">
+        {/* Masaüstü üst bar — arama çubuğu + asistan */}
+        <header className="sticky top-0 z-20 hidden h-16 items-center gap-3 border-b border-line bg-surface/70 px-6 backdrop-blur-xl lg:flex">
+          <SearchTrigger className="w-full max-w-sm" />
+          <div className="ml-auto">
+            <AiTrigger />
+          </div>
+        </header>
+
         {/* Mobil üst bar */}
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-line bg-surface/75 px-4 backdrop-blur-xl lg:hidden">
-          <Link href="/dashboard" aria-label="Panel'e git">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-surface/75 px-3 backdrop-blur-xl lg:hidden">
+          <Link href="/dashboard" aria-label="Panel'e git" className="shrink-0">
             <Brand size={30} />
           </Link>
+          <SearchTrigger className="min-w-0 flex-1" />
+          <AiTrigger iconOnly className="shrink-0 !px-2.5" />
           <button
             onClick={() => setMoreOpen(true)}
             aria-label="Menü"
-            className="flex h-10 w-10 items-center justify-center rounded-[calc(var(--app-radius)*0.6)] text-ink hover:bg-surface-2"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[calc(var(--app-radius)*0.6)] text-ink hover:bg-surface-2"
           >
             <MoreHorizontal size={22} />
           </button>
@@ -235,6 +251,7 @@ export function AppShell({
         </div>
       )}
     </div>
+    </AppChromeProvider>
   );
 }
 
