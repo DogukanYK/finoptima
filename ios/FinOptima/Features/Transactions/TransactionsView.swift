@@ -245,7 +245,7 @@ private struct TransactionRow: View {
                             .foregroundStyle(categoryColor)
                     }
                     if let subtitle {
-                        if transaction.category?.name?.isEmpty == false {
+                        if transaction.category?.name.isEmpty == false {
                             Text("·").foregroundStyle(Theme.muted)
                         }
                         Text(subtitle)

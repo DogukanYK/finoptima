@@ -1,0 +1,7 @@
+# XcodeGen üretir — commit'lenmez (project.yml kaynaktır)
+FinOptima.xcodeproj/
+# Build çıktıları
+build/
+DerivedData/
+*.xcuserstate
+.DS_Store

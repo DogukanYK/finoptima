@@ -141,7 +141,7 @@ actor APIClient {
             }
         }
 
-        if authed, let token = keychain.accessToken() {
+        if authed, let token = keychain.accessToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
@@ -182,7 +182,7 @@ actor APIClient {
     }
 
     private func performRefresh() async throws {
-        guard let refreshToken = keychain.refreshToken() else {
+        guard let refreshToken = keychain.refreshToken else {
             await signOut()
             throw APIError.noSession
         }
