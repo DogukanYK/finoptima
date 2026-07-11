@@ -123,10 +123,11 @@ export function AppShell({
 
       {/* ===== İçerik ===== */}
       <div className="lg:pl-64">
-        {/* Masaüstü üst bar — arama çubuğu + asistan */}
+        {/* Masaüstü üst bar — ortada arama çubuğu, sağda asistan */}
         <header className="sticky top-0 z-20 hidden h-16 items-center gap-3 border-b border-line bg-surface/70 px-6 backdrop-blur-xl lg:flex">
-          <SearchTrigger className="w-full max-w-sm" />
-          <div className="ml-auto">
+          <div className="flex-1" />
+          <SearchTrigger className="w-full max-w-md" />
+          <div className="flex flex-1 justify-end">
             <AiTrigger />
           </div>
         </header>
