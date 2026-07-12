@@ -39,7 +39,7 @@ export function MarketingFooter() {
             <Brand />
           </Link>
           <p className="mt-3.5 max-w-[240px] text-sm leading-relaxed" style={{ color: SUBTLE }}>
-            Kredi notunu yükselt, paranı kontrol et. Türkiye için tasarlandı.
+            Kredi notunu yükselt, paranı kontrol et.
           </p>
         </div>
         {COLS.map((col) => (

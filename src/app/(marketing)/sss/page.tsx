@@ -44,7 +44,7 @@ const GROUPS: Group[] = [
       },
       {
         q: "Kimler kullanabilir?",
-        a: "18 yaşını doldurmuş, Türkiye'de finansal geçmişi olan herkes kullanabilir. İlk kez kredi kartı ya da kredi düşünen biri de, mevcut borçlarını düzenlemek isteyen biri de FinOptima'dan yararlanır. Uygulama tamamen Türkçedir ve Türk finans hayatına (taksit, KMH, kart aidatı, Findeks) göre tasarlanmıştır.",
+        a: "18 yaşını doldurmuş herkes kullanabilir. İlk kez kredi kartı ya da kredi düşünen biri de, mevcut borçlarını düzenlemek isteyen biri de FinOptima'dan yararlanır. Uygulama tamamen Türkçedir ve taksit, KMH, kart aidatı, Findeks gibi günlük finans gerçeklerine göre tasarlanmıştır.",
       },
       {
         q: "Kredi başvurusu yapmama yardım eder mi?",

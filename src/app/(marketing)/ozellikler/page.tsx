@@ -34,9 +34,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Özellikler — Türk cüzdanına göre finans",
+  title: "Özellikler — İhtiyacın olan tüm finans araçları",
   description:
-    "Kredi notu koçluğundan banka ekstresi okuyan yapay zekâya, kart ve taksit takibinden borç kapatma planına kadar FinOptima'nın tüm özellikleri — Türkiye için tasarlandı.",
+    "Kredi notu koçluğundan banka ekstresi okuyan yapay zekâya, kart ve taksit takibinden borç kapatma planına kadar FinOptima'nın tüm özellikleri tek sayfada.",
 };
 
 const FEATURES = [
@@ -107,7 +107,7 @@ export default function Page() {
           <Sparkles size={13} /> ÖZELLİKLER
         </Pill>
         <SectionTitle as="h1" className="mt-6 max-w-3xl">
-          Türk cüzdanına göre{" "}
+          Tek uygulama,{" "}
           <span
             style={{
               background: GRAD,
@@ -116,15 +116,14 @@ export default function Page() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            tasarlandı
+            tam kontrol
           </span>
           .
         </SectionTitle>
         <Lead className="mt-6 max-w-2xl">
-          Taksit, KMH, kart aidatı, Findeks, aidat faturası… FinOptima yurt dışından
-          kopyalanmış bir bütçe uygulaması değil. Türkiye'de paranın gerçekten nasıl
-          aktığını bilen bir yapay zekâ asistanı, kredi notu koçu ve tek ekranlık borç
-          panosu — hepsi bir arada.
+          Kredi notu koçluğundan banka ekstresi okuyan yapay zekâya, kart ve taksit
+          takibinden borç kapatma planına kadar — ihtiyacın olan finans araçları tek
+          uygulamada, birbiriyle konuşarak çalışır.
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" size="lg" arrow>

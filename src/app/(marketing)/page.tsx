@@ -36,7 +36,7 @@ import { F } from "@/components/marketing/fonts";
 export const metadata: Metadata = {
   title: { absolute: "FinOptima — Kredi notunu yükselt, paranı kontrol et" },
   description:
-    "Tahmini Findeks kredi notu, banka ekstresi okuyan yapay zekâ ve bu ay ne yapman gerektiğini söyleyen kişisel koçluk. Türkiye için, ücretsiz başla.",
+    "Tahmini Findeks kredi notu, banka ekstresi okuyan yapay zekâ ve bu ay ne yapman gerektiğini söyleyen kişisel koçluk. Ücretsiz başla.",
 };
 
 const STEPS = [
@@ -101,7 +101,7 @@ export default async function Home() {
             <div className="mt-7 flex flex-wrap items-center gap-2.5">
               <Pill tone="green"><Check size={13} /> Banka ekstresini AI okur</Pill>
               <Pill>KVKK uyumlu</Pill>
-              <Pill>Türkiye için</Pill>
+              <Pill>Dakikalar içinde kurulur</Pill>
             </div>
           </div>
 
@@ -194,7 +194,7 @@ export default async function Home() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Pill>ÖZELLİKLER</Pill>
-            <SectionTitle className="mt-5 max-w-2xl">Türk cüzdanına göre tasarlandı.</SectionTitle>
+            <SectionTitle className="mt-5 max-w-2xl">Paranı yönetmenin daha akıllı yolu.</SectionTitle>
           </div>
           <Link href="/ozellikler" className="inline-flex items-center gap-1.5 text-sm font-semibold" style={{ color: BLUE }}>
             Tüm özellikler <ArrowRight size={15} />
@@ -215,7 +215,7 @@ export default async function Home() {
           <div className="mt-9 grid gap-5 md:grid-cols-3">
             {[
               { Icon: TrendingUp, t: "Sadece takip değil, aksiyon", d: "Çoğu uygulama harcamanı gösterir. FinOptima ne yapman gerektiğini söyler — sırayla, önem derecesine göre." },
-              { Icon: CalendarClock, t: "Türkiye gerçekleri", d: "Taksit kültürü, KMH, kart aidatı, fatura döngüleri — hepsi Türk finans hayatına göre kurgulandı." },
+              { Icon: CalendarClock, t: "Günlük finans gerçekleri", d: "Taksit, KMH, kart aidatı, fatura döngüleri — hayatın gerçek finans akışına göre kurgulandı." },
               { Icon: Lock, t: "Verin sende kalır", d: "Zorunlu banka bağlama yok. Ekstreni sen yüklersin; şifren Argon2 ile, hassas alanlar şifreli saklanır." },
             ].map((b) => (
               <div key={b.t}>
