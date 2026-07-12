@@ -76,6 +76,12 @@ struct DashboardView: View {
         ScrollView {
             VStack(spacing: 16) {
                 summaryCards(dashboard)
+                if dashboard.trend.contains(where: { $0.income > 0 || $0.expense > 0 }) {
+                    trendSection(dashboard.trend)
+                }
+                if !dashboard.breakdown.isEmpty {
+                    breakdownSection(dashboard.breakdown)
+                }
                 recentSection(dashboard.recent)
                 if !dashboard.upcoming.isEmpty {
                     upcomingSection(dashboard.upcoming)
@@ -156,6 +162,90 @@ struct DashboardView: View {
                     }
                     UpcomingRow(item: item)
                         .padding(.vertical, 10)
+                }
+            }
+        }
+    }
+
+    // MARK: - 6 aylık trend
+
+    private func trendSection(_ points: [TrendPoint]) -> some View {
+        let maxVal = points.flatMap { [$0.income, $0.expense] }.max() ?? 1
+        return SectionCard(title: "Gelir & Gider · Son 6 ay") {
+            VStack(spacing: 10) {
+                HStack(alignment: .bottom, spacing: 10) {
+                    ForEach(points) { p in
+                        VStack(spacing: 5) {
+                            HStack(alignment: .bottom, spacing: 3) {
+                                Capsule().fill(Theme.income)
+                                    .frame(width: 8, height: barHeight(p.income, maxVal))
+                                Capsule().fill(Theme.expense)
+                                    .frame(width: 8, height: barHeight(p.expense, maxVal))
+                            }
+                            Text(monthShort(p.month))
+                                .font(.caption2)
+                                .foregroundStyle(Theme.muted)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .frame(height: 84, alignment: .bottom)
+
+                HStack(spacing: 16) {
+                    legendDot(Theme.income, "Gelir")
+                    legendDot(Theme.expense, "Gider")
+                }
+                .font(.caption2)
+                .foregroundStyle(Theme.muted)
+            }
+        }
+    }
+
+    private func legendDot(_ color: Color, _ label: String) -> some View {
+        HStack(spacing: 5) {
+            Circle().fill(color).frame(width: 8, height: 8)
+            Text(label)
+        }
+    }
+
+    private func barHeight(_ v: Double, _ maxVal: Double) -> CGFloat {
+        guard maxVal > 0 else { return 2 }
+        return max(2, CGFloat(v / maxVal) * 62)
+    }
+
+    private func monthShort(_ ym: String) -> String {
+        let months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+        let parts = ym.split(separator: "-")
+        if parts.count == 2, let m = Int(parts[1]), m >= 1, m <= 12 { return months[m - 1] }
+        return ym
+    }
+
+    // MARK: - Kategori dağılımı
+
+    private func breakdownSection(_ items: [Breakdown]) -> some View {
+        let total = items.reduce(0) { $0 + $1.total }
+        return SectionCard(title: "Harcama dağılımı · Bu ay") {
+            VStack(spacing: 12) {
+                ForEach(items.prefix(6)) { b in
+                    let ratio = total > 0 ? b.total / total : 0
+                    VStack(spacing: 6) {
+                        HStack(spacing: 8) {
+                            Circle().fill(Color(hex: b.color)).frame(width: 9, height: 9)
+                            Text(b.name).font(.footnote).foregroundStyle(Theme.ink).lineLimit(1)
+                            Spacer(minLength: 8)
+                            Text(Format.money(b.total))
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(Theme.ink)
+                        }
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(Theme.line)
+                                Capsule().fill(Color(hex: b.color))
+                                    .frame(width: max(4, geo.size.width * ratio))
+                            }
+                        }
+                        .frame(height: 6)
+                    }
                 }
             }
         }

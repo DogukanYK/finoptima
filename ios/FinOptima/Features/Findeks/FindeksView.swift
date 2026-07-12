@@ -84,6 +84,19 @@ struct FindeksView: View {
 
                 healthCard(data.estimated)
 
+                if let coach = data.coach {
+                    section(title: "AI Koç Planı", icon: "sparkles") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(coach.plan.summary)
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.muted)
+                            ForEach(coach.plan.steps) { step in
+                                CoachStepCard(step: step)
+                            }
+                        }
+                    }
+                }
+
                 if !data.estimated.factors.isEmpty {
                     section(title: "Skoru Etkileyen Faktörler", icon: "list.bullet.rectangle") {
                         VStack(spacing: 12) {
@@ -194,6 +207,57 @@ private struct InfoNote: View {
             (isEstimated ? FindeksPalette.amber : Theme.primary).opacity(0.08),
             in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous)
         )
+    }
+}
+
+// MARK: - AI Koç adım kartı
+
+private struct CoachStepCard: View {
+    let step: CoachStep
+
+    private var priorityColor: Color {
+        switch step.priority {
+        case "high": return Theme.destructive
+        case "medium": return Theme.primary
+        default: return Theme.muted
+        }
+    }
+    private var priorityLabel: String {
+        switch step.priority {
+        case "high": return "Yüksek öncelik"
+        case "medium": return "Orta öncelik"
+        default: return "Düşük öncelik"
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(priorityLabel)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(priorityColor)
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(priorityColor.opacity(0.12), in: Capsule())
+
+            Text(step.title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.ink)
+            Text(step.action)
+                .font(.footnote)
+                .foregroundStyle(Theme.ink)
+            Text(step.why)
+                .font(.caption)
+                .foregroundStyle(Theme.muted)
+            HStack(spacing: 5) {
+                Image(systemName: "arrow.up.right").font(.caption2)
+                Text(step.impact)
+            }
+            .font(.caption.weight(.medium))
+            .foregroundStyle(Theme.accent)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
     }
 }
 

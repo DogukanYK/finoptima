@@ -48,6 +48,8 @@ extension Endpoint {
     static let refs = Endpoint("/refs")
     static let dashboard = Endpoint("/dashboard")
     static let createTransaction = Endpoint("/transactions", method: .post)
+    static let assistant = Endpoint("/assistant", method: .post)
+    static let assistantCommit = Endpoint("/assistant/commit", method: .post)
 
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(
@@ -79,6 +81,17 @@ struct LoginBody: Encodable {
 /// `POST /auth/refresh` gövdesi.
 struct RefreshBody: Encodable {
     let refreshToken: String
+}
+
+/// `POST /assistant` gövdesi — sohbet geçmişi + yeni mesaj.
+struct AssistantAskBody: Encodable {
+    let history: [AssistantHistoryMessage]
+    let text: String
+}
+
+/// `POST /assistant/commit` gövdesi — onaylanan öneri.
+struct AssistantCommitBody: Encodable {
+    let action: AssistantProposedAction
 }
 
 /// `POST /transactions` gövdesi. `nil` alanlar gönderilmez.

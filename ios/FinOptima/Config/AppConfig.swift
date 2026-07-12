@@ -7,6 +7,6 @@ enum AppConfig {
     ///
     /// Not: geçersiz bir literal asla gerçekleşmez; `??` yalnızca force-unwrap
     /// kullanmamak için güvenli bir yedek sağlar.
-    static let baseURL: URL = URL(string: "https://financeoptima.vercel.app/api/mobile")
+    static let baseURL: URL = URL(string: "https://www.finoptima.dev/api/mobile")
         ?? URL(fileURLWithPath: "/")
 }

@@ -19,7 +19,7 @@ struct RootView: View {
 // MARK: - Ana sekmeli arayüz
 
 /// Giriş yapılmış kullanıcı için ana sekmeli arayüz:
-/// Panel · Findeks · İşlemler · Borçlar.
+/// Panel · Findeks · İşlemler · Asistan · Daha.
 struct MainTabView: View {
     var body: some View {
         TabView {
@@ -45,10 +45,17 @@ struct MainTabView: View {
             }
 
             NavigationStack {
-                DebtsView()
+                AssistantView()
             }
             .tabItem {
-                Label("Borçlar", systemImage: "creditcard")
+                Label("Asistan", systemImage: "sparkles")
+            }
+
+            NavigationStack {
+                MoreView()
+            }
+            .tabItem {
+                Label("Daha", systemImage: "ellipsis")
             }
         }
     }

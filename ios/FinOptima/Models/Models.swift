@@ -121,6 +121,66 @@ struct FindeksResponse: Decodable {
     let band: String
     let reportDate: String?
     let estimated: FindeksEstimate
+    let coach: CoachEnvelope?   // AI koç planı (varsa)
+}
+
+// MARK: - AI Koç (Coach)
+
+struct CoachStep: Decodable, Identifiable {
+    let priority: String   // high | medium | low
+    let title: String
+    let why: String
+    let action: String
+    let impact: String
+    var id: String { title }
+}
+
+struct CoachPlan: Decodable {
+    let summary: String
+    let steps: [CoachStep]
+}
+
+struct CoachEnvelope: Decodable {
+    let plan: CoachPlan
+    let generatedAt: String
+}
+
+// MARK: - AI Asistan
+
+struct AssistantProposedAction: Codable, Identifiable {
+    let type: String          // "transaction"
+    let kind: String          // INCOME | EXPENSE
+    let amount: Double
+    let description: String
+    let category: String?
+    let date: String
+    let note: String?
+    var id: String { "\(kind)-\(amount)-\(description)-\(date)" }
+}
+
+struct AssistantReplyResponse: Decodable {
+    let reply: String
+    let actions: [AssistantProposedAction]
+    let navigate: String?
+}
+
+struct AssistantCommitCreated: Decodable {
+    let kind: String
+    let amount: Double
+    let description: String
+    let date: String
+    let categoryName: String?
+}
+
+struct AssistantCommitResponse: Decodable {
+    let ok: Bool
+    let created: AssistantCommitCreated?
+    let error: String?
+}
+
+struct AssistantHistoryMessage: Encodable {
+    let role: String   // user | assistant
+    let content: String
 }
 
 // MARK: - Borçlar (Debts)

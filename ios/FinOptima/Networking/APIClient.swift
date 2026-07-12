@@ -262,4 +262,14 @@ extension APIClient {
     func dashboard() async throws -> Dashboard {
         try await request(Endpoint.dashboard)
     }
+
+    func askAssistant(history: [AssistantHistoryMessage], text: String) async throws -> AssistantReplyResponse {
+        let body = AssistantAskBody(history: history, text: text)
+        return try await request(Endpoint.assistant, body: body)
+    }
+
+    func commitAssistantAction(_ action: AssistantProposedAction) async throws -> AssistantCommitResponse {
+        let body = AssistantCommitBody(action: action)
+        return try await request(Endpoint.assistantCommit, body: body)
+    }
 }
