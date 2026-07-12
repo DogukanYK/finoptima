@@ -52,6 +52,8 @@ extension Endpoint {
     static let assistantCommit = Endpoint("/assistant/commit", method: .post)
     static let profile = Endpoint("/profile")
     static let updateProfile = Endpoint("/profile", method: .patch)
+    static let importParse = Endpoint("/import", method: .post)
+    static let importCommit = Endpoint("/import/commit", method: .post)
 
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(

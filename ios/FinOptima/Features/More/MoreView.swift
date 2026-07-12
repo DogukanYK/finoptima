@@ -8,13 +8,17 @@ struct MoreView: View {
 
     private let upcoming: [(title: String, icon: String)] = [
         ("Takvim", "calendar"),
-        ("Banka Dökümü", "doc.text.magnifyingglass"),
         ("Fişler", "doc.viewfinder"),
     ]
 
     var body: some View {
         List {
             Section {
+                NavigationLink {
+                    ImportView()
+                } label: {
+                    menuRow("Banka Dökümü", subtitle: "Ekstre yükle, AI işlemleri çıkarsın", icon: "doc.text.viewfinder", tint: Theme.accent)
+                }
                 NavigationLink {
                     ProfileView()
                 } label: {

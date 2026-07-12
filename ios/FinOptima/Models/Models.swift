@@ -205,6 +205,47 @@ struct OkResponse: Decodable {
     let ok: Bool
 }
 
+// MARK: - Banka Dökümü Import
+
+struct ImportRow: Codable, Identifiable {
+    let date: String
+    let description: String
+    let amount: Double
+    let kind: String            // INCOME | EXPENSE | TRANSFER
+    let categoryId: String?
+    let categoryName: String?
+    let dedupHash: String
+    var duplicate: Bool
+    var force: Bool?
+    var id: String { dedupHash + "|" + date + "|" + description }
+}
+
+struct ImportParseResponse: Decodable {
+    let ok: Bool
+    let error: String?
+    let rows: [ImportRow]?
+    let fileName: String?
+    let detectedBank: String?
+}
+
+struct ImportNewAccount: Encodable {
+    let label: String
+    let type: String
+}
+
+struct ImportCommitBody: Encodable {
+    let bankName: String
+    let fileName: String
+    let rows: [ImportRow]
+    let newAccount: ImportNewAccount?
+}
+
+struct ImportCommitResponse: Decodable {
+    let ok: Bool
+    let imported: Int
+    let skipped: Int
+}
+
 // MARK: - Borçlar (Debts)
 
 struct Debt: Decodable, Identifiable {

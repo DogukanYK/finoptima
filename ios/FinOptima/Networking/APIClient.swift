@@ -280,4 +280,62 @@ extension APIClient {
     func updateProfile(_ body: ProfileUpdateBody) async throws -> OkResponse {
         try await request(Endpoint.updateProfile, body: body)
     }
+
+    // MARK: - Banka dökümü import (multipart yükleme)
+
+    func importStatement(fileData: Data, fileName: String, mimeType: String) async throws -> ImportParseResponse {
+        do {
+            return try await sendMultipart(path: Endpoint.importParse.path, fileData: fileData, fileName: fileName, mimeType: mimeType)
+        } catch let error as APIError where error.status == 401 {
+            try await refreshTokens()
+            return try await sendMultipart(path: Endpoint.importParse.path, fileData: fileData, fileName: fileName, mimeType: mimeType)
+        }
+    }
+
+    func commitImport(_ body: ImportCommitBody) async throws -> ImportCommitResponse {
+        try await request(Endpoint.importCommit, body: body)
+    }
+
+    private func sendMultipart<Response: Decodable>(
+        path: String, fileData: Data, fileName: String, mimeType: String
+    ) async throws -> Response {
+        guard let url = URL(string: AppConfig.baseURL.absoluteString + path) else {
+            throw APIError.transport("Geçersiz istek adresi.")
+        }
+        let boundary = "Boundary-\(UUID().uuidString)"
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 120
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        if let token = keychain.accessToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        body.append(fileData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.transport("Bağlantı kurulamadı. İnternet bağlantınızı kontrol edin.")
+        }
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.transport("Sunucudan geçersiz yanıt alındı.")
+        }
+        guard (200..<300).contains(http.statusCode) else {
+            throw decodeError(data: data, status: http.statusCode, response: http)
+        }
+        do {
+            return try decoder.decode(Response.self, from: data)
+        } catch {
+            throw APIError.decoding("Sunucu yanıtı çözümlenemedi.")
+        }
+    }
 }
