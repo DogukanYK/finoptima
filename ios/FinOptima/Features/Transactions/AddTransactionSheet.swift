@@ -2,13 +2,15 @@
 //  AddTransactionSheet.swift
 //  FinOptima
 //
-//  Yeni işlem (gelir/gider) ekleme formu — standart SwiftUI `Form` + `sheet`.
+//  Yeni işlem (gelir/gider) ekleme formu — premium sunum (kartlı ScrollView).
 //
-//  - Tür (Gelir/Gider), tutar, açıklama, tarih zorunlu; kategori, hesap, not opsiyonel.
+//  - Tür (Gelir/Gider) büyük ikili seçici, tutar girişi büyük Space Grotesk.
 //  - Kategori/hesap seçicileri GET /refs'ten gelen referanslarla doldurulur; kategoriler
 //    seçili türe göre süzülür.
-//  - Kaydet → çağırana verilen `onCreate` kapanışı (POST /transactions) çağrılır;
-//    başarıda sayfa kapanır, hatada Türkçe uyarı gösterilir. Force-unwrap yok.
+//  - Kaydet → alttaki gradyanlı "Ekle" butonu `onCreate` kapanışını (POST /transactions)
+//    çağırır; başarıda sayfa kapanır, hatada Türkçe uyarı gösterilir. Force-unwrap yok.
+//
+//  Yalnızca sunum düzenlendi; alan durumu / kaydetme mantığı aynen korunur.
 //
 
 import SwiftUI
@@ -33,6 +35,7 @@ struct AddTransactionSheet: View {
         var id: String { rawValue }
         var title: String { self == .income ? "Gelir" : "Gider" }
         var tint: Color { self == .income ? Theme.income : Theme.expense }
+        var icon: String { self == .income ? "arrow.down" : "arrow.up" }
     }
 
     @State private var kind: Kind = .expense
@@ -45,6 +48,8 @@ struct AddTransactionSheet: View {
 
     @State private var isSaving = false
     @State private var errorMessage: String?
+
+    @FocusState private var fieldFocused: Bool
 
     // MARK: - Türetilmiş değerler
 
@@ -81,30 +86,42 @@ struct AddTransactionSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                kindSection
-                detailSection
-                categorySection
-                accountSection
-                noteSection
+            ScrollView {
+                VStack(spacing: 16) {
+                    kindSelector
+                    amountCard
+                    detailCard
+                    categoryCard
+                    accountCard
+                    noteCard
+                }
+                .padding(16)
             }
+            .background(Theme.bg.ignoresSafeArea())
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom) { saveBar }
             .navigationTitle("Yeni İşlem")
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: kind) { _, _ in
+                // Tür değişince, kategori seçili türle uyumsuzsa sıfırla.
+                if let selected = categoryId,
+                   !filteredCategories.contains(where: { $0.id == selected }) {
+                    categoryId = nil
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("İptal") { dismiss() }
                         .disabled(isSaving)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    if isSaving {
-                        ProgressView()
-                    } else {
-                        Button("Kaydet") { Task { await save() } }
-                            .disabled(!canSave)
-                    }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Bitti") { fieldFocused = false }
+                        .font(.body.weight(.semibold))
                 }
             }
             .interactiveDismissDisabled(isSaving)
+            .presentationDragIndicator(.visible)
             .alert(
                 "İşlem kaydedilemedi",
                 isPresented: Binding(
@@ -119,58 +136,115 @@ struct AddTransactionSheet: View {
         }
     }
 
-    // MARK: - Bölümler
+    // MARK: - Tür seçici
 
-    private var kindSection: some View {
-        Section {
-            Picker("Tür", selection: $kind) {
-                ForEach(Kind.allCases) { option in
-                    Text(option.title).tag(option)
+    private var kindSelector: some View {
+        HStack(spacing: 10) {
+            ForEach(Kind.allCases) { option in
+                let selected = kind == option
+                Button {
+                    guard kind != option else { return }
+                    Haptics.light()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                        kind = option
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: option.icon)
+                            .font(.subheadline.weight(.bold))
+                        Text(option.title)
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .foregroundStyle(selected ? .white : Theme.muted)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(selected ? AnyShapeStyle(option.tint) : AnyShapeStyle(Theme.surface2))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Theme.line.opacity(selected ? 0 : 0.7), lineWidth: 1)
+                    )
+                    .shadow(color: option.tint.opacity(selected ? 0.28 : 0), radius: 10, x: 0, y: 5)
                 }
-            }
-            .pickerStyle(.segmented)
-            .onChange(of: kind) { _, _ in
-                // Tür değişince, kategori seçili türle uyumsuzsa sıfırla.
-                if let selected = categoryId,
-                   !filteredCategories.contains(where: { $0.id == selected }) {
-                    categoryId = nil
-                }
+                .buttonStyle(PressableStyle())
             }
         }
     }
 
-    private var detailSection: some View {
-        Section("Detaylar") {
-            HStack {
-                Text("Tutar")
-                    .foregroundStyle(Theme.muted)
-                Spacer(minLength: 12)
-                TextField("0,00", text: $amountText)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-                    .monospacedDigit()
+    // MARK: - Tutar (hero)
+
+    private var amountCard: some View {
+        VStack(spacing: 10) {
+            Text("TUTAR")
+                .font(.caption2.weight(.semibold))
+                .tracking(0.6)
+                .foregroundStyle(Theme.muted)
+
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("₺")
+                    .font(.display(28, .semibold))
                     .foregroundStyle(Theme.muted)
+                TextField("0,00", text: $amountText)
+                    .font(.display(40, .bold))
+                    .foregroundStyle(kind.tint)
+                    .monospacedDigit()
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.center)
+                    .focused($fieldFocused)
             }
-
-            TextField("Açıklama", text: $description)
-                .textInputAutocapitalization(.sentences)
-
-            DatePicker(
-                "Tarih",
-                selection: $date,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.compact)
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .onTapGesture { fieldFocused = true }
+        .card(padding: 20)
     }
 
-    private var categorySection: some View {
-        Section("Kategori") {
-            if filteredCategories.isEmpty {
-                Text("Bu tür için kategori yok")
-                    .foregroundStyle(Theme.muted)
+    // MARK: - Açıklama + tarih
+
+    private var detailCard: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                iconBadge("text.alignleft")
+                TextField("Açıklama", text: $description)
                     .font(.subheadline)
+                    .textInputAutocapitalization(.sentences)
+                    .focused($fieldFocused)
+            }
+            .padding(14)
+
+            Divider().overlay(Theme.line)
+
+            HStack(spacing: 12) {
+                iconBadge("calendar")
+                Text("Tarih")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                DatePicker("", selection: $date, displayedComponents: .date)
+                    .labelsHidden()
+                    .tint(Theme.primary)
+            }
+            .padding(14)
+        }
+        .card(padding: 0)
+    }
+
+    // MARK: - Kategori
+
+    private var categoryCard: some View {
+        HStack(spacing: 12) {
+            iconBadge("tag", tint: Theme.cyan)
+            Text("Kategori")
+                .font(.subheadline)
+                .foregroundStyle(Theme.ink)
+            Spacer()
+            if filteredCategories.isEmpty {
+                Text("Bu tür için yok")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
             } else {
                 Picker("Kategori", selection: $categoryId) {
                     Text("Kategori yok").tag(String?.none)
@@ -178,16 +252,27 @@ struct AddTransactionSheet: View {
                         Text(category.name).tag(String?.some(category.id))
                     }
                 }
+                .labelsHidden()
+                .tint(Theme.primary)
             }
         }
+        .padding(14)
+        .card(padding: 0)
     }
 
-    private var accountSection: some View {
-        Section("Hesap") {
+    // MARK: - Hesap
+
+    private var accountCard: some View {
+        HStack(spacing: 12) {
+            iconBadge("building.columns", tint: Theme.accent)
+            Text("Hesap")
+                .font(.subheadline)
+                .foregroundStyle(Theme.ink)
+            Spacer()
             if accounts.isEmpty {
                 Text("Tanımlı hesap yok")
-                    .foregroundStyle(Theme.muted)
                     .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
             } else {
                 Picker("Hesap", selection: $accountId) {
                     Text("Hesap yok").tag(String?.none)
@@ -195,15 +280,80 @@ struct AddTransactionSheet: View {
                         Text(accountLabel(account)).tag(String?.some(account.id))
                     }
                 }
+                .labelsHidden()
+                .tint(Theme.primary)
             }
+        }
+        .padding(14)
+        .card(padding: 0)
+    }
+
+    // MARK: - Not
+
+    private var noteCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                iconBadge("note.text", tint: Theme.muted)
+                Text("Not")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+            }
+            TextField("İsteğe bağlı not", text: $note, axis: .vertical)
+                .font(.subheadline)
+                .lineLimit(1...4)
+                .focused($fieldFocused)
+        }
+        .padding(14)
+        .card(padding: 0)
+    }
+
+    // MARK: - Kaydet çubuğu
+
+    private var saveBar: some View {
+        Button {
+            Haptics.light()
+            Task { await save() }
+        } label: {
+            HStack(spacing: 8) {
+                if isSaving {
+                    ProgressView().tint(.white)
+                } else {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.headline)
+                }
+                Text(isSaving ? "Kaydediliyor…" : "Ekle")
+                    .font(.headline)
+            }
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(canSave ? AnyShapeStyle(Theme.brandGradient) : AnyShapeStyle(Theme.line))
+            )
+            .opacity(canSave ? 1 : 0.6)
+            .shadow(color: Theme.primary.opacity(canSave ? 0.3 : 0), radius: 14, x: 0, y: 8)
+        }
+        .buttonStyle(PressableStyle())
+        .disabled(!canSave)
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 8)
+        .background(Theme.bg)
+        .overlay(alignment: .top) {
+            Rectangle().fill(Theme.line.opacity(0.7)).frame(height: 1)
         }
     }
 
-    private var noteSection: some View {
-        Section("Not") {
-            TextField("İsteğe bağlı not", text: $note, axis: .vertical)
-                .lineLimit(1...4)
-        }
+    // MARK: - Yardımcı görünüm
+
+    private func iconBadge(_ system: String, tint: Color = Theme.primary) -> some View {
+        Image(systemName: system)
+            .font(.footnote.weight(.bold))
+            .foregroundStyle(tint)
+            .frame(width: 32, height: 32)
+            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     // MARK: - Eylemler
@@ -227,6 +377,7 @@ struct AddTransactionSheet: View {
 
         do {
             try await onCreate(body)
+            Haptics.success()
             dismiss()
         } catch let error as APIError {
             errorMessage = error.errorDescription

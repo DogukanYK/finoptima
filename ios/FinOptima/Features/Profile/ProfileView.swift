@@ -76,71 +76,92 @@ struct ProfileView: View {
     }
 
     private func header(_ p: ProfileResponse) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 14) {
             Circle()
-                .fill(LinearGradient(colors: [Theme.primary, Color(hex: "0EA5E9")], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(width: 72, height: 72)
+                .fill(Theme.brandGradient)
+                .frame(width: 84, height: 84)
                 .overlay(
                     Text(String(p.name.prefix(1)).uppercased())
-                        .font(.title.bold()).foregroundStyle(.white)
+                        .font(.display(38, .bold)).foregroundStyle(.white)
                 )
-            VStack(spacing: 2) {
-                Text(p.name).font(.title3.bold()).foregroundStyle(Theme.ink)
+                .overlay(
+                    Circle().strokeBorder(.white.opacity(0.25), lineWidth: 1)
+                )
+                .shadow(color: Theme.primary.opacity(0.35), radius: 16, x: 0, y: 8)
+
+            VStack(spacing: 4) {
+                Text(p.name).font(.display(22, .bold)).foregroundStyle(Theme.ink)
                 Text(p.email).font(.subheadline).foregroundStyle(Theme.muted)
             }
-            if p.role == "ADMIN" {
-                Text("Yönetici").font(.caption.weight(.semibold))
-                    .foregroundStyle(Theme.primary)
-                    .padding(.horizontal, 10).padding(.vertical, 3)
-                    .background(Theme.primary.opacity(0.12), in: Capsule())
-            }
-            if model.savedFlash {
-                Label("Kaydedildi", systemImage: "checkmark.circle.fill")
-                    .font(.caption).foregroundStyle(Theme.accent)
+
+            HStack(spacing: 8) {
+                if p.role == "ADMIN" {
+                    PillBadge(text: "Yönetici", color: Theme.primary, icon: "checkmark.seal.fill")
+                }
+                if model.savedFlash {
+                    PillBadge(text: "Kaydedildi", color: Theme.accent, icon: "checkmark.circle.fill")
+                }
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .fill(Theme.primarySoft)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .strokeBorder(Theme.primary.opacity(0.15), lineWidth: 1)
+        )
     }
 
     @ViewBuilder
     private func field<Content: View>(title: String, subtitle: String? = nil, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title.uppercased())
+                .font(.caption2.weight(.semibold))
+                .tracking(0.5)
+                .foregroundStyle(Theme.muted)
             if let subtitle {
                 Text(subtitle).font(.caption).foregroundStyle(Theme.muted)
             }
             content()
                 .font(.subheadline)
-                .padding(12)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Theme.surface2, in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
     }
 
     private func infoCard(_ p: ProfileResponse) -> some View {
         VStack(spacing: 0) {
-            infoRow("İki adımlı doğrulama", value: p.twoFactorEnabled ? "Açık" : "Kapalı", icon: "lock.shield", tint: p.twoFactorEnabled ? Theme.accent : Theme.muted)
-            Divider().overlay(Theme.line)
-            infoRow("Üyelik", value: Format.shortDate(p.createdAt), icon: "calendar", tint: Theme.muted)
+            infoRow("İki adımlı doğrulama", value: p.twoFactorEnabled ? "Açık" : "Kapalı", icon: "lock.shield.fill", tint: p.twoFactorEnabled ? Theme.accent : Theme.muted)
+            Divider().overlay(Theme.line).padding(.leading, 46)
+            infoRow("Üyelik", value: Format.shortDate(p.createdAt), icon: "calendar", tint: Theme.cyan)
             if !p.profession.isEmpty {
-                Divider().overlay(Theme.line)
-                infoRow("Meslek", value: p.profession, icon: "briefcase", tint: Theme.muted)
+                Divider().overlay(Theme.line).padding(.leading, 46)
+                infoRow("Meslek", value: p.profession, icon: "briefcase.fill", tint: Theme.primary)
             }
         }
-        .padding(.horizontal, 14)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+        .card(padding: 6)
     }
 
     private func infoRow(_ label: String, value: String, icon: String, tint: Color) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon).foregroundStyle(tint).frame(width: 22)
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(tint)
+                .frame(width: 34, height: 34)
+                .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             Text(label).font(.subheadline).foregroundStyle(Theme.ink)
             Spacer()
-            Text(value).font(.subheadline.weight(.medium)).foregroundStyle(Theme.muted)
+            Text(value).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.muted)
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
     }
 }

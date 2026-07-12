@@ -18,41 +18,67 @@ struct MoreView: View {
                 NavigationLink {
                     ProfileView()
                 } label: {
-                    Label("Profil", systemImage: "person.crop.circle")
+                    menuRow("Profil", subtitle: "Hesap bilgilerin ve AI tanımı", icon: "person.crop.circle.fill", tint: Theme.primary)
                 }
                 NavigationLink {
                     DebtsView()
                 } label: {
-                    Label("Borçlar", systemImage: "creditcard")
+                    menuRow("Borçlar", subtitle: "Kredi ve kart borçların", icon: "creditcard.fill", tint: Theme.expense)
                 }
                 NavigationLink {
                     SettingsView()
                 } label: {
-                    Label("Ayarlar", systemImage: "gearshape")
+                    menuRow("Ayarlar", subtitle: "Görünüm, kategoriler, güvenlik", icon: "gearshape.fill", tint: Theme.cyan)
                 }
             }
 
             Section("Yakında") {
                 ForEach(upcoming, id: \.title) { item in
-                    HStack {
-                        Label(item.title, systemImage: item.icon)
+                    HStack(spacing: 12) {
+                        iconBadge(item.icon, tint: Theme.muted)
+                        Text(item.title).foregroundStyle(Theme.muted)
                         Spacer()
-                        Text("yakında")
-                            .font(.caption)
-                            .foregroundStyle(Theme.muted)
+                        PillBadge(text: "yakında", color: Theme.muted)
                     }
-                    .foregroundStyle(Theme.muted)
                 }
             }
 
             Section {
                 Button(role: .destructive) {
+                    Haptics.light()
                     appState.logout()
                 } label: {
-                    Label("Çıkış Yap", systemImage: "rectangle.portrait.and.arrow.right")
+                    HStack(spacing: 12) {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Theme.destructive)
+                            .frame(width: 34, height: 34)
+                            .background(Theme.destructive.opacity(0.14), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        Text("Çıkış Yap").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.destructive)
+                        Spacer()
+                    }
                 }
             }
         }
         .navigationTitle("Daha")
+    }
+
+    private func iconBadge(_ systemImage: String, tint: Color) -> some View {
+        Image(systemName: systemImage)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(tint)
+            .frame(width: 34, height: 34)
+            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private func menuRow(_ title: String, subtitle: String, icon: String, tint: Color) -> some View {
+        HStack(spacing: 12) {
+            iconBadge(icon, tint: tint)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
+                Text(subtitle).font(.caption).foregroundStyle(Theme.muted)
+            }
+        }
+        .padding(.vertical, 4)
     }
 }

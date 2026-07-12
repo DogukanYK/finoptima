@@ -45,3 +45,5 @@ targets:
         NSFaceIDUsageDescription: "Hesabına güvenli erişim için Face ID"
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
+        UIAppFonts:
+          - SpaceGrotesk.ttf

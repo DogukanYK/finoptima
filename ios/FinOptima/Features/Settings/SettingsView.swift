@@ -25,21 +25,22 @@ struct SettingsView: View {
                 NavigationLink {
                     CategoriesListView(categories: model.categories)
                 } label: {
-                    row("Kategoriler", systemImage: "tag", count: model.categories.count)
+                    row("Kategoriler", systemImage: "tag.fill", tint: Theme.primary, count: model.categories.count)
                 }
                 NavigationLink {
                     AccountsListView(accounts: model.accounts)
                 } label: {
-                    row("Hesaplar & Kartlar", systemImage: "creditcard", count: model.accounts.count)
+                    row("Hesaplar & Kartlar", systemImage: "creditcard.fill", tint: Theme.cyan, count: model.accounts.count)
                 }
             }
 
             Section("Güvenlik") {
-                HStack {
-                    Label("İki adımlı doğrulama", systemImage: "lock.shield")
+                HStack(spacing: 12) {
+                    iconBadge("lock.shield.fill", tint: model.twoFactorEnabled ? Theme.accent : Theme.muted)
+                    Text("İki adımlı doğrulama")
                     Spacer()
                     Text(model.twoFactorEnabled ? "Açık" : "Kapalı")
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(model.twoFactorEnabled ? Theme.accent : Theme.muted)
                 }
                 Text("Güvenlik ayarlarını finoptima.dev üzerinden yönetebilirsin.")
@@ -47,16 +48,18 @@ struct SettingsView: View {
             }
 
             Section("Hakkında") {
-                HStack {
+                HStack(spacing: 12) {
+                    iconBadge("info.circle.fill", tint: Theme.muted)
                     Text("Sürüm")
                     Spacer()
-                    Text(appVersion).foregroundStyle(Theme.muted)
+                    Text(appVersion).font(.display(15, .semibold)).foregroundStyle(Theme.muted)
                 }
                 Link(destination: URL(string: "https://finoptima.dev")!) {
-                    HStack {
-                        Text("finoptima.dev")
+                    HStack(spacing: 12) {
+                        iconBadge("globe", tint: Theme.primary)
+                        Text("finoptima.dev").foregroundStyle(Theme.ink)
                         Spacer()
-                        Image(systemName: "arrow.up.right.square")
+                        Image(systemName: "arrow.up.right").font(.caption.weight(.bold)).foregroundStyle(Theme.primary)
                     }
                 }
             }
@@ -65,11 +68,24 @@ struct SettingsView: View {
         .task { await model.loadIfNeeded() }
     }
 
-    private func row(_ title: String, systemImage: String, count: Int) -> some View {
-        HStack {
-            Label(title, systemImage: systemImage)
+    private func iconBadge(_ systemImage: String, tint: Color) -> some View {
+        Image(systemName: systemImage)
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(tint)
+            .frame(width: 30, height: 30)
+            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+    }
+
+    private func row(_ title: String, systemImage: String, tint: Color, count: Int) -> some View {
+        HStack(spacing: 12) {
+            iconBadge(systemImage, tint: tint)
+            Text(title)
             Spacer()
-            Text("\(count)").foregroundStyle(Theme.muted)
+            Text("\(count)")
+                .font(.display(15, .semibold))
+                .foregroundStyle(tint)
+                .padding(.horizontal, 9).padding(.vertical, 2)
+                .background(tint.opacity(0.12), in: Capsule())
         }
     }
 }
@@ -97,10 +113,15 @@ private struct CategoriesListView: View {
     }
 
     private func categoryRow(_ c: RefCategory) -> some View {
-        HStack(spacing: 10) {
-            Circle().fill(Color(hex: c.color)).frame(width: 12, height: 12)
-            Text(c.name)
+        HStack(spacing: 12) {
+            Circle()
+                .fill(Color(hex: c.color))
+                .frame(width: 30, height: 30)
+                .overlay(Circle().strokeBorder(.white.opacity(0.5), lineWidth: 1.5))
+                .shadow(color: Color(hex: c.color).opacity(0.35), radius: 4, x: 0, y: 2)
+            Text(c.name).font(.subheadline.weight(.medium))
         }
+        .padding(.vertical, 2)
     }
 }
 
@@ -114,14 +135,20 @@ private struct AccountsListView: View {
             ForEach(accounts) { a in
                 HStack(spacing: 12) {
                     Image(systemName: a.type == "CARD" ? "creditcard.fill" : "building.columns.fill")
-                        .foregroundStyle(Theme.primary)
-                        .frame(width: 26)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(a.type == "CARD" ? Theme.cyan : Theme.primary)
+                        .frame(width: 38, height: 38)
+                        .background(
+                            (a.type == "CARD" ? Theme.cyan : Theme.primary).opacity(0.14),
+                            in: RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        )
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(a.label.isEmpty ? a.bankName : a.label).font(.subheadline.weight(.medium))
+                        Text(a.label.isEmpty ? a.bankName : a.label).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                         Text(a.bankName + (a.cardLast4.map { " ···· \($0)" } ?? ""))
                             .font(.caption).foregroundStyle(Theme.muted)
                     }
                 }
+                .padding(.vertical, 4)
             }
         }
         .navigationTitle("Hesaplar")

@@ -63,13 +63,85 @@ enum Theme {
     static let muted = Color(light: "64748B", dark: "94A3B8")
     static let line = Color(light: "E2E8F0", dark: "334155")
 
+    static let cyan = Color(hex: "0EA5E9")
+
     // Anlam renkleri (gelir yeşil / gider kırmızı).
     static let income = accent
     static let expense = destructive
 
+    // Genişletilmiş yüzeyler / yumuşak zeminler.
+    static let surface2 = Color(light: "F1F5F9", dark: "162032")
+    static let primarySoft = Color(light: "EAF1FE", dark: "1B2A4A")
+    static let accentSoft = Color(light: "E7F6F0", dark: "13312A")
+
+    // Marka gradyanları.
+    static let brandGradient = LinearGradient(
+        colors: [Color(hex: "2563EB"), Color(hex: "0EA5E9")],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+    static let darkGradient = LinearGradient(
+        colors: [Color(hex: "0F172A"), Color(hex: "172554")],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+    )
+
     // Ortak ölçüler.
-    static let cardRadius: CGFloat = 16
-    static let controlRadius: CGFloat = 12
+    static let cardRadius: CGFloat = 20
+    static let controlRadius: CGFloat = 14
+}
+
+// MARK: - Tipografi (Space Grotesk display)
+
+extension Font {
+    /// Space Grotesk — başlıklar ve sayılar için ayırt edici display font
+    /// (web ile aynı kimlik). Font yüklenemezse sisteme düşer.
+    static func display(_ size: CGFloat, _ weight: Font.Weight = .bold) -> Font {
+        .custom("Space Grotesk", size: size).weight(weight)
+    }
+}
+
+// MARK: - Kart stili
+
+private struct CardModifier: ViewModifier {
+    var padding: CGFloat
+    var radius: CGFloat
+    var elevated: Bool
+    func body(content: Content) -> some View {
+        content
+            .padding(padding)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: radius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .strokeBorder(Theme.line.opacity(0.7), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(elevated ? 0.07 : 0.04), radius: elevated ? 16 : 8, x: 0, y: elevated ? 8 : 3)
+    }
+}
+
+extension View {
+    /// Yüzey renginde, yuvarlak köşeli, yumuşak gölgeli kart.
+    func card(padding: CGFloat = 16, radius: CGFloat = Theme.cardRadius, elevated: Bool = true) -> some View {
+        modifier(CardModifier(padding: padding, radius: radius, elevated: elevated))
+    }
+}
+
+// MARK: - Bas-küçül etkileşimi
+
+/// Basınca hafifçe küçülen, yaylı geri dönen dokunma stili (tactile fintech).
+struct PressableStyle: ButtonStyle {
+    var scale: CGFloat = 0.97
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? scale : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Haptik
+
+enum Haptics {
+    static func light() { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+    static func soft() { UIImpactFeedbackGenerator(style: .soft).impactOccurred() }
+    static func success() { UINotificationFeedbackGenerator().notificationOccurred(.success) }
 }
 
 // MARK: - Formatting

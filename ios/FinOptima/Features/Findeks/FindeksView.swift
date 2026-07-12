@@ -130,10 +130,18 @@ struct FindeksView: View {
         icon: String,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(title, systemImage: icon)
-                .font(.headline)
-                .foregroundStyle(Theme.ink)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(Theme.primary)
+                    .frame(width: 30, height: 30)
+                    .background(Theme.primarySoft, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
+                Text(title)
+                    .font(.display(19, .bold))
+                    .foregroundStyle(Theme.ink)
+                Spacer(minLength: 0)
+            }
             content()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -141,26 +149,39 @@ struct FindeksView: View {
 
     private func healthCard(_ estimate: FindeksEstimate) -> some View {
         let ratio = min(max(Double(estimate.healthScore) / 100, 0), 1)
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Finansal Sağlık")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Theme.ink)
-                Spacer()
-                Text("\(estimate.healthScore)/100")
-                    .font(.subheadline.weight(.bold))
-                    .monospacedDigit()
-                    .foregroundStyle(FindeksPalette.color(forRatio: ratio))
+        let tint = FindeksPalette.color(forRatio: ratio)
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: "heart.text.square.fill")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(tint)
+                    .frame(width: 42, height: 42)
+                    .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Finansal Sağlık")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                    Text("Genel finansal durumun")
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
+                }
+                Spacer(minLength: 8)
+
+                HStack(alignment: .firstTextBaseline, spacing: 1) {
+                    Text("\(estimate.healthScore)")
+                        .font(.display(30, .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(tint)
+                    Text("/100")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Theme.muted)
+                }
             }
-            MeterBar(ratio: ratio, tint: FindeksPalette.color(forRatio: ratio))
+            MeterBar(ratio: ratio, tint: tint)
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                .strokeBorder(Theme.line, lineWidth: 1)
-        )
+        .card()
     }
 
     // MARK: - Yardımcılar
@@ -229,35 +250,44 @@ private struct CoachStepCard: View {
         default: return "Düşük öncelik"
         }
     }
+    private var priorityIcon: String {
+        switch step.priority {
+        case "high": return "flame.fill"
+        case "medium": return "bolt.fill"
+        default: return "leaf.fill"
+        }
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(priorityLabel)
-                .font(.caption2.weight(.bold))
-                .foregroundStyle(priorityColor)
-                .padding(.horizontal, 8).padding(.vertical, 3)
-                .background(priorityColor.opacity(0.12), in: Capsule())
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                PillBadge(text: priorityLabel, color: priorityColor, icon: priorityIcon)
+                Spacer(minLength: 0)
+            }
 
             Text(step.title)
-                .font(.subheadline.weight(.semibold))
+                .font(.display(17, .semibold))
                 .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
             Text(step.action)
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
             Text(step.why)
                 .font(.caption)
                 .foregroundStyle(Theme.muted)
+                .fixedSize(horizontal: false, vertical: true)
+
             HStack(spacing: 5) {
-                Image(systemName: "arrow.up.right").font(.caption2)
-                Text(step.impact)
+                Image(systemName: "arrow.up.right.circle.fill").font(.caption)
+                Text(step.impact).font(.caption.weight(.semibold))
             }
-            .font(.caption.weight(.medium))
             .foregroundStyle(Theme.accent)
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(Theme.accentSoft, in: Capsule())
         }
-        .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+        .card(padding: 14)
     }
 }
 
@@ -278,14 +308,14 @@ private struct FactorRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 Text(factor.label)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.ink)
                 Spacer(minLength: 8)
                 Text("\(factor.score)")
-                    .font(.subheadline.weight(.bold))
+                    .font(.display(19, .bold))
                     .monospacedDigit()
                     .foregroundStyle(tint)
             }
@@ -293,12 +323,7 @@ private struct FactorRow: View {
             MeterBar(ratio: ratio, tint: tint)
 
             HStack(alignment: .top, spacing: 8) {
-                Text(weightText)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(Theme.muted)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Theme.line.opacity(0.6), in: Capsule())
+                PillBadge(text: weightText, color: Theme.muted)
 
                 if !factor.detail.isEmpty {
                     Text(factor.detail)
@@ -309,13 +334,8 @@ private struct FactorRow: View {
                 Spacer(minLength: 0)
             }
         }
-        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                .strokeBorder(Theme.line, lineWidth: 1)
-        )
+        .card(padding: 14)
     }
 }
 
@@ -355,13 +375,14 @@ private struct AdviceCard: View {
             Image(systemName: icon)
                 .font(.body.weight(.semibold))
                 .foregroundStyle(color)
-                .frame(width: 28, height: 28)
-                .background(color.opacity(0.12), in: Circle())
+                .frame(width: 34, height: 34)
+                .background(color.opacity(0.14), in: Circle())
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(advice.title)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Theme.ink)
+                    .fixedSize(horizontal: false, vertical: true)
                 if !advice.body.isEmpty {
                     Text(advice.body)
                         .font(.footnote)
@@ -371,9 +392,8 @@ private struct AdviceCard: View {
             }
             Spacer(minLength: 0)
         }
-        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+        .card(padding: 14)
         .overlay(
             RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
                 .strokeBorder(color.opacity(0.35), lineWidth: 1)
@@ -391,13 +411,19 @@ private struct MeterBar: View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Theme.line)
+                    .fill(Theme.line.opacity(0.55))
                 Capsule()
-                    .fill(tint)
-                    .frame(width: max(0, geo.size.width * min(max(ratio, 0), 1)))
+                    .fill(
+                        LinearGradient(
+                            colors: [tint.opacity(0.7), tint],
+                            startPoint: .leading, endPoint: .trailing
+                        )
+                    )
+                    .frame(width: max(8, geo.size.width * min(max(ratio, 0), 1)))
+                    .shadow(color: tint.opacity(0.35), radius: 4, x: 0, y: 2)
             }
         }
-        .frame(height: 8)
+        .frame(height: 10)
     }
 }
 

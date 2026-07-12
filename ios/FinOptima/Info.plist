@@ -24,6 +24,10 @@
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Hesabına güvenli erişim için Face ID</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SpaceGrotesk.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

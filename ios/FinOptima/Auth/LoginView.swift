@@ -102,17 +102,17 @@ struct LoginView: View {
     // MARK: - Bölümler
 
     private var header: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.system(size: 34, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 72, height: 72)
-                .background(Theme.primary, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .shadow(color: Theme.primary.opacity(0.28), radius: 14, y: 6)
+                .frame(width: 76, height: 76)
+                .background(Theme.brandGradient, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .shadow(color: Theme.primary.opacity(0.35), radius: 18, y: 10)
 
             VStack(spacing: 6) {
                 Text("FinOptima")
-                    .font(.largeTitle.bold())
+                    .font(.display(34, .bold))
                     .foregroundStyle(Theme.ink)
                 Text("Finansal sağlığınızı tek yerden yönetin")
                     .font(.subheadline)

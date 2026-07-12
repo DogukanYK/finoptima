@@ -2,17 +2,17 @@ import SwiftUI
 
 // MARK: - AmountText
 
-/// Tabular (monospaced) rakamlarla para tutarı. Renk verilmezse Theme.ink.
+/// Para tutarı — Space Grotesk display font + tabular rakamlar. `size` puntoyu verir.
 struct AmountText: View {
     let value: Double
     var signed: Bool = false
     var color: Color?
-    var font: Font = .body
+    var size: CGFloat = 17
     var weight: Font.Weight = .semibold
 
     var body: some View {
         Text(signed ? Format.signedMoney(value) : Format.money(value))
-            .font(font.weight(weight))
+            .font(.display(size, weight))
             .monospacedDigit()
             .foregroundStyle(color ?? Theme.ink)
     }
@@ -29,22 +29,48 @@ struct PillBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             if let icon {
-                Image(systemName: icon)
-                    .font(.caption2.weight(.bold))
+                Image(systemName: icon).font(.caption2.weight(.bold))
             }
-            Text(text)
-                .font(.caption.weight(.semibold))
+            Text(text).font(.caption.weight(.semibold))
         }
         .foregroundStyle(color)
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(color.opacity(0.12), in: Capsule())
+        .background(color.opacity(0.14), in: Capsule())
+    }
+}
+
+// MARK: - SectionHeader
+
+/// Ekran bölüm başlığı — Space Grotesk, opsiyonel "Tümü" aksiyonu.
+struct SectionHeader: View {
+    let title: String
+    var actionTitle: String?
+    var action: (() -> Void)?
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title)
+                .font(.display(19, .bold))
+                .foregroundStyle(Theme.ink)
+            Spacer()
+            if let actionTitle, let action {
+                Button(action: action) {
+                    HStack(spacing: 2) {
+                        Text(actionTitle)
+                        Image(systemName: "chevron.right").font(.caption2.weight(.bold))
+                    }
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Theme.primary)
+                }
+            }
+        }
     }
 }
 
 // MARK: - StatCard
 
-/// Panel özet kartı: başlık + büyük değer, opsiyonel ikon/alt başlık.
+/// Panel özet kartı: üstte ikon rozeti, başlık + büyük Space Grotesk değer.
 struct StatCard: View {
     let title: String
     let value: String
@@ -52,12 +78,7 @@ struct StatCard: View {
     var tint: Color = Theme.primary
     var subtitle: String?
 
-    /// Double tutar için kolaylık başlatıcı — değeri ₺ biçiminde gösterir.
-    init(title: String,
-         amount: Double,
-         icon: String? = nil,
-         tint: Color = Theme.primary,
-         subtitle: String? = nil) {
+    init(title: String, amount: Double, icon: String? = nil, tint: Color = Theme.primary, subtitle: String? = nil) {
         self.title = title
         self.value = Format.money(amount)
         self.icon = icon
@@ -65,11 +86,7 @@ struct StatCard: View {
         self.subtitle = subtitle
     }
 
-    init(title: String,
-         value: String,
-         icon: String? = nil,
-         tint: Color = Theme.primary,
-         subtitle: String? = nil) {
+    init(title: String, value: String, icon: String? = nil, tint: Color = Theme.primary, subtitle: String? = nil) {
         self.title = title
         self.value = value
         self.icon = icon
@@ -78,41 +95,39 @@ struct StatCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.muted)
-                Spacer(minLength: 8)
                 if let icon {
                     Image(systemName: icon)
-                        .font(.subheadline.weight(.semibold))
+                        .font(.footnote.weight(.bold))
                         .foregroundStyle(tint)
-                        .padding(6)
-                        .background(tint.opacity(0.12), in: Circle())
+                        .frame(width: 30, height: 30)
+                        .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
                 }
+                Text(title.uppercased())
+                    .font(.caption2.weight(.semibold))
+                    .tracking(0.4)
+                    .foregroundStyle(Theme.muted)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
             }
 
             Text(value)
-                .font(.title2.weight(.bold))
+                .font(.display(23, .bold))
                 .monospacedDigit()
                 .foregroundStyle(Theme.ink)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.6)
 
             if let subtitle {
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(Theme.muted)
+                    .lineLimit(1)
             }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
-                .strokeBorder(Theme.line, lineWidth: 1)
-        )
+        .card(padding: 15)
     }
 }
 
@@ -122,24 +137,15 @@ struct StatCard: View {
     ScrollView {
         VStack(spacing: 16) {
             HStack(spacing: 12) {
-                StatCard(title: "Gelir", amount: 18450.75, icon: "arrow.down.circle.fill", tint: Theme.income)
-                StatCard(title: "Gider", amount: -9230.40, icon: "arrow.up.circle.fill", tint: Theme.expense)
+                StatCard(title: "Gelir", amount: 18450.75, icon: "arrow.down.circle.fill", tint: Theme.income, subtitle: "Bu ay")
+                StatCard(title: "Gider", amount: -9230.40, icon: "arrow.up.circle.fill", tint: Theme.expense, subtitle: "Bu ay")
             }
-
-            StatCard(title: "Net Bakiye", amount: 9220.35, icon: "wallet.pass.fill", subtitle: "Bu ay")
-
+            SectionHeader(title: "Son İşlemler", actionTitle: "Tümü", action: {})
             HStack(spacing: 8) {
                 PillBadge(text: "Gelir", color: Theme.income, icon: "arrow.down")
                 PillBadge(text: "Gider", color: Theme.expense, icon: "arrow.up")
-                PillBadge(text: "Beklemede")
             }
-
-            VStack(alignment: .leading, spacing: 8) {
-                AmountText(value: 1234.56, font: .title3)
-                AmountText(value: 1234.56, signed: true, color: Theme.income, font: .headline)
-                AmountText(value: -980.00, signed: true, color: Theme.expense, font: .headline)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            AmountText(value: 1234.56, signed: true, color: Theme.income, size: 20, weight: .bold)
         }
         .padding()
     }

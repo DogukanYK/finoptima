@@ -66,7 +66,7 @@ struct ScoreGauge: View {
     var caption: String? = nil
     var isEstimated: Bool = false
 
-    private let lineWidth: CGFloat = 16
+    private let lineWidth: CGFloat = 20
 
     /// Animasyon 0'dan başlasın diye görünümde tetiklenir.
     @State private var isAnimated = false
@@ -87,10 +87,15 @@ struct ScoreGauge: View {
             gauge
             scaleLabels
         }
-        .padding(20)
+        .padding(22)
         .frame(maxWidth: .infinity)
         .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .shadow(color: Theme.primary.opacity(0.28), radius: 22, x: 0, y: 14)
         .onAppear { isAnimated = true }
     }
 
@@ -115,46 +120,52 @@ struct ScoreGauge: View {
         }
     }
 
+    /// Halka için marka gradyanı (mavi → camgöbeği), yay yönüyle hizalı.
+    private var ringGradient: AngularGradient {
+        AngularGradient(
+            gradient: Gradient(colors: [
+                Color(hex: "2563EB"), Color(hex: "0EA5E9"), Color(hex: "22D3EE")
+            ]),
+            center: .center,
+            startAngle: .degrees(135),
+            endAngle: .degrees(135 + 270)
+        )
+    }
+
     private var gauge: some View {
         ZStack {
             GaugeArc()
                 .stroke(
-                    Color.white.opacity(0.12),
+                    Color.white.opacity(0.10),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
 
             GaugeArc()
                 .trim(from: 0, to: displayRatio)
                 .stroke(
-                    tint,
+                    ringGradient,
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
-                .animation(.easeOut(duration: 0.85), value: displayRatio)
+                .shadow(color: Theme.cyan.opacity(0.55), radius: 12, x: 0, y: 0)
+                .animation(.easeOut(duration: 0.9), value: displayRatio)
 
             centerContent
-                .padding(lineWidth + 6)
+                .padding(lineWidth + 12)
         }
         .padding(lineWidth / 2)
-        .frame(height: 200)
+        .frame(height: 210)
     }
 
     private var centerContent: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             Text("\(score)")
-                .font(.system(size: 46, weight: .bold, design: .rounded))
+                .font(.display(40, .bold))
                 .monospacedDigit()
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
 
-            Text(band)
-                .font(.callout.weight(.semibold))
-                .foregroundStyle(tint)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(tint.opacity(0.18), in: Capsule())
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            PillBadge(text: band, color: tint)
         }
     }
 
@@ -170,13 +181,9 @@ struct ScoreGauge: View {
         .padding(.horizontal, 4)
     }
 
-    /// Temadan bağımsız sabit koyu (lacivert) arka plan.
+    /// Temadan bağımsız sabit koyu (lacivert) marka gradyanı.
     private var cardBackground: some View {
-        LinearGradient(
-            colors: [Color(hex: "17233B"), Color(hex: "0B1120")],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        Theme.darkGradient
     }
 }
 

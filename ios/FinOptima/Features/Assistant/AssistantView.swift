@@ -24,7 +24,10 @@ struct AssistantView: View {
         .toolbar {
             if !model.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .destructive) { model.clear() } label: {
+                    Button(role: .destructive) {
+                        Haptics.light()
+                        model.clear()
+                    } label: {
                         Image(systemName: "trash")
                     }
                     .tint(Theme.destructive)
@@ -38,7 +41,7 @@ struct AssistantView: View {
     private var messages: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 14) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     if model.isEmpty && !model.pending {
                         emptyState
                     }
@@ -46,7 +49,8 @@ struct AssistantView: View {
                         messageRow(msg).id(msg.id)
                     }
                     if model.pending {
-                        HStack {
+                        HStack(alignment: .bottom, spacing: 8) {
+                            AssistantAvatar()
                             TypingIndicator()
                             Spacer(minLength: 0)
                         }
@@ -55,6 +59,7 @@ struct AssistantView: View {
                 }
                 .padding(16)
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: model.messages.count) {
                 withAnimation {
                     if let last = model.messages.last { proxy.scrollTo(last.id, anchor: .bottom) }
@@ -67,65 +72,119 @@ struct AssistantView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(LinearGradient(colors: [Theme.primary, Color(hex: "0EA5E9")], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(width: 64, height: 64)
-                .overlay(Image(systemName: "sparkles").font(.system(size: 26, weight: .semibold)).foregroundStyle(.white))
-                .padding(.top, 24)
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(Theme.primary.opacity(0.16))
+                    .frame(width: 104, height: 104)
+                    .blur(radius: 6)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Theme.brandGradient)
+                    .frame(width: 72, height: 72)
+                    .overlay(
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 30, weight: .semibold))
+                            .foregroundStyle(.white)
+                    )
+                    .shadow(color: Theme.primary.opacity(0.4), radius: 18, x: 0, y: 10)
+            }
+            .padding(.top, 28)
 
-            Text("Harcamanı anlat, senin için ekleyeyim.\nYa da finansına dair bir şey sor.")
-                .font(.subheadline)
-                .foregroundStyle(Theme.muted)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 7) {
+                Text("Finans Asistanın")
+                    .font(.display(23, .bold))
+                    .foregroundStyle(Theme.ink)
+                Text("Harcamanı anlat, senin için ekleyeyim.\nYa da finansına dair bir şey sor.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.center)
+            }
 
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 ForEach(suggestions, id: \.self) { s in
                     Button {
+                        Haptics.light()
                         Task { await model.send(s) }
                     } label: {
-                        Text(s)
-                            .font(.subheadline)
-                            .foregroundStyle(Theme.ink)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 14).padding(.vertical, 11)
-                            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                        HStack(spacing: 12) {
+                            Image(systemName: suggestionIcon(s))
+                                .font(.footnote.weight(.bold))
+                                .foregroundStyle(Theme.primary)
+                                .frame(width: 32, height: 32)
+                                .background(Theme.primarySoft, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            Text(s)
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.ink)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: "arrow.up.forward")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Theme.muted)
+                        }
+                        .card(padding: 12, radius: 16, elevated: false)
                     }
+                    .buttonStyle(PressableStyle())
                 }
             }
+            .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.bottom, 8)
     }
 
+    private func suggestionIcon(_ text: String) -> String {
+        text.hasSuffix("?") ? "questionmark.bubble" : "plus.circle"
+    }
+
     @ViewBuilder
     private func messageRow(_ msg: AssistantViewModel.ChatMessage) -> some View {
-        VStack(alignment: msg.role == "user" ? .trailing : .leading, spacing: 8) {
-            HStack {
-                if msg.role == "user" { Spacer(minLength: 40) }
+        if msg.role == "user" {
+            HStack(spacing: 0) {
+                Spacer(minLength: 48)
                 Text(msg.content)
                     .font(.subheadline)
-                    .foregroundStyle(msg.role == "user" ? .white : Theme.ink)
-                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14).padding(.vertical, 11)
                     .background(
-                        msg.role == "user" ? AnyShapeStyle(Theme.primary) : AnyShapeStyle(Theme.surface),
-                        in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        Theme.primary,
+                        in: UnevenRoundedRectangle(
+                            topLeadingRadius: 18, bottomLeadingRadius: 18,
+                            bottomTrailingRadius: 6, topTrailingRadius: 18, style: .continuous
+                        )
                     )
-                    .overlay(
-                        msg.role == "user" ? nil :
-                            RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Theme.line, lineWidth: 1)
-                    )
-                if msg.role != "user" { Spacer(minLength: 40) }
+                    .shadow(color: Theme.primary.opacity(0.28), radius: 10, x: 0, y: 5)
             }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        } else {
+            HStack(alignment: .top, spacing: 8) {
+                AssistantAvatar()
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(msg.content)
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.ink)
+                        .padding(.horizontal, 14).padding(.vertical, 11)
+                        .background(
+                            Theme.surface,
+                            in: UnevenRoundedRectangle(
+                                topLeadingRadius: 6, bottomLeadingRadius: 18,
+                                bottomTrailingRadius: 18, topTrailingRadius: 18, style: .continuous
+                            )
+                        )
+                        .overlay(
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 6, bottomLeadingRadius: 18,
+                                bottomTrailingRadius: 18, topTrailingRadius: 18, style: .continuous
+                            )
+                            .strokeBorder(Theme.line.opacity(0.7), lineWidth: 1)
+                        )
 
-            if msg.role != "user" {
-                ForEach(msg.actions) { action in
-                    AssistantActionCard(action: action) { await model.commit(action) }
+                    ForEach(msg.actions) { action in
+                        AssistantActionCard(action: action) { await model.commit(action) }
+                    }
                 }
+                Spacer(minLength: 32)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: msg.role == "user" ? .trailing : .leading)
     }
 
     // MARK: - Giriş çubuğu
@@ -136,25 +195,49 @@ struct AssistantView: View {
                 .lineLimit(1...4)
                 .font(.subheadline)
                 .focused($inputFocused)
-                .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+                .padding(.horizontal, 15).padding(.vertical, 11)
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .strokeBorder(inputFocused ? Theme.primary.opacity(0.5) : Theme.line, lineWidth: 1)
+                )
 
+            let canSend = !model.pending && !model.input.trimmingCharacters(in: .whitespaces).isEmpty
             Button {
+                Haptics.light()
                 inputFocused = false
                 Task { await model.send() }
             } label: {
                 Image(systemName: model.pending ? "ellipsis" : "arrow.up")
                     .font(.headline)
                     .foregroundStyle(.white)
-                    .frame(width: 40, height: 40)
-                    .background(Theme.primary, in: Circle())
+                    .frame(width: 44, height: 44)
+                    .background(Theme.brandGradient, in: Circle())
+                    .shadow(color: Theme.primary.opacity(canSend ? 0.35 : 0), radius: 8, x: 0, y: 4)
             }
-            .disabled(model.pending || model.input.trimmingCharacters(in: .whitespaces).isEmpty)
-            .opacity(model.pending || model.input.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
+            .buttonStyle(PressableStyle())
+            .disabled(!canSend)
+            .opacity(canSend ? 1 : 0.45)
+            .animation(.easeInOut(duration: 0.15), value: canSend)
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
         .background(.bar)
+    }
+}
+
+// MARK: - Asistan avatarı
+
+private struct AssistantAvatar: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 10, style: .continuous)
+            .fill(Theme.brandGradient)
+            .frame(width: 30, height: 30)
+            .overlay(
+                Image(systemName: "sparkles")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white)
+            )
+            .shadow(color: Theme.primary.opacity(0.25), radius: 5, x: 0, y: 2)
     }
 }
 
@@ -168,50 +251,79 @@ private struct AssistantActionCard: View {
     private enum CardState { case idle, saving, done, dismissed }
 
     private var isIncome: Bool { action.kind == "INCOME" }
+    private var tint: Color { isIncome ? Theme.income : Theme.expense }
 
     var body: some View {
         switch state {
         case .dismissed:
             EmptyView()
         case .done:
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(Theme.primary)
-                Text("Eklendi · \(Format.money(action.amount)) · \(action.description)")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(Theme.ink)
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(Theme.income)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("İşlem eklendi")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                    Text("\(Format.money(action.amount)) · \(action.description)")
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 12).padding(.vertical, 10)
+            .padding(.horizontal, 12).padding(.vertical, 11)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.primary.opacity(0.1), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(Theme.accentSoft, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Theme.income.opacity(0.25), lineWidth: 1)
+            )
+            .transition(.opacity)
         default:
             card
         }
     }
 
     private var card: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
                 Image(systemName: isIncome ? "arrow.down.left" : "arrow.up.right")
-                    .font(.callout.weight(.semibold))
-                    .foregroundStyle(isIncome ? Theme.income : Theme.expense)
-                    .frame(width: 34, height: 34)
-                    .background((isIncome ? Theme.income : Theme.expense).opacity(0.12), in: Circle())
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(action.description).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink).lineLimit(1)
+                    .font(.callout.weight(.bold))
+                    .foregroundStyle(tint)
+                    .frame(width: 38, height: 38)
+                    .background(tint.opacity(0.14), in: Circle())
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(action.description)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                        .lineLimit(1)
                     Text("\(isIncome ? "Gelir" : "Gider")\(action.category.map { " · \($0)" } ?? "") · \(Format.shortDate(action.date))")
-                        .font(.caption).foregroundStyle(Theme.muted)
+                        .font(.caption)
+                        .foregroundStyle(Theme.muted)
                 }
                 Spacer(minLength: 8)
-                Text("\(isIncome ? "+" : "")\(Format.money(action.amount))")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(isIncome ? Theme.income : Theme.ink)
+                AmountText(
+                    value: action.amount,
+                    signed: isIncome,
+                    color: isIncome ? Theme.income : Theme.ink,
+                    size: 17,
+                    weight: .bold
+                )
             }
-            HStack(spacing: 8) {
+
+            HStack(spacing: 10) {
                 Button {
                     Task {
                         state = .saving
                         let created = await onCommit()
-                        state = created != nil ? .done : .idle
+                        if created != nil {
+                            Haptics.success()
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) { state = .done }
+                        } else {
+                            state = .idle
+                        }
                     }
                 } label: {
                     HStack(spacing: 6) {
@@ -221,26 +333,27 @@ private struct AssistantActionCard: View {
                     }
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity).padding(.vertical, 9)
+                    .frame(maxWidth: .infinity).padding(.vertical, 10)
                     .background(Theme.primary, in: Capsule())
                 }
+                .buttonStyle(PressableStyle())
                 .disabled(state == .saving)
 
                 Button {
-                    state = .dismissed
+                    Haptics.light()
+                    withAnimation(.easeInOut(duration: 0.2)) { state = .dismissed }
                 } label: {
                     Text("Vazgeç")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Theme.muted)
-                        .padding(.horizontal, 16).padding(.vertical, 9)
+                        .padding(.horizontal, 18).padding(.vertical, 10)
                         .overlay(Capsule().strokeBorder(Theme.line, lineWidth: 1))
                 }
+                .buttonStyle(PressableStyle())
                 .disabled(state == .saving)
             }
         }
-        .padding(12)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+        .card(padding: 12, radius: 16, elevated: false)
     }
 }
 
@@ -257,9 +370,21 @@ private struct TypingIndicator: View {
                     .opacity(0.4 + 0.6 * abs(sin(phase + Double(i) * 0.6)))
             }
         }
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Theme.line, lineWidth: 1))
+        .padding(.horizontal, 16).padding(.vertical, 13)
+        .background(
+            Theme.surface,
+            in: UnevenRoundedRectangle(
+                topLeadingRadius: 6, bottomLeadingRadius: 18,
+                bottomTrailingRadius: 18, topTrailingRadius: 18, style: .continuous
+            )
+        )
+        .overlay(
+            UnevenRoundedRectangle(
+                topLeadingRadius: 6, bottomLeadingRadius: 18,
+                bottomTrailingRadius: 18, topTrailingRadius: 18, style: .continuous
+            )
+            .strokeBorder(Theme.line.opacity(0.7), lineWidth: 1)
+        )
         .onAppear {
             withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: false)) { phase = .pi * 2 }
         }

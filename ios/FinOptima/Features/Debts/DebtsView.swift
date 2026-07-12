@@ -4,7 +4,7 @@
 //
 //  "Borçlar" sekmesi: toplam bakiye özeti + borç listesi (GET /debts).
 //  MainTabView içindeki NavigationStack tarafından sarmalanır; burada yalnızca
-//  içerik ve başlık tanımlanır. Standart SwiftUI (List/refreshable), Türkçe UI.
+//  içerik ve başlık tanımlanır. Standart SwiftUI (ScrollView/refreshable), Türkçe UI.
 //
 
 import Foundation
@@ -42,46 +42,89 @@ struct DebtsView: View {
     // MARK: - Liste
 
     private var debtList: some View {
-        List {
-            Section {
-                summary
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
+        ScrollView {
+            VStack(spacing: 22) {
+                summaryHero
+                    .padding(.top, 4)
 
-            Section {
-                ForEach(model.debts) { debt in
-                    DebtRow(debt: debt)
-                        .listRowBackground(Theme.surface)
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeader(title: "Borç Listesi")
+                    LazyVStack(spacing: 12) {
+                        ForEach(model.debts) { debt in
+                            DebtRow(debt: debt)
+                        }
+                    }
                 }
-            } header: {
-                Text("Borç Listesi")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(Theme.muted)
             }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 28)
         }
-        .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
         .background(Theme.bg)
+        .scrollIndicators(.hidden)
         .refreshable { await model.reload() }
     }
 
-    private var summary: some View {
-        HStack(spacing: 12) {
-            StatCard(
-                title: "Toplam Borç",
-                amount: model.totalBalance,
-                icon: "creditcard.fill",
-                tint: Theme.expense
-            )
-            StatCard(
-                title: "Borç Sayısı",
-                value: "\(model.count)",
-                icon: "list.bullet.rectangle",
-                tint: Theme.primary
-            )
+    // MARK: - Toplam borç kahraman kartı
+
+    private var summaryHero: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 10) {
+                Image(systemName: "creditcard.fill")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+
+                Text("TOPLAM BORÇ")
+                    .font(.caption.weight(.semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(.white.opacity(0.75))
+
+                Spacer(minLength: 8)
+
+                HStack(spacing: 5) {
+                    Image(systemName: "list.bullet")
+                        .font(.caption2.weight(.bold))
+                    Text("\(model.count) borç")
+                        .font(.caption.weight(.semibold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 11)
+                .padding(.vertical, 5)
+                .background(.white.opacity(0.16), in: Capsule())
+            }
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(Format.money(model.totalBalance))
+                    .font(.display(38, .bold))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+
+                Text("Takip edilen toplam kalan bakiye")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.72))
+            }
         }
+        .padding(22)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            ZStack(alignment: .topTrailing) {
+                Theme.darkGradient
+                Image(systemName: "creditcard.fill")
+                    .font(.system(size: 160, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.07))
+                    .rotationEffect(.degrees(-10))
+                    .offset(x: 36, y: -30)
+            }
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .strokeBorder(.white.opacity(0.08), lineWidth: 1)
+        )
+        .shadow(color: Color(hex: "0F172A").opacity(0.35), radius: 20, x: 0, y: 12)
     }
 
     // MARK: - Boş / yükleniyor / hata durumları
@@ -97,41 +140,59 @@ struct DebtsView: View {
     }
 
     private var emptyState: some View {
-        CenteredState {
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 52, weight: .semibold))
-                .foregroundStyle(Theme.accent)
-            Text("Kayıtlı borç yok")
-                .font(.headline)
-                .foregroundStyle(Theme.ink)
-            Text("Takip edilen bir borcunuz bulunmuyor.")
-                .font(.subheadline)
-                .foregroundStyle(Theme.muted)
-                .multilineTextAlignment(.center)
+        ScrollView {
+            ContentUnavailableView {
+                VStack(spacing: 14) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 50, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
+                        .frame(width: 92, height: 92)
+                        .background(Theme.accentSoft, in: Circle())
+                    Text("Kayıtlı borç yok")
+                        .font(.display(20, .bold))
+                        .foregroundStyle(Theme.ink)
+                }
+            } description: {
+                Text("Takip edilen bir borcunuz bulunmuyor. Tüm hesaplarınız temiz görünüyor.")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.muted)
+            }
+            .frame(maxWidth: .infinity, minHeight: 480)
         }
-        .refreshableScroll { await model.reload() }
+        .scrollBounceBehavior(.always)
+        .background(Theme.bg)
+        .refreshable { await model.reload() }
     }
 
     private func failureState(_ message: String) -> some View {
         CenteredState {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 52, weight: .semibold))
+                .font(.system(size: 34, weight: .semibold))
                 .foregroundStyle(Theme.destructive)
+                .frame(width: 84, height: 84)
+                .background(Theme.destructive.opacity(0.12), in: Circle())
+
             Text("Borçlar yüklenemedi")
-                .font(.headline)
+                .font(.display(20, .bold))
                 .foregroundStyle(Theme.ink)
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.center)
+
             Button {
+                Haptics.light()
                 Task { await model.retry() }
             } label: {
                 Label("Tekrar Dene", systemImage: "arrow.clockwise")
-                    .frame(maxWidth: 220)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: 240)
+                    .padding(.vertical, 14)
+                    .background(Theme.brandGradient, in: RoundedRectangle(cornerRadius: Theme.controlRadius, style: .continuous))
+                    .shadow(color: Theme.primary.opacity(0.3), radius: 12, x: 0, y: 6)
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(PressableStyle())
             .padding(.top, 8)
         }
     }
@@ -143,50 +204,85 @@ private struct DebtRow: View {
     let debt: Debt
 
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: DebtKind.icon(for: debt.kind))
-                .font(.headline)
-                .foregroundStyle(Theme.expense)
-                .frame(width: 40, height: 40)
-                .background(Theme.expense.opacity(0.12), in: Circle())
+        VStack(spacing: 14) {
+            HStack(spacing: 14) {
+                Image(systemName: DebtKind.icon(for: debt.kind))
+                    .symbolVariant(.fill)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(Theme.primary)
+                    .frame(width: 46, height: 46)
+                    .background(Theme.primarySoft, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(debt.name)
-                    .font(.headline)
-                    .foregroundStyle(Theme.ink)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(debt.name)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
+                        .lineLimit(1)
 
-                HStack(spacing: 8) {
-                    Text(DebtKind.label(for: debt.kind))
-                        .font(.caption)
+                    HStack(spacing: 6) {
+                        PillBadge(text: DebtKind.label(for: debt.kind), color: Theme.primary)
+                        if let apr = aprText {
+                            PillBadge(text: "%\(apr)", color: Theme.expense)
+                        }
+                    }
+
+                    if let day = debt.dueDay {
+                        HStack(spacing: 5) {
+                            Image(systemName: "calendar")
+                                .font(.caption2.weight(.semibold))
+                            Text("Her ayın \(day). günü ödeme")
+                                .font(.caption)
+                        }
                         .foregroundStyle(Theme.muted)
-                    if let apr = aprText {
-                        Text("•").font(.caption).foregroundStyle(Theme.muted)
-                        Text("%\(apr) faiz")
-                            .font(.caption)
-                            .foregroundStyle(Theme.muted)
                     }
                 }
 
-                if let day = debt.dueDay {
-                    Text("Her ayın \(day). günü ödeme")
-                        .font(.caption2)
+                Spacer(minLength: 8)
+
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("KALAN")
+                        .font(.caption2.weight(.semibold))
+                        .tracking(0.5)
                         .foregroundStyle(Theme.muted)
+                    AmountText(value: debt.balance, color: Theme.ink, size: 19, weight: .bold)
                 }
             }
 
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 4) {
-                AmountText(value: debt.balance, color: Theme.ink, font: .headline)
-                if debt.paidTotal > 0 {
-                    Text("Ödenen \(Format.money(debt.paidTotal))")
-                        .font(.caption2)
-                        .foregroundStyle(Theme.accent)
-                }
+            if debt.paidTotal > 0 {
+                progress
             }
         }
-        .padding(.vertical, 6)
+        .card(padding: 16)
+    }
+
+    /// Ödenen tutarı toplam anapara (kalan + ödenen) içinde gösteren ince ilerleme çubuğu.
+    @ViewBuilder private var progress: some View {
+        let total = debt.balance + debt.paidTotal
+        let ratio = total > 0 ? min(max(debt.paidTotal / total, 0), 1) : 0
+        VStack(spacing: 7) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Theme.line.opacity(0.7))
+                    Capsule()
+                        .fill(Theme.accent)
+                        .frame(width: max(geo.size.width * CGFloat(ratio), 6))
+                }
+            }
+            .frame(height: 6)
+
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.accent)
+                Text("Ödenen \(Format.money(debt.paidTotal))")
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.accent)
+                Spacer(minLength: 8)
+                Text("%\(Int((ratio * 100).rounded())) ödendi")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Theme.muted)
+            }
+        }
     }
 
     /// Yıllık faiz oranı — 0 ise gizlenir, aksi halde tr_TR biçiminde (en çok 2 basamak).
@@ -249,24 +345,12 @@ private struct CenteredState<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             content
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.bg)
-    }
-}
-
-private extension View {
-    /// Boş durum ekranına da pull-to-refresh kazandırmak için kaydırılabilir sarmalayıcı.
-    func refreshableScroll(_ action: @escaping @Sendable () async -> Void) -> some View {
-        ScrollView {
-            self.frame(maxWidth: .infinity, minHeight: 480)
-        }
-        .scrollBounceBehavior(.always)
-        .background(Theme.bg)
-        .refreshable { await action() }
     }
 }
 
