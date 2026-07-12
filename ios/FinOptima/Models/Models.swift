@@ -246,6 +246,41 @@ struct ImportCommitResponse: Decodable {
     let skipped: Int
 }
 
+// MARK: - Takvim
+
+struct CalendarEventItem: Decodable, Identifiable {
+    let id: String
+    let title: String
+    let date: String
+    let time: String?
+    let type: String     // REMINDER | BILL | EVENT
+    let amount: Double?
+    let note: String?
+    let isPaid: Bool
+}
+
+struct CalendarEventsResponse: Decodable {
+    let events: [CalendarEventItem]
+}
+
+struct CreateEventBody: Encodable {
+    let title: String
+    let date: String     // yyyy-MM-dd
+    let type: String
+    let amount: Double?
+    let note: String?
+}
+
+struct CreateEventResponse: Decodable {
+    let ok: Bool
+    let id: String
+}
+
+struct ToggleEventResponse: Decodable {
+    let ok: Bool
+    let isPaid: Bool
+}
+
 // MARK: - Borçlar (Debts)
 
 struct Debt: Decodable, Identifiable {

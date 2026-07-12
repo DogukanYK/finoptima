@@ -296,6 +296,19 @@ extension APIClient {
         try await request(Endpoint.importCommit, body: body)
     }
 
+    func calendar() async throws -> CalendarEventsResponse {
+        try await request(Endpoint.calendar)
+    }
+    func createEvent(_ body: CreateEventBody) async throws -> CreateEventResponse {
+        try await request(Endpoint.createEvent, body: body)
+    }
+    func toggleEvent(_ id: String) async throws -> ToggleEventResponse {
+        try await request(Endpoint.toggleEvent(id))
+    }
+    func deleteEvent(_ id: String) async throws -> OkResponse {
+        try await request(Endpoint.deleteEvent(id))
+    }
+
     private func sendMultipart<Response: Decodable>(
         path: String, fileData: Data, fileName: String, mimeType: String
     ) async throws -> Response {

@@ -6,11 +6,6 @@ import SwiftUI
 struct MoreView: View {
     @Environment(AppState.self) private var appState
 
-    private let upcoming: [(title: String, icon: String)] = [
-        ("Takvim", "calendar"),
-        ("Fişler", "doc.viewfinder"),
-    ]
-
     var body: some View {
         List {
             Section {
@@ -18,6 +13,16 @@ struct MoreView: View {
                     ImportView()
                 } label: {
                     menuRow("Banka Dökümü", subtitle: "Ekstre yükle, AI işlemleri çıkarsın", icon: "doc.text.viewfinder", tint: Theme.accent)
+                }
+                NavigationLink {
+                    ReceiptView()
+                } label: {
+                    menuRow("Fişler", subtitle: "Fiş fotoğrafı → AI harcama", icon: "doc.viewfinder", tint: Theme.accent)
+                }
+                NavigationLink {
+                    CalendarView()
+                } label: {
+                    menuRow("Takvim", subtitle: "Fatura, hatırlatma ve ödemeler", icon: "calendar", tint: Theme.primary)
                 }
                 NavigationLink {
                     ProfileView()
@@ -33,17 +38,6 @@ struct MoreView: View {
                     SettingsView()
                 } label: {
                     menuRow("Ayarlar", subtitle: "Görünüm, kategoriler, güvenlik", icon: "gearshape.fill", tint: Theme.cyan)
-                }
-            }
-
-            Section("Yakında") {
-                ForEach(upcoming, id: \.title) { item in
-                    HStack(spacing: 12) {
-                        iconBadge(item.icon, tint: Theme.muted)
-                        Text(item.title).foregroundStyle(Theme.muted)
-                        Spacer()
-                        PillBadge(text: "yakında", color: Theme.muted)
-                    }
                 }
             }
 

@@ -54,6 +54,10 @@ extension Endpoint {
     static let updateProfile = Endpoint("/profile", method: .patch)
     static let importParse = Endpoint("/import", method: .post)
     static let importCommit = Endpoint("/import/commit", method: .post)
+    static let calendar = Endpoint("/calendar")
+    static let createEvent = Endpoint("/calendar", method: .post)
+    static func toggleEvent(_ id: String) -> Endpoint { Endpoint("/calendar/\(id)", method: .patch) }
+    static func deleteEvent(_ id: String) -> Endpoint { Endpoint("/calendar/\(id)", method: .delete) }
 
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(
