@@ -19,12 +19,15 @@ import {
   LogOut,
   MoreHorizontal,
   X,
+  LifeBuoy,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   PRIMARY_NAV,
   SECONDARY_NAV,
+  ADMIN_NAV,
   MOBILE_NAV,
   MOBILE_MORE,
   type NavItem,
@@ -50,6 +53,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   "credit-card": CreditCard,
   target: Target,
   "user-round": UserRound,
+  "life-buoy": LifeBuoy,
+  shield: Shield,
 };
 
 function isActive(pathname: string, href: string) {
@@ -58,9 +63,11 @@ function isActive(pathname: string, href: string) {
 
 export function AppShell({
   user,
+  isAdmin = false,
   children,
 }: {
   user: { name: string; email: string };
+  isAdmin?: boolean;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -96,6 +103,18 @@ export function AppShell({
               active={isActive(pathname, item.href)}
             />
           ))}
+          {isAdmin && (
+            <>
+              <div className="my-3 border-t border-line" />
+              {ADMIN_NAV.map((item) => (
+                <SidebarLink
+                  key={item.href}
+                  item={item}
+                  active={isActive(pathname, item.href)}
+                />
+              ))}
+            </>
+          )}
         </nav>
         <div className="border-t border-line p-3">
           <div className="flex items-center gap-3 rounded-[calc(var(--app-radius)*0.7)] px-2 py-2">
@@ -219,7 +238,7 @@ export function AppShell({
               </button>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {MOBILE_MORE.map((item) => {
+              {[...MOBILE_MORE, ...(isAdmin ? ADMIN_NAV : [])].map((item) => {
                 const Icon = NAV_ICONS[item.icon] ?? Settings;
                 return (
                   <Link

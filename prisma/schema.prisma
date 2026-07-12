@@ -113,6 +113,9 @@ model User {
   financeProfile   FinanceProfile?
   auditLogs        AuditLog[]
   scenarios        Scenario[]
+  supportTickets   SupportTicket[]  @relation("TicketOwner")
+  assignedTickets  SupportTicket[]  @relation("TicketAssignee")
+  supportConsents  SupportConsent[]
 }
 
 model InviteCode {
@@ -452,4 +455,112 @@ model ScenarioEvent {
   categoryId  String?
 
   @@index([scenarioId, date])
+}
+
+/* ===================== Müşteri Destek Sistemi ===================== */
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_USER
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum SupportTicketCategory {
+  ACCOUNT
+  TRANSACTIONS
+  IMPORT
+  FINDEKS
+  DEBTS
+  SECURITY
+  BUG
+  OTHER
+}
+
+enum SupportMessageAuthor {
+  USER
+  AGENT
+  AI
+  SYSTEM
+}
+
+enum SupportChannel {
+  APP
+  EMAIL
+  AI
+}
+
+enum SupportConsentStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model SupportTicket {
+  id                String                @id @default(cuid())
+  shortId           Int                   @unique @default(autoincrement()) // görüntü: "#1042"
+  userId            String
+  user              User                  @relation("TicketOwner", fields: [userId], references: [id], onDelete: Cascade)
+  subject           String
+  category          SupportTicketCategory @default(OTHER)
+  priority          SupportTicketPriority @default(NORMAL)
+  status            SupportTicketStatus   @default(OPEN)
+  channel           SupportChannel        @default(APP)
+  assignedToId      String?
+  assignedTo        User?                 @relation("TicketAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  aiHandled         Boolean               @default(false) // AI çözdü, insana hiç düşmedi
+  escalatedAt       DateTime? // AI → insana aktarım anı
+  firstAgentReplyAt DateTime? // SLA ölçümü
+  resolvedAt        DateTime?
+  closedAt          DateTime?
+  lastMessageAt     DateTime              @default(now())
+  lastMessageAuthor SupportMessageAuthor  @default(USER) // kuyrukta "müşteri bekliyor" rozeti
+  userLastReadAt    DateTime? // kullanıcı tarafı okunmamış sayacı
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  messages SupportMessage[]
+  consents SupportConsent[]
+
+  @@index([userId, createdAt])
+  @@index([status, lastMessageAt])
+  @@index([assignedToId, status])
+}
+
+model SupportMessage {
+  id             String               @id @default(cuid())
+  ticketId       String
+  ticket         SupportTicket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author         SupportMessageAuthor
+  authorUserId   String? // USER/AGENT için; AI/SYSTEM'de null (bilinçli: User'a relation yok)
+  body           String               @db.Text
+  internal       Boolean              @default(false) // yalnız admin görür (iç not)
+  emailMessageId String? // Resend id (giden) / Message-ID (gelen, Faz 3)
+  createdAt      DateTime             @default(now())
+
+  @@index([ticketId, createdAt])
+}
+
+model SupportConsent {
+  id        String               @id @default(cuid())
+  ticketId  String
+  ticket    SupportTicket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    SupportConsentStatus @default(ACTIVE)
+  scopes    String[] // ["transactions","debts","findeks","dashboard"]
+  grantedAt DateTime             @default(now())
+  expiresAt DateTime // grantedAt + 24/48/72 saat (kullanıcı seçer)
+  revokedAt DateTime?
+
+  @@index([ticketId, status])
+  @@index([userId, status, expiresAt])
 }

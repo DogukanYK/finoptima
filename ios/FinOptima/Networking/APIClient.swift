@@ -309,6 +309,28 @@ extension APIClient {
         try await request(Endpoint.deleteEvent(id))
     }
 
+    // MARK: - Destek (Support)
+
+    func supportTickets() async throws -> SupportTicketsResponse {
+        try await request(Endpoint.supportTickets)
+    }
+
+    func createSupportTicket(_ body: SupportCreateBody) async throws -> CreateSupportResponse {
+        try await request(Endpoint.createSupportTicket, body: body)
+    }
+
+    func supportTicket(id: String, after: String? = nil) async throws -> SupportTicketDetailDTO {
+        try await request(Endpoint.supportTicket(id, after: after))
+    }
+
+    func sendSupportMessage(id: String, body: String) async throws -> CreateSupportResponse {
+        try await request(Endpoint.supportMessage(id), body: SupportMessageBody(body: body))
+    }
+
+    func askSupportAI(history: [AssistantHistoryMessage], text: String) async throws -> SupportAIResponseDTO {
+        try await request(Endpoint.supportAI, body: SupportAskBody(history: history, text: text))
+    }
+
     private func sendMultipart<Response: Decodable>(
         path: String, fileData: Data, fileName: String, mimeType: String
     ) async throws -> Response {

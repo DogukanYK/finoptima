@@ -31,6 +31,26 @@ export async function requireUserId(): Promise<string> {
   return session.user.id;
 }
 
+// Yalnız ADMIN: sayfa/layout koruması. DİKKAT: layout guard'ı server action'ları
+// KORUMAZ — admin action'ları kendi içinde ayrıca requireAdminId çağırmalı.
+export async function requireAdmin() {
+  const user = await requireUser();
+  if (user.role !== "ADMIN") redirect("/dashboard");
+  return user;
+}
+
+// Server action'lar için hafif admin kontrolü — admin userId döndürür.
+export async function requireAdminId(): Promise<string> {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+  if (user?.role !== "ADMIN") redirect("/dashboard");
+  return session.user.id;
+}
+
 export function themeFromUser(
   theme: {
     mode: string;

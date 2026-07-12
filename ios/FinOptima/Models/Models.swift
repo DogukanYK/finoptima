@@ -380,6 +380,114 @@ struct Dashboard: Decodable {
     let topCoach: DashboardCoach?
 }
 
+// MARK: - Destek (Support)
+
+/// Talep listesi satırı (`GET /support/tickets`).
+struct SupportTicketDTO: Decodable, Identifiable {
+    let id: String
+    let shortId: Int
+    let subject: String
+    let category: String?
+    let priority: String?
+    let status: String          // OPEN | WAITING_USER | RESOLVED | CLOSED
+    let channel: String?
+    let lastMessageAt: String?
+    let lastMessageAuthor: String?
+    let unread: Bool
+    let createdAt: String
+}
+
+struct SupportTicketsResponse: Decodable {
+    let tickets: [SupportTicketDTO]
+}
+
+/// Talep içindeki tek mesaj.
+struct SupportMessageDTO: Decodable, Identifiable {
+    let id: String
+    let author: String          // USER | AGENT | AI | SYSTEM
+    let body: String
+    let createdAt: String
+}
+
+/// Talep detayı (`GET /support/tickets/{id}`) — ticket alanları + mesajlar.
+/// `consent` alanı Faz 2 kapsamı; kasıtlı olarak decode edilmez.
+struct SupportTicketDetailDTO: Decodable {
+    let id: String
+    let shortId: Int
+    let subject: String
+    let category: String?
+    let priority: String?
+    let status: String
+    let channel: String?
+    let createdAt: String
+    let messages: [SupportMessageDTO]
+}
+
+/// `POST /support/tickets` ve `POST /support/tickets/{id}` yanıtı.
+struct CreateSupportResponse: Decodable {
+    let ok: Bool
+    let id: String?
+}
+
+/// `POST /support/ai` yanıtı.
+struct SupportAIResponseDTO: Decodable {
+    let reply: String
+    let resolved: Bool
+    let escalate: Bool
+    let suggestedCategory: String?
+    let suggestedSubject: String?
+}
+
+/// `POST /support/tickets` gövdesi. Düz talepte `body`, AI eskalasyonunda
+/// `transcript` (+ opsiyonel `summary`) dolu gider; `nil` alanlar gönderilmez
+/// (`CreateTransactionBody` deseni).
+struct SupportCreateBody: Encodable {
+    let subject: String
+    let category: String?
+    let body: String?
+    let transcript: [AssistantHistoryMessage]?
+    let summary: String?
+
+    init(
+        subject: String,
+        category: String? = nil,
+        body: String? = nil,
+        transcript: [AssistantHistoryMessage]? = nil,
+        summary: String? = nil
+    ) {
+        self.subject = subject
+        self.category = category
+        self.body = body
+        self.transcript = transcript
+        self.summary = summary
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case subject, category, body, transcript, summary
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(subject, forKey: .subject)
+        // Yalnızca dolu olan opsiyonel alanları serileştir (null göndermemek için).
+        try container.encodeIfPresent(category, forKey: .category)
+        try container.encodeIfPresent(body, forKey: .body)
+        try container.encodeIfPresent(transcript, forKey: .transcript)
+        try container.encodeIfPresent(summary, forKey: .summary)
+    }
+}
+
+/// `POST /support/tickets/{id}` gövdesi — talebe yeni mesaj.
+struct SupportMessageBody: Encodable {
+    let body: String
+}
+
+/// `POST /support/ai` gövdesi — sohbet geçmişi + yeni mesaj.
+struct SupportAskBody: Encodable {
+    let history: [AssistantHistoryMessage]
+    let text: String
+}
+
 // MARK: - Hata Zarfı
 
 struct APIErrorDetail: Decodable {

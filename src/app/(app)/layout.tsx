@@ -22,7 +22,10 @@ export default async function AppLayout({
         id="akca-theme"
         dangerouslySetInnerHTML={{ __html: themeStyleContent(theme) }}
       />
-      <AppShell user={{ name: user.name, email: user.email }}>
+      <AppShell
+        user={{ name: user.name, email: user.email }}
+        isAdmin={user.role === "ADMIN"}
+      >
         {children}
       </AppShell>
       <InstallPrompt />

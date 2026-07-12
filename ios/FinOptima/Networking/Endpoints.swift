@@ -59,6 +59,24 @@ extension Endpoint {
     static func toggleEvent(_ id: String) -> Endpoint { Endpoint("/calendar/\(id)", method: .patch) }
     static func deleteEvent(_ id: String) -> Endpoint { Endpoint("/calendar/\(id)", method: .delete) }
 
+    // Destek (Support)
+    static let supportTickets = Endpoint("/support/tickets")
+    static let createSupportTicket = Endpoint("/support/tickets", method: .post)
+    static let supportAI = Endpoint("/support/ai", method: .post)
+
+    /// `GET /support/tickets/{id}` — `after` (ISO) verilirse yalnızca o andan
+    /// sonraki mesajlar döner (poll imleci).
+    static func supportTicket(_ id: String, after: String? = nil) -> Endpoint {
+        var items: [URLQueryItem] = []
+        if let after, !after.isEmpty { items.append(URLQueryItem(name: "after", value: after)) }
+        return Endpoint("/support/tickets/\(id)", query: items)
+    }
+
+    /// `POST /support/tickets/{id}` — talebe yeni mesaj.
+    static func supportMessage(_ id: String) -> Endpoint {
+        Endpoint("/support/tickets/\(id)", method: .post)
+    }
+
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(
         kind: String? = nil,

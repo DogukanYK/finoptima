@@ -10,6 +10,11 @@ struct MoreView: View {
         List {
             Section {
                 NavigationLink {
+                    SupportListView()
+                } label: {
+                    menuRow("Destek", subtitle: "Sorun bildir, AI'dan yardım al", icon: "lifepreserver.fill", tint: Theme.primary)
+                }
+                NavigationLink {
                     ImportView()
                 } label: {
                     menuRow("Banka Dökümü", subtitle: "Ekstre yükle, AI işlemleri çıkarsın", icon: "doc.text.viewfinder", tint: Theme.accent)
