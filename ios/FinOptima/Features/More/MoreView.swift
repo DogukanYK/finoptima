@@ -10,17 +10,25 @@ struct MoreView: View {
         ("Takvim", "calendar"),
         ("Banka Dökümü", "doc.text.magnifyingglass"),
         ("Fişler", "doc.viewfinder"),
-        ("Ayarlar", "gearshape"),
-        ("Profil", "person.crop.circle"),
     ]
 
     var body: some View {
         List {
             Section {
                 NavigationLink {
+                    ProfileView()
+                } label: {
+                    Label("Profil", systemImage: "person.crop.circle")
+                }
+                NavigationLink {
                     DebtsView()
                 } label: {
                     Label("Borçlar", systemImage: "creditcard")
+                }
+                NavigationLink {
+                    SettingsView()
+                } label: {
+                    Label("Ayarlar", systemImage: "gearshape")
                 }
             }
 

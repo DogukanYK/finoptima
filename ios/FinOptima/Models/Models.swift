@@ -183,6 +183,28 @@ struct AssistantHistoryMessage: Encodable {
     let content: String
 }
 
+// MARK: - Profil
+
+struct ProfileResponse: Decodable {
+    let name: String
+    let email: String
+    let role: String
+    let twoFactorEnabled: Bool
+    let createdAt: String
+    let aiIdentity: String
+    let profession: String
+    let incomeRange: String
+}
+
+struct ProfileUpdateBody: Encodable {
+    let name: String?
+    let aiIdentity: String?
+}
+
+struct OkResponse: Decodable {
+    let ok: Bool
+}
+
 // MARK: - Borçlar (Debts)
 
 struct Debt: Decodable, Identifiable {

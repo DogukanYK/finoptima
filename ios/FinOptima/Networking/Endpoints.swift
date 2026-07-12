@@ -50,6 +50,8 @@ extension Endpoint {
     static let createTransaction = Endpoint("/transactions", method: .post)
     static let assistant = Endpoint("/assistant", method: .post)
     static let assistantCommit = Endpoint("/assistant/commit", method: .post)
+    static let profile = Endpoint("/profile")
+    static let updateProfile = Endpoint("/profile", method: .patch)
 
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(

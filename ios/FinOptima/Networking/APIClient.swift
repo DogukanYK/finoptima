@@ -272,4 +272,12 @@ extension APIClient {
         let body = AssistantCommitBody(action: action)
         return try await request(Endpoint.assistantCommit, body: body)
     }
+
+    func profile() async throws -> ProfileResponse {
+        try await request(Endpoint.profile)
+    }
+
+    func updateProfile(_ body: ProfileUpdateBody) async throws -> OkResponse {
+        try await request(Endpoint.updateProfile, body: body)
+    }
 }
