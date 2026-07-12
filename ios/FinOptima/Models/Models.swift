@@ -354,6 +354,19 @@ struct Upcoming: Decodable, Identifiable {
     let amount: Double?
 }
 
+struct DashboardFindeks: Decodable {
+    let score: Int
+    let band: String
+    let healthScore: Int
+    let hasReport: Bool
+}
+
+struct DashboardCoach: Decodable {
+    let title: String
+    let action: String
+    let priority: String
+}
+
 struct Dashboard: Decodable {
     let income: Double
     let expense: Double
@@ -363,6 +376,8 @@ struct Dashboard: Decodable {
     let breakdown: [Breakdown]
     let trend: [TrendPoint]
     let upcoming: [Upcoming]
+    let findeks: DashboardFindeks?
+    let topCoach: DashboardCoach?
 }
 
 // MARK: - Hata Zarfı

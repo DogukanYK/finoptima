@@ -84,7 +84,17 @@ struct DashboardView: View {
         ScrollView {
             VStack(spacing: 18) {
                 heroCard(dashboard)
+                if let f = dashboard.findeks {
+                    findeksCard(f)
+                }
+                quickActions()
+                if let coach = dashboard.topCoach {
+                    coachCard(coach)
+                }
                 statsRow(dashboard)
+                if !dashboard.upcoming.isEmpty {
+                    upcomingSection(dashboard.upcoming)
+                }
                 if dashboard.trend.contains(where: { $0.income > 0 || $0.expense > 0 }) {
                     trendSection(dashboard.trend)
                 }
@@ -92,13 +102,114 @@ struct DashboardView: View {
                     breakdownSection(dashboard.breakdown)
                 }
                 recentSection(dashboard.recent)
-                if !dashboard.upcoming.isEmpty {
-                    upcomingSection(dashboard.upcoming)
-                }
             }
             .padding(16)
+            .padding(.bottom, 12)
         }
         .refreshable { await model.refresh() }
+    }
+
+    // MARK: - Findeks skor kartı
+
+    private func findeksCard(_ f: DashboardFindeks) -> some View {
+        let ratio = min(max(Double(f.score) / 1900.0, 0), 1)
+        let bandColor: Color = f.healthScore >= 66 ? Theme.accent : (f.healthScore >= 40 ? Theme.primary : Theme.expense)
+        return NavigationLink {
+            FindeksView()
+        } label: {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle().stroke(Theme.line, lineWidth: 7)
+                    Circle()
+                        .trim(from: 0, to: ratio)
+                        .stroke(AngularGradient(colors: [Theme.accent, Theme.cyan, Theme.primary], center: .center),
+                                style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                    Text("\(f.score)")
+                        .font(.display(19, .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ink)
+                }
+                .frame(width: 62, height: 62)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(f.hasReport ? "FINDEKS NOTU" : "TAHMİNİ FINDEKS")
+                        .font(.caption2.weight(.bold)).tracking(0.5)
+                        .foregroundStyle(Theme.muted)
+                    Text("Kredi sağlığın")
+                        .font(.display(17, .bold)).foregroundStyle(Theme.ink)
+                    Text(f.band)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(bandColor)
+                        .padding(.horizontal, 8).padding(.vertical, 2)
+                        .background(bandColor.opacity(0.14), in: Capsule())
+                }
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+            }
+            .card()
+        }
+        .buttonStyle(PressableStyle(scale: 0.99))
+    }
+
+    // MARK: - Hızlı aksiyonlar
+
+    private func quickActions() -> some View {
+        HStack(spacing: 10) {
+            quickAction("Banka Dökümü", icon: "doc.text.viewfinder", tint: Theme.accent) { ImportView() }
+            quickAction("Fişler", icon: "doc.viewfinder", tint: Theme.primary) { ReceiptView() }
+            quickAction("Takvim", icon: "calendar", tint: Theme.cyan) { CalendarView() }
+            quickAction("Borçlar", icon: "creditcard.fill", tint: Theme.expense) { DebtsView() }
+        }
+    }
+
+    private func quickAction<Destination: View>(_ title: String, icon: String, tint: Color, @ViewBuilder destination: @escaping () -> Destination) -> some View {
+        NavigationLink {
+            destination()
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.headline)
+                    .foregroundStyle(tint)
+                    .frame(width: 46, height: 46)
+                    .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                Text(title)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.ink)
+                    .lineLimit(1).minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(PressableStyle())
+    }
+
+    // MARK: - AI koç önceliği
+
+    private func coachCard(_ coach: DashboardCoach) -> some View {
+        let tint: Color = coach.priority == "high" ? Theme.expense : (coach.priority == "medium" ? Theme.primary : Theme.muted)
+        return NavigationLink {
+            FindeksView()
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 38, height: 38)
+                    .background(Theme.brandGradient, in: RoundedRectangle(cornerRadius: 11, style: .continuous))
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text("BU AY ÖNCELİĞİN").font(.caption2.weight(.bold)).tracking(0.4).foregroundStyle(Theme.muted)
+                        Circle().fill(tint).frame(width: 6, height: 6)
+                    }
+                    Text(coach.title).font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink).lineLimit(1)
+                    Text(coach.action).font(.caption).foregroundStyle(Theme.muted).lineLimit(2)
+                }
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+            }
+            .card()
+        }
+        .buttonStyle(PressableStyle(scale: 0.99))
     }
 
     // MARK: - Hero: Toplam Bakiye
