@@ -77,6 +77,16 @@ extension Endpoint {
         Endpoint("/support/tickets/\(id)", method: .post)
     }
 
+    /// `POST /support/tickets/{id}/consent` — geçici veri erişim izni verir.
+    static func supportConsent(_ id: String) -> Endpoint {
+        Endpoint("/support/tickets/\(id)/consent", method: .post)
+    }
+
+    /// `DELETE /support/tickets/{id}/consent` — izni geri alır.
+    static func revokeSupportConsent(_ id: String) -> Endpoint {
+        Endpoint("/support/tickets/\(id)/consent", method: .delete)
+    }
+
     /// `GET /transactions` — verilen filtreler yalnızca doluysa sorguya eklenir.
     static func transactions(
         kind: String? = nil,

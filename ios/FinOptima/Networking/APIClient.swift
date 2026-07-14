@@ -331,6 +331,16 @@ extension APIClient {
         try await request(Endpoint.supportAI, body: SupportAskBody(history: history, text: text))
     }
 
+    /// Talebe geçici veri erişim izni verir (süre + kapsamlar).
+    func grantSupportConsent(id: String, hours: Int, scopes: [String]) async throws -> CreateSupportResponse {
+        try await request(Endpoint.supportConsent(id), body: GrantConsentBody(hours: hours, scopes: scopes))
+    }
+
+    /// Verilmiş izni süresi dolmadan geri alır.
+    func revokeSupportConsent(id: String) async throws -> CreateSupportResponse {
+        try await request(Endpoint.revokeSupportConsent(id))
+    }
+
     private func sendMultipart<Response: Decodable>(
         path: String, fileData: Data, fileName: String, mimeType: String
     ) async throws -> Response {

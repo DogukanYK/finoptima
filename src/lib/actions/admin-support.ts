@@ -9,8 +9,36 @@ import { db } from "@/lib/db";
 import { requireAdminId } from "@/lib/auth-helpers";
 import { logAudit } from "@/lib/audit";
 import { draftAgentReplyForTicket } from "@/lib/support/admin-queries";
+import { sendEmail } from "@/lib/email/resend";
+import {
+  agentReplied,
+  ticketResolved,
+  consentRequested,
+  type EmailContent,
+} from "@/lib/email/templates";
 
 export type AdminSupportResult = { ok: true } | { ok: false; error: string };
+
+// E-posta gönderimi admin işlemini ASLA bloklamaz/bozmaz.
+async function emailOwner(
+  email: string | null | undefined,
+  content: EmailContent,
+  audit: { userId: string; ticketId: string; kind: string },
+): Promise<void> {
+  try {
+    if (!email) return;
+    await sendEmail({ to: email, subject: content.subject, html: content.html });
+    await logAudit({
+      userId: audit.userId,
+      action: "support.email_sent",
+      entityType: "SupportTicket",
+      entityId: audit.ticketId,
+      metadata: { kind: audit.kind },
+    });
+  } catch (err) {
+    console.error("[support] admin e-postası gönderilemedi:", err);
+  }
+}
 
 const VALID_STATUS = new Set([
   "OPEN",
@@ -38,7 +66,14 @@ export async function adminReplyTicket(
 
   const ticket = await db.supportTicket.findUnique({
     where: { id: ticketId },
-    select: { id: true, firstAgentReplyAt: true, status: true },
+    select: {
+      id: true,
+      shortId: true,
+      subject: true,
+      firstAgentReplyAt: true,
+      status: true,
+      user: { select: { email: true, name: true } },
+    },
   });
   if (!ticket) return { ok: false, error: "Talep bulunamadı." };
 
@@ -65,9 +100,20 @@ export async function adminReplyTicket(
     entityId: ticketId,
   });
 
-  // Faz 2: burada e-posta bildirimi tetiklenecek (try/catch ile, yanıtı bloklamadan).
+  // Talep sahibine "yanıt geldi" e-postası (yalnız ilk 200 karakter önizleme).
+  await emailOwner(
+    ticket.user?.email,
+    agentReplied({
+      shortId: ticket.shortId,
+      subject: ticket.subject,
+      ticketId,
+      replyPreview: text,
+    }),
+    { userId: adminId, ticketId, kind: "agent_replied" },
+  );
 
   revalidateAdmin(ticketId);
+  revalidatePath(`/destek/${ticketId}`);
   return { ok: true };
 }
 
@@ -114,8 +160,19 @@ export async function adminSetStatus(
   const adminId = await requireAdminId();
   if (!VALID_STATUS.has(status)) return { ok: false, error: "Geçersiz durum." };
 
+  const ticket = await db.supportTicket.findUnique({
+    where: { id: ticketId },
+    select: {
+      id: true,
+      shortId: true,
+      subject: true,
+      user: { select: { email: true } },
+    },
+  });
+  if (!ticket) return { ok: false, error: "Talep bulunamadı." };
+
   const now = new Date();
-  const updated = await db.supportTicket.updateMany({
+  await db.supportTicket.update({
     where: { id: ticketId },
     data: {
       status: status as never,
@@ -123,7 +180,6 @@ export async function adminSetStatus(
       closedAt: status === "CLOSED" ? now : undefined,
     },
   });
-  if (updated.count === 0) return { ok: false, error: "Talep bulunamadı." };
 
   await logAudit({
     userId: adminId,
@@ -133,7 +189,80 @@ export async function adminSetStatus(
     metadata: { status },
   });
 
+  if (status === "RESOLVED") {
+    await emailOwner(
+      ticket.user?.email,
+      ticketResolved({
+        shortId: ticket.shortId,
+        subject: ticket.subject,
+        ticketId,
+      }),
+      { userId: adminId, ticketId, kind: "ticket_resolved" },
+    );
+  }
+
   revalidateAdmin(ticketId);
+  revalidatePath(`/destek/${ticketId}`);
+  return { ok: true };
+}
+
+// Müşteriden finansal veriye süreli erişim izni ister. İZNİ KENDİSİ VERMEZ —
+// yalnız talebe bir SYSTEM mesajı düşer; izni her zaman kullanıcı verir/geri alır.
+export async function adminRequestConsent(
+  ticketId: string,
+): Promise<AdminSupportResult> {
+  const adminId = await requireAdminId();
+
+  const ticket = await db.supportTicket.findUnique({
+    where: { id: ticketId },
+    select: {
+      id: true,
+      shortId: true,
+      subject: true,
+      status: true,
+      user: { select: { email: true } },
+    },
+  });
+  if (!ticket) return { ok: false, error: "Talep bulunamadı." };
+  if (ticket.status === "CLOSED")
+    return { ok: false, error: "Kapalı talepte izin istenemez." };
+
+  const now = new Date();
+  await db.$transaction([
+    db.supportMessage.create({
+      data: {
+        ticketId,
+        author: "SYSTEM",
+        body:
+          "Destek ekibi, talebini çözebilmek için finansal verilerine süreli erişim izni istedi. " +
+          "Aşağıdaki karttan süre ve kapsam seçerek izin verebilir, dilediğin an geri alabilirsin.",
+      },
+    }),
+    db.supportTicket.update({
+      where: { id: ticketId },
+      data: { lastMessageAt: now, lastMessageAuthor: "SYSTEM" },
+    }),
+  ]);
+
+  await logAudit({
+    userId: adminId,
+    action: "support.admin_request_consent",
+    entityType: "SupportTicket",
+    entityId: ticketId,
+  });
+
+  await emailOwner(
+    ticket.user?.email,
+    consentRequested({
+      shortId: ticket.shortId,
+      subject: ticket.subject,
+      ticketId,
+    }),
+    { userId: adminId, ticketId, kind: "consent_requested" },
+  );
+
+  revalidateAdmin(ticketId);
+  revalidatePath(`/destek/${ticketId}`);
   return { ok: true };
 }
 

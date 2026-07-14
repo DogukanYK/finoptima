@@ -12,6 +12,7 @@ import {
 import { PageHeader } from "@/components/ui/page-header";
 import { LinkButton } from "@/components/ui/button";
 import { AdminReplyBox } from "@/components/admin/admin-reply-box";
+import { RequestConsentButton } from "@/components/admin/request-consent-button";
 import { StatusSelect } from "@/components/admin/status-select";
 import { formatDate, formatDateShort, formatTL } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -328,6 +329,7 @@ export default async function AdminTicketDetailPage({
                   üzerinden süreli izin verdiğinde finansal paneller burada
                   görünür (KVKK).
                 </p>
+                <RequestConsentButton ticketId={ticket.id} />
               </div>
             </div>
           )}

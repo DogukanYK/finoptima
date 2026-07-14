@@ -409,8 +409,18 @@ struct SupportMessageDTO: Decodable, Identifiable {
     let createdAt: String
 }
 
-/// Talep detayı (`GET /support/tickets/{id}`) — ticket alanları + mesajlar.
-/// `consent` alanı Faz 2 kapsamı; kasıtlı olarak decode edilmez.
+/// Kullanıcının bu talep için destek ekibine verdiği geçici veri erişim izni.
+/// `GET /support/tickets/{id}` yanıtında izin yoksa `null` gelir.
+struct SupportConsentDTO: Decodable {
+    let id: String
+    let ticketId: String
+    let userId: String
+    let scopes: [String]        // dashboard | transactions | debts | findeks
+    let grantedAt: String
+    let expiresAt: String
+}
+
+/// Talep detayı (`GET /support/tickets/{id}`) — ticket alanları + mesajlar + izin.
 struct SupportTicketDetailDTO: Decodable {
     let id: String
     let shortId: Int
@@ -421,6 +431,7 @@ struct SupportTicketDetailDTO: Decodable {
     let channel: String?
     let createdAt: String
     let messages: [SupportMessageDTO]
+    let consent: SupportConsentDTO?
 }
 
 /// `POST /support/tickets` ve `POST /support/tickets/{id}` yanıtı.
@@ -480,6 +491,12 @@ struct SupportCreateBody: Encodable {
 /// `POST /support/tickets/{id}` gövdesi — talebe yeni mesaj.
 struct SupportMessageBody: Encodable {
     let body: String
+}
+
+/// `POST /support/tickets/{id}/consent` gövdesi — süre (saat) + kapsamlar.
+struct GrantConsentBody: Encodable {
+    let hours: Int              // 24 | 48 | 72
+    let scopes: [String]        // dashboard | transactions | debts | findeks
 }
 
 /// `POST /support/ai` gövdesi — sohbet geçmişi + yeni mesaj.

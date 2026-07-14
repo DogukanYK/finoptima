@@ -59,21 +59,32 @@ export function TicketList({ tickets }: { tickets: PlainSupportTicket[] }) {
         <Link
           key={t.id}
           href={`/destek/${t.id}`}
-          className="flex items-center gap-3 px-4 py-3.5 transition-colors first:rounded-t-[inherit] last:rounded-b-[inherit] hover:bg-surface-2"
+          className={cn(
+            "flex items-center gap-3 px-4 py-3.5 transition-colors first:rounded-t-[inherit] last:rounded-b-[inherit] hover:bg-surface-2",
+            t.unread && "bg-primary-soft/40",
+          )}
         >
+          {/* Okunmamış noktası — sabit genişlik: okunmuş satırlar da hizalı kalır */}
+          <span className="flex w-2 shrink-0 justify-center" aria-hidden>
+            {t.unread && <span className="h-2 w-2 rounded-full bg-primary" />}
+          </span>
           <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
             #{t.shortId}
           </span>
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-2">
-              <span className="truncate text-sm font-semibold text-ink">
+              <span
+                className={cn(
+                  "truncate text-sm text-ink",
+                  t.unread ? "font-semibold" : "font-medium",
+                )}
+              >
                 {t.subject}
               </span>
               {t.unread && (
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full bg-primary"
-                  aria-label="Okunmamış mesaj"
-                />
+                <span className="shrink-0 rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  yeni yanıt
+                </span>
               )}
             </p>
             <p className="mt-0.5 text-xs text-muted">

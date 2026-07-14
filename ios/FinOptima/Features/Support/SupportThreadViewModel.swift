@@ -10,8 +10,11 @@ final class SupportThreadViewModel {
     let ticketId: String
     private(set) var messages: [SupportMessageDTO] = []
     private(set) var status: String?
+    /// Destek ekibine verilmiş geçici veri erişim izni (yoksa `nil`).
+    private(set) var consent: SupportConsentDTO?
     private(set) var isLoading = false
     private(set) var sending = false
+    private(set) var consentBusy = false
     var input = ""
     var errorMessage: String?
 
@@ -31,9 +34,36 @@ final class SupportThreadViewModel {
             let detail = try await api.supportTicket(id: ticketId, after: nil)
             messages = detail.messages
             status = detail.status
+            consent = detail.consent
             errorMessage = nil
         } catch {
             errorMessage = (error as? APIError)?.errorDescription ?? "Mesajlar yüklenemedi."
+        }
+    }
+
+    // MARK: - Veri erişim izni
+
+    /// Seçilen kapsamlarda, seçilen süre boyunca geçici erişim verir.
+    /// Başarıda talep yeniden yüklenir (izin kartı + sistem mesajı tazelenir).
+    /// Hata çağırana fırlatılır — sayfa kendi hata metnini gösterir.
+    func grantConsent(hours: Int, scopes: [String]) async throws {
+        guard !consentBusy else { return }
+        consentBusy = true
+        defer { consentBusy = false }
+        _ = try await api.grantSupportConsent(id: ticketId, hours: hours, scopes: scopes)
+        await load()
+    }
+
+    /// Verilmiş izni süresi dolmadan geri alır.
+    func revokeConsent() async {
+        guard !consentBusy else { return }
+        consentBusy = true
+        defer { consentBusy = false }
+        do {
+            _ = try await api.revokeSupportConsent(id: ticketId)
+            await load()
+        } catch {
+            errorMessage = (error as? APIError)?.errorDescription ?? "İzin geri alınamadı."
         }
     }
 

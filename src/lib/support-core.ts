@@ -8,6 +8,8 @@ import { logAudit } from "@/lib/audit";
 import { rateLimit } from "@/lib/rate-limit";
 import { toDateKey } from "@/lib/format";
 import { getDashboard } from "@/lib/queries";
+import { sendEmail, notifyAdmins } from "@/lib/email/resend";
+import { ticketCreatedUser, ticketCreatedAdmin } from "@/lib/email/templates";
 import {
   runSupportAssistant,
   SUPPORT_CATEGORIES,
@@ -86,6 +88,54 @@ function plainTicket(t: {
   };
 }
 
+/* ===================== E-posta bildirimi ===================== */
+
+// Yeni talep (APP ya da AI-eskale) → sahibine onay + adminlere kuyruk bildirimi.
+// KVKK: gövdede yalnız talep meta'sı gider, finansal veri ASLA.
+// Hiçbir koşulda throw etmez — e-posta hatası talep açmayı bloklamamalı.
+async function emailTicketCreated(
+  userId: string,
+  ticket: { id: string; shortId: number },
+  meta: { subject: string; category: string },
+): Promise<void> {
+  try {
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      select: { email: true, name: true },
+    });
+
+    const forUser = ticketCreatedUser({
+      shortId: ticket.shortId,
+      subject: meta.subject,
+      ticketId: ticket.id,
+    });
+    const forAdmin = ticketCreatedAdmin({
+      shortId: ticket.shortId,
+      subject: meta.subject,
+      ticketId: ticket.id,
+      customerName: user?.name ?? "Müşteri",
+      category: meta.category,
+    });
+
+    await Promise.allSettled([
+      user?.email
+        ? sendEmail({ to: user.email, subject: forUser.subject, html: forUser.html })
+        : Promise.resolve(false),
+      notifyAdmins(forAdmin.subject, forAdmin.html),
+    ]);
+
+    await logAudit({
+      userId,
+      action: "support.email_sent",
+      entityType: "SupportTicket",
+      entityId: ticket.id,
+      metadata: { kind: "ticket_created" },
+    });
+  } catch (err) {
+    console.error("[support] talep e-postası gönderilemedi:", err);
+  }
+}
+
 /* ===================== Ticket CRUD (kullanıcı) ===================== */
 
 export async function listTicketsForUser(
@@ -134,6 +184,8 @@ export async function createTicketForUser(
     entityId: ticket.id,
     metadata: { shortId: ticket.shortId, category },
   });
+
+  await emailTicketCreated(userId, ticket, { subject, category });
 
   return { ok: true, id: ticket.id };
 }
@@ -475,6 +527,8 @@ export async function escalateSupportChatForUser(
     entityId: ticket.id,
     metadata: { shortId: ticket.shortId, category },
   });
+
+  await emailTicketCreated(userId, ticket, { subject, category });
 
   return { ok: true, id: ticket.id };
 }
