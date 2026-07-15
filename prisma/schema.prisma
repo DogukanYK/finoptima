@@ -116,6 +116,24 @@ model User {
   supportTickets   SupportTicket[]  @relation("TicketOwner")
   assignedTickets  SupportTicket[]  @relation("TicketAssignee")
   supportConsents  SupportConsent[]
+  knownDevices     KnownDevice[]
+}
+
+// Kullanıcının hesabına giriş yapılan cihazlar. Yeni cihaz girişinde güvenlik
+// e-postası tetiklemek + Ayarlar > Güvenlik'te listelemek için.
+// deviceHash = sha256(user-agent) — parmak izi değil, kaba bir cihaz kimliği.
+model KnownDevice {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceHash  String // sha256(normalize(userAgent))
+  label       String // "Chrome · macOS"
+  lastIp      String?
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([userId, deviceHash])
+  @@index([userId, lastSeenAt])
 }
 
 model InviteCode {

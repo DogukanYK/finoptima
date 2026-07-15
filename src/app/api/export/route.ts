@@ -1,10 +1,13 @@
 // Veri dışa aktarma (KVKK — veri taşınabilirliği).
 // Kullanıcının tüm verisini okunur JSON olarak indirir.
 
+import { after } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { decryptField } from "@/lib/crypto";
 import { logAudit } from "@/lib/audit";
+import { sendAccountEmail } from "@/lib/email/account";
+import { dataExported } from "@/lib/email/templates";
 
 export async function GET() {
   const session = await auth();
@@ -87,6 +90,24 @@ export async function GET() {
   };
 
   await logAudit({ userId, action: "data.export" });
+
+  // KVKK izi: veri indirildi bildirimi — indirmeyi bloklamadan, yanıttan sonra.
+  if (user) {
+    const owner = { email: user.email, name: user.name };
+    after(async () => {
+      try {
+        await sendAccountEmail({
+          userId,
+          to: owner.email,
+          name: owner.name,
+          content: dataExported({ name: owner.name }),
+          kind: "data_export",
+        });
+      } catch (err) {
+        console.error("[account-email] veri indirme bildirimi başarısız:", err);
+      }
+    });
+  }
 
   return new Response(JSON.stringify(data, null, 2), {
     headers: {

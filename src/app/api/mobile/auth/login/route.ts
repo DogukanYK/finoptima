@@ -1,7 +1,7 @@
 // POST /api/mobile/auth/login — native istemci girişi.
 // Gövde: { email, password, totp? } → { accessToken, refreshToken, user }
 // Brute-force koruması: burst limiter + AuditLog tabanlı 15dk IP/e-posta sayacı.
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse, after } from "next/server";
 import { loginSchema } from "@/lib/validation";
 import { verifyUserCredentials } from "@/lib/mobile/credentials";
 import {
@@ -12,6 +12,9 @@ import {
 import { apiError } from "@/lib/mobile/guard";
 import { checkLoginRate, clientIp } from "@/lib/mobile/loginGuard";
 import { logAudit } from "@/lib/audit";
+import { touchDevice } from "@/lib/security/devices";
+import { sendAccountEmail } from "@/lib/email/account";
+import { newDeviceLogin } from "@/lib/email/templates";
 
 export const runtime = "nodejs"; // argon2 native modülü + Prisma → Edge'de çalışmaz
 
@@ -59,6 +62,35 @@ export async function POST(req: NextRequest) {
     userId: result.user.id,
     action: "mobile_login.success",
     metadata: { email },
+  });
+
+  // Yeni cihaz uyarısı (iOS) — yanıtı bloklamadan, yanıttan sonra.
+  const ua = req.headers.get("user-agent");
+  const loginUser = result.user;
+  after(async () => {
+    try {
+      const { isNew, label } = await touchDevice(loginUser.id, ua, ip);
+      if (!isNew) return;
+      await sendAccountEmail({
+        userId: loginUser.id,
+        to: loginUser.email,
+        name: loginUser.name,
+        content: newDeviceLogin({
+          name: loginUser.name,
+          deviceLabel: label,
+          ip: ip ?? "bilinmiyor",
+          whenText: new Intl.DateTimeFormat("tr-TR", {
+            dateStyle: "long",
+            timeStyle: "short",
+            timeZone: "Europe/Istanbul",
+          }).format(new Date()),
+          platform: "iOS",
+        }),
+        kind: "new_device",
+      });
+    } catch (err) {
+      console.error("[account-email] mobil yeni cihaz bildirimi başarısız:", err);
+    }
   });
 
   const loginAt = Date.now();

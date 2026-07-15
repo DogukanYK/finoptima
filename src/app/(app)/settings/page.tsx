@@ -16,6 +16,8 @@ import { AccountsManager } from "@/components/settings/accounts-manager";
 import { CategoriesManager } from "@/components/settings/categories-manager";
 import { InvitesManager } from "@/components/settings/invites-manager";
 import { TwoFactorManager } from "@/components/settings/two-factor-manager";
+import { KnownDevices } from "@/components/settings/known-devices";
+import { listDevices } from "@/lib/security/devices";
 import { DataPrivacy } from "@/components/settings/data-privacy";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
 import { cn } from "@/lib/utils";
@@ -122,7 +124,10 @@ export default async function SettingsPage({
       )}
 
       {tab === "security" && (
-        <TwoFactorManager enabled={user.twoFactorEnabled} />
+        <div className="space-y-8">
+          <TwoFactorManager enabled={user.twoFactorEnabled} />
+          <KnownDevices devices={await listDevices(user.id)} />
+        </div>
       )}
 
       {tab === "data" && <DataPrivacy />}

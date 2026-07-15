@@ -1,12 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { generateSecret, generateURI, verify } from "otplib";
 import QRCode from "qrcode";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { encryptField, decryptField } from "@/lib/crypto";
 import { logAudit } from "@/lib/audit";
+import { sendAccountEmail } from "@/lib/email/account";
+// Şablon adları User alanlarıyla ("twoFactorEnabled") çakışmasın diye takma adlı import.
+import {
+  twoFactorEnabled as twoFactorEnabledEmail,
+  twoFactorDisabled as twoFactorDisabledEmail,
+} from "@/lib/email/templates";
 
 export type TwoFactorState = {
   ok?: boolean;
