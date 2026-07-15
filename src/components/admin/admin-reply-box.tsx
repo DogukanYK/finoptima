@@ -14,15 +14,32 @@ import {
   adminSuggestDraft,
 } from "@/lib/actions/admin-support";
 import { Button } from "@/components/ui/button";
+import { MacroPicker } from "@/components/admin/macro-picker";
+import type { MacroPlain } from "@/lib/support/macros";
 
 type Busy = "reply" | "note" | "draft" | null;
 
-export function AdminReplyBox({ ticketId }: { ticketId: string }) {
+export function AdminReplyBox({
+  ticketId,
+  macros = [],
+}: {
+  ticketId: string;
+  macros?: MacroPlain[];
+}) {
   const router = useRouter();
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Busy>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Seçilen makronun body'sini mevcut metnin SONUNA ekler (üzerine yazmaz).
+  function appendMacro(macroBody: string) {
+    setError(null);
+    setBody((prev) => {
+      const trimmed = prev.replace(/\s+$/, "");
+      return trimmed ? `${trimmed}\n\n${macroBody}` : macroBody;
+    });
+  }
 
   function submit(kind: "reply" | "note") {
     if (isPending) return;
@@ -61,6 +78,16 @@ export function AdminReplyBox({ ticketId }: { ticketId: string }) {
 
   return (
     <div className="card p-4">
+      {macros.length > 0 && (
+        <div className="mb-2.5">
+          <MacroPicker
+            macros={macros}
+            onSelect={appendMacro}
+            disabled={isPending}
+          />
+        </div>
+      )}
+
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}

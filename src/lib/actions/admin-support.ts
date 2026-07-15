@@ -27,7 +27,13 @@ async function emailOwner(
 ): Promise<void> {
   try {
     if (!email) return;
-    await sendEmail({ to: email, subject: content.subject, html: content.html });
+    await sendEmail({
+      to: email,
+      subject: content.subject,
+      html: content.html,
+      // Müşterinin cevabı doğru talebe geri dönsün (tanımlıysa); yoksa From adresine.
+      replyTo: process.env.SUPPORT_INBOUND_ADDRESS ?? undefined,
+    });
     await logAudit({
       userId: audit.userId,
       action: "support.email_sent",

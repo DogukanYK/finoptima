@@ -9,6 +9,7 @@ import {
   getTicketAdmin,
   getCustomer360Tier2Panels,
 } from "@/lib/support/admin-queries";
+import { listMacros } from "@/lib/support/macros";
 import { PageHeader } from "@/components/ui/page-header";
 import { LinkButton } from "@/components/ui/button";
 import { AdminReplyBox } from "@/components/admin/admin-reply-box";
@@ -81,6 +82,8 @@ export default async function AdminTicketDetailPage({
     ? await getCustomer360Tier2Panels(user.id, ticket.customerId, ticket.consent)
     : null;
 
+  const macros = await listMacros();
+
   return (
     <div>
       <PageHeader
@@ -139,7 +142,7 @@ export default async function AdminTicketDetailPage({
           </div>
 
           <div className="mt-4">
-            <AdminReplyBox ticketId={ticket.id} />
+            <AdminReplyBox ticketId={ticket.id} macros={macros} />
           </div>
         </div>
 

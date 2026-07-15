@@ -5,13 +5,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Inbox, Users } from "lucide-react";
+import { LayoutDashboard, Inbox, Users, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
   { href: "/admin", label: "Panel", icon: LayoutDashboard, exact: true },
   { href: "/admin/talepler", label: "Talepler", icon: Inbox },
   { href: "/admin/musteriler", label: "Müşteriler", icon: Users },
+  { href: "/admin/makrolar", label: "Makrolar", icon: MessageSquareText },
 ];
 
 export function AdminNav() {

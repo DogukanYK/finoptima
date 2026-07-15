@@ -582,3 +582,17 @@ model SupportConsent {
   @@index([ticketId, status])
   @@index([userId, status, expiresAt])
 }
+
+// Hazır yanıt makroları — admin'in tek tıkla yanıt kutusuna eklediği şablonlar.
+// Finansal veri İÇERMEZ; genel/yardımcı metinlerdir. Cross-cutting, ticket'a bağlı değil.
+model SupportMacro {
+  id        String   @id @default(cuid())
+  title     String // kısa etiket, örn "Ekstre parola hatası"
+  body      String   @db.Text
+  category  String? // opsiyonel eşleştirme (ACCOUNT/IMPORT/... serbest)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}

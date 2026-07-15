@@ -204,6 +204,38 @@ export function consentRequested(input: {
   };
 }
 
+/** Yanıtsız talep özeti — admin'lere günlük digest (destek kabuğu). */
+export function unansweredDigest(input: {
+  tickets: Array<{ shortId: number; subject: string; hoursWaiting: number }>;
+}): EmailContent {
+  const count = input.tickets.length;
+  const listUrl = `${appUrl()}/admin/talepler`;
+
+  const rows = input.tickets
+    .map(
+      (t) =>
+        `<tr><td style="padding:0 0 8px;">` +
+        `<a href="${esc(listUrl)}" style="display:block;text-decoration:none;padding:12px 14px;background:#F8FAFC;border:1px solid ${LINE};border-radius:8px;">` +
+        `<span style="color:${BRAND};font-size:14px;font-weight:700;">#${t.shortId}</span>` +
+        `<span style="color:${INK};font-size:14px;font-weight:600;"> · ${esc(t.subject)}</span>` +
+        `<div style="margin-top:3px;color:${MUTED};font-size:13px;">${t.hoursWaiting} saattir yanıt bekliyor</div>` +
+        `</a></td></tr>`,
+    )
+    .join("");
+
+  const listHtml = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 4px;">${rows}</table>`;
+
+  return {
+    subject: `${count} destek talebi yanıt bekliyor`,
+    html: layout({
+      heading: "Yanıt bekleyen talepler",
+      intro: `${count} destek talebi 24 saatten uzun süredir müşteri yanıtı bekliyor. En uzun bekleyen en üstte:`,
+      extraHtml: listHtml,
+      cta: { href: listUrl, label: "Destek kuyruğunu aç" },
+    }),
+  };
+}
+
 /* ===================================================================== */
 /* ============ HESAP & GÜVENLİK (işlemsel) e-posta şablonları ========= */
 /* ===================================================================== */
