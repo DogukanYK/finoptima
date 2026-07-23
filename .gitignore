@@ -42,3 +42,4 @@ next-env.d.ts
 
 # kullanıcı yüklemeleri
 /public/uploads
+scripts/eval/son-sonuc.json
