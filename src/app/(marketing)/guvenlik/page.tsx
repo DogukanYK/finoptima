@@ -54,7 +54,7 @@ export default function Page() {
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" variant="primary" size="lg" arrow>
-            Ücretsiz hesap oluştur
+            Erken erişime katıl
           </CTAButton>
           <CTAButton href="/iletisim" variant="outline" size="lg">
             Güvenlik ekibine yaz

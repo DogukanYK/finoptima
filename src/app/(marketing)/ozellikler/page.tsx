@@ -127,7 +127,7 @@ export default function Page() {
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" size="lg" arrow>
-            Ücretsiz başla
+            Erken erişime katıl
           </CTAButton>
           <CTAButton href="/nasil-calisir" variant="outline" size="lg">
             Nasıl çalışır?
@@ -500,8 +500,8 @@ export default function Page() {
       </Section>
 
       <GradientCTA
-        title="Tüm bunlar, ücretsiz başlıyor"
-        desc="Kredi notu koçluğu, ekstre okuma ve borç panosu — hepsini bugün dene. Kart bilgisi gerekmez."
+        title="Tüm bunlar bugün ücretsiz"
+        desc="Kredi notu koçluğu, resmî Findeks raporu okuma, ekstre okuma ve borç panosu — hepsi ücretsiz. Kart bilgisi gerekmez."
       />
     </>
   );

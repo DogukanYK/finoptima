@@ -58,7 +58,7 @@ export default function Page() {
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" size="lg" arrow>
-            Ücretsiz başla
+            Erken erişime katıl
           </CTAButton>
           <CTAButton href="/ozellikler" variant="outline" size="lg">
             Özellikleri keşfet
@@ -199,6 +199,13 @@ export default function Page() {
               iyileştirmelere inanıyoruz: gerçek kullanıcı ihtiyaçlarını dinler,
               hızla dener, işe yarayanı bırakır, yaramayanı çıkarırız.
             </Lead>
+            <p className="mt-4 max-w-lg text-[14px] leading-relaxed" style={{ color: MUTED }}>
+              finoptima.dev, geliştirdiğimiz yapay zekâ destekli finansal sağlık
+              motorunun canlı referans uygulamasıdır: aynı motoru bankaların ve
+              finans kurumlarının kendi kanallarında sunabileceği bir katman
+              olarak da kurguluyoruz. Buradaki ürün ise her zaman doğrudan
+              kullanıcı için kalır.
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -338,8 +345,8 @@ export default function Page() {
               Pro planı
             </h3>
             <p className="mt-3 text-[14px] leading-relaxed" style={{ color: MUTED }}>
-              Daha derin analiz, gelişmiş senaryolar ve kişiselleştirilmiş
-              koçluk isteyenler için genişletilmiş bir plan.
+              Çok hesaplı aile paneli, senaryo simülasyonları ve alışkanlığınızdan
+              öğrenen kategori motoru isteyenler için genişletilmiş bir plan.
             </p>
           </Card>
 
@@ -377,9 +384,9 @@ export default function Page() {
 
       <GradientCTA
         title="Bize katıl"
-        desc="Finansal sağlığını netleştirmeye bugün başla. Ücretsiz hesap oluştur, notunu ve ilk adımlarını dakikalar içinde gör."
+        desc="Finansal sağlığını netleştirmeye bugün başla. Davetinle hesabını oluştur, notunu ve ilk adımlarını dakikalar içinde gör."
         primaryHref="/register"
-        primaryLabel="Ücretsiz başla"
+        primaryLabel="Erken erişime katıl"
         secondaryHref="/ozellikler"
         secondaryLabel="Özellikleri keşfet"
       />

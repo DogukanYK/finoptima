@@ -242,8 +242,8 @@ export default function Page() {
       <GradientCTA
         title="Kredi notunuzu görmeye hazır mısınız?"
         desc="FinOptima ile finansal sağlığınızı ücretsiz keşfedin, kişiye özel önerilerle notunuzu adım adım yükseltin."
-        primaryHref="/kayit"
-        primaryLabel="Ücretsiz başla"
+        primaryHref="/register"
+        primaryLabel="Erken erişime katıl"
         secondaryHref="/sss"
         secondaryLabel="Sıkça sorulan sorular"
       />

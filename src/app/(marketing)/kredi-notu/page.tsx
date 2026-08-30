@@ -74,14 +74,14 @@ export default function Page() {
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" variant="accent" size="lg" arrow>
-            Notunu ücretsiz tahmin et
+            Erken erişime katıl
           </CTAButton>
           <CTAButton href="/ozellikler" variant="outline" size="lg">
             Tüm özellikler
           </CTAButton>
         </div>
         <p className="mt-4 text-[13px]" style={{ fontFamily: F.mono, color: MUTED }}>
-          Kart bilgisi istemeden · birkaç dakikada · tamamen Türkçe
+          Kapalı beta · davet kodu ile · kart bilgisi istemeden · tamamen Türkçe
         </p>
       </Section>
 
@@ -359,7 +359,6 @@ export default function Page() {
       <GradientCTA
         title="Notunu bugün öğren, adım adım yükselt"
         desc="Birkaç dakikada tahmini kredi notunu gör, seni geri çeken faktörü fark et ve FinOptima'nın kişisel planıyla yükselmeye başla."
-        primaryLabel="Ücretsiz başla"
         secondaryLabel="Giriş yap"
       />
     </>

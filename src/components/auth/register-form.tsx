@@ -92,6 +92,7 @@ export function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
             label="Davet kodu"
             placeholder="ABCD-1234"
             required
+            hint="Kapalı betadayız. Davet kodun yoksa destek@finoptima.dev adresine yazabilirsin."
             error={state.fieldErrors?.inviteCode}
           />
         )}

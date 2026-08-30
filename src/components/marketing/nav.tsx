@@ -51,7 +51,7 @@ export function MarketingNav() {
             Giriş yap
           </Link>
           <CTAButton href="/register" size="sm">
-            Kayıt ol
+            Erken erişim
           </CTAButton>
         </div>
 
@@ -88,7 +88,7 @@ export function MarketingNav() {
                 Giriş yap
               </CTAButton>
               <CTAButton href="/register" size="sm" className="flex-1">
-                Kayıt ol
+                Erken erişim
               </CTAButton>
             </div>
           </nav>

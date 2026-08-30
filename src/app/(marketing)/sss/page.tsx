@@ -40,7 +40,11 @@ const GROUPS: Group[] = [
       },
       {
         q: "FinOptima ücretsiz mi?",
-        a: "Temel özellikler ücretsizdir: tahmini kredi notu, notu etkileyen faktörlerin dökümü ve kişisel iyileştirme önerileri hesap açar açmaz kullanılabilir. İleride yayına alacağımız Pro paketi ise daha derin analiz, senaryo simülasyonları ve gelişmiş takip araçları içerecek. Ücretsiz katmanla başlayıp dilediğin zaman yükseltebilirsin.",
+        a: "Evet. Bugün uygulamada çalışan her şey ücretsizdir: tahmini kredi notu, resmî Findeks raporu yükleme, notu etkileyen faktörlerin dökümü, banka ekstresi okuma, AI asistan, borç kapatma planı ve kişisel iyileştirme önerileri. İleride yayına alacağımız Pro paketi ise bugün henüz olmayan özellikleri (aile paneli, senaryo simülasyonları, öğrenen kategori motoru) ekleyecek; bugün ücretsiz kullandığın hiçbir özellik Pro'ya taşınmayacak.",
+      },
+      {
+        q: "Kayıt herkese açık mı?",
+        a: "Şu an kapalı betadayız: kayıt davet koduyla açılıyor. Bunu bilinçli seçtik — kullanıcı sayısını kontrollü artırdığımız için her yeni kullanıcının kredi koçluğu çıktısını tek tek ölçebiliyor, geri bildirimi doğrudan ürüne yansıtabiliyoruz. Davet kodu istemek için iletişim sayfasından bize yazabilirsin.",
       },
       {
         q: "Kimler kullanabilir?",
@@ -59,7 +63,7 @@ const GROUPS: Group[] = [
     items: [
       {
         q: "Findeks notumu siz mi görüyorsunuz?",
-        a: "Hayır. FinOptima, Findeks veya kredi bürolarının resmî notuna doğrudan erişmez ve onların yerine geçmez. Gösterdiğimiz değer, senin paylaştığın bilgilere dayanan bir tahmindir. Resmî notun her zaman ilgili kurumun kendi kaydıdır; biz o notu anlamana ve iyileştirmene yardımcı oluruz.",
+        a: "Hayır. FinOptima, Findeks veya kredi bürolarının resmî notuna doğrudan erişmez ve onların yerine geçmez. Varsayılan olarak gösterdiğimiz değer, senin paylaştığın bilgilere dayanan bir tahmindir. Resmî notunu görmemizi istersen kendi Findeks Risk Raporu PDF'ini yükleyebilirsin; o zaman analiz doğrudan senin resmî raporun üzerinden çalışır.",
       },
       {
         q: "Notu nasıl tahmin ediyorsunuz?",
@@ -67,7 +71,7 @@ const GROUPS: Group[] = [
       },
       {
         q: "Resmî kredi raporumu yükleyebilir miyim?",
-        a: "Tahminin doğruluğunu artırmak için dilersen daha ayrıntılı bilgi girebilirsin. Elindeki resmî rapordaki kalemleri (limitler, bakiyeler, ödeme geçmişi) uygulamaya aktardıkça tahmin senin gerçek durumuna daha çok yaklaşır. Ne kadar bilgi verirsen, öneriler o kadar isabetli olur.",
+        a: "Evet, üstelik ücretsiz. Findeks'ten indirdiğin Risk Raporu PDF'ini uygulamaya yüklediğinde FinOptima raporu okur; gerçek notunu, limitlerini, bakiyelerini ve ödeme durumunu işler. O andan itibaren faktör dökümü ve tavsiyeler tahmini skor yerine resmî rapor verisiyle üretilir. Raporu istediğin zaman yeni tarihlisiyle güncelleyebilirsin.",
       },
       {
         q: "Notumu nasıl yükseltirim?",
@@ -113,7 +117,7 @@ const GROUPS: Group[] = [
       },
       {
         q: "Pro paket ne zaman gelecek?",
-        a: "Pro paketi üzerinde çalışıyoruz; senaryo simülasyonları, daha derin analiz ve gelişmiş takip gibi özellikler içerecek. Yayın tarihini kesinleştirdiğimizde ilk duyacaklar kayıtlı kullanıcılarımız olacak. Bu sırada ücretsiz katman tüm temel ihtiyaçlarını karşılamaya devam eder.",
+        a: "Pro paketi üzerinde çalışıyoruz; çok hesaplı aile paneli, senaryo simülasyonları, alışkanlığından öğrenen kategori motoru ve öncelikli destek gibi bugün henüz yazılmamış özellikler içerecek. Yayın tarihini kesinleştirdiğimizde ilk duyacaklar kayıtlı kullanıcılarımız olacak. Bugün ücretsiz kullandığın özellikler ücretsiz kalmaya devam eder.",
       },
       {
         q: "Gizli bir ücret var mı?",
@@ -226,7 +230,7 @@ export default function Page() {
                 Bize ulaş
               </CTAButton>
               <CTAButton href="/register" variant="outline" size="lg">
-                Ücretsiz dene
+                Erken erişim
               </CTAButton>
             </div>
           </div>
@@ -235,7 +239,7 @@ export default function Page() {
 
       <GradientCTA
         title="Merak ettiklerini uygulamada gör"
-        desc="Ücretsiz hesap aç, tahmini kredi notunu ve seni yükseltecek adımları birkaç dakikada keşfet."
+        desc="Davetinle hesabını aç; tahmini kredi notunu ve seni yükseltecek adımları birkaç dakikada keşfet."
       />
     </>
   );

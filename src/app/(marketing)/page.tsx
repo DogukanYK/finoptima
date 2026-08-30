@@ -36,7 +36,7 @@ import { F } from "@/components/marketing/fonts";
 export const metadata: Metadata = {
   title: { absolute: "FinOptima — Kredi notunu yükselt, paranı kontrol et" },
   description:
-    "Tahmini Findeks kredi notu, banka ekstresi okuyan yapay zekâ ve bu ay ne yapman gerektiğini söyleyen kişisel koçluk. Ücretsiz başla.",
+    "Tahmini Findeks kredi notu, resmî Findeks raporu okuma, banka ekstresi okuyan yapay zekâ ve bu ay ne yapman gerektiğini söyleyen kişisel koçluk. Kapalı beta: davet kodu ile erken erişim.",
 };
 
 const STEPS = [
@@ -46,7 +46,7 @@ const STEPS = [
 ];
 
 const FEATURES = [
-  { Icon: Gauge, title: "Kredi notu koçluğu", desc: "Tahmini Findeks skorun + onu yükseltmek için bu ay yapılacaklar, önem sırasıyla.", c: BLUE },
+  { Icon: Gauge, title: "Kredi notu koçluğu", desc: "Tahmini Findeks skorun — ya da yüklediğin resmî Findeks raporun — üzerine bu ay yapılacaklar, önem sırasıyla.", c: BLUE },
   { Icon: Bot, title: "AI asistan", desc: "“Dün markete 350 verdim” de, senin için işlemi girsin. Sorularını eldeki verinle yanıtlasın.", c: EMERALD },
   { Icon: FileText, title: "Her banka ekstresi", desc: "Garanti, Enpara, Yapı Kredi ya da tanımadığın banka — yapay zekâ ekstreni/dekontunu okur.", c: BLUE },
   { Icon: ReceiptText, title: "Fiş & fatura okuma", desc: "Fişin fotoğrafını çek; tutar, tarih, satıcı otomatik çıkar. Faturalarını takvimle izle.", c: EMERALD },
@@ -55,8 +55,9 @@ const FEATURES = [
 ];
 
 const FAQ = [
-  { q: "FinOptima ücretsiz mi?", a: "Evet. Kredi notu koçluğu, ekstre okuma, fiş/fatura takibi ve borç yönetimi ücretsiz. Pro plan daha derin otomasyon için yakında." },
-  { q: "Findeks notumu görebiliyor musunuz?", a: "Hayır. Biz davranışlarından yola çıkarak tahmini bir skor üretiriz ve onu yükselten adımları öneririz. Resmî Findeks raporunu istersen kendin yükleyebilirsin." },
+  { q: "Kayıt herkese açık mı?", a: "Şu an kapalı betadayız: kayıt davet koduyla açılıyor. Kontrollü büyümeyi tercih ediyoruz; davet kodu için bize yazabilirsin." },
+  { q: "FinOptima ücretsiz mi?", a: "Evet. Kredi notu koçluğu, resmî Findeks raporu yükleme, ekstre okuma, fiş/fatura takibi ve borç yönetimi bugün ücretsiz. Ücretli Pro planı ise henüz yayında değil." },
+  { q: "Findeks notumu görebiliyor musunuz?", a: "Hayır. Biz davranışlarından yola çıkarak tahmini bir skor üretiriz ve onu yükselten adımları öneririz. Resmî skorun için Findeks Risk Raporu PDF'ini kendin yüklersin; uygulama onu okuyup gerçek skorunla çalışır." },
   { q: "Banka bilgilerimi bağlamam gerekir mi?", a: "Hayır. Hesap bağlama zorunluluğu yok — ekstre/dekont dosyanı yüklersin ya da harcamanı elle/asistanla girersin." },
 ];
 
@@ -73,7 +74,7 @@ export default async function Home() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_1fr]">
           <div>
             <Pill tone="blue">
-              <ShieldCheck size={13} /> ÜCRETSİZ · FINDEKS TAHMİNİ + KOÇLUK
+              <ShieldCheck size={13} /> ERKEN ERİŞİM · FINDEKS TAHMİNİ + KOÇLUK
             </Pill>
             <SectionTitle as="h1" className="mt-6">
               Kredi notunu{" "}
@@ -91,17 +92,23 @@ export default async function Home() {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <CTAButton href="/register" size="lg" arrow>
-                Ücretsiz kayıt ol
+                Erken erişime katıl
               </CTAButton>
               <CTAButton href="/nasil-calisir" variant="outline" size="lg">
                 Nasıl çalışır?
               </CTAButton>
             </div>
 
+            <p className="mt-4 max-w-md text-sm leading-relaxed" style={{ color: MUTED }}>
+              Kapalı betadayız: kayıt davet koduyla açılıyor. Kontrollü büyüyoruz
+              ki her kullanıcıya gerçekten çalışan bir kredi koçluğu verelim.
+              Uygulamanın tamamı ücretsiz, kart bilgisi istemiyoruz.
+            </p>
+
             <div className="mt-7 flex flex-wrap items-center gap-2.5">
               <Pill tone="green"><Check size={13} /> Banka ekstresini AI okur</Pill>
               <Pill>KVKK uyumlu</Pill>
-              <Pill>Dakikalar içinde kurulur</Pill>
+              <Pill>Davet kodu ile katılım</Pill>
             </div>
           </div>
 
@@ -111,7 +118,7 @@ export default async function Home() {
         <div className="mt-16">
           <StatStrip
             items={[
-              { n: "Ücretsiz", l: "Kredi notu takibi", s: "tahmini Findeks skoru" },
+              { n: "Ücretsiz", l: "Kredi notu takibi", s: "tahmini skor + resmî rapor" },
               { n: "Her banka", l: "Ekstre / dekont okuma", s: "yapay zekâ ile, her dil" },
               { n: "Aylık", l: "Kişisel eylem planı", s: "ne yapacağını söyler" },
               { n: "Tek ekran", l: "Borç · kart · fatura", s: "hepsi bir arada" },
@@ -227,6 +234,11 @@ export default async function Home() {
               </div>
             ))}
           </div>
+          <p className="mt-8 max-w-2xl text-sm leading-relaxed" style={{ color: MUTED }}>
+            finoptima.dev, geliştirdiğimiz yapay zekâ destekli finansal sağlık
+            motorunun canlı referans uygulamasıdır — aynı motoru bankaların kendi
+            kanallarında sunabileceği bir katman olarak da geliştiriyoruz.
+          </p>
         </div>
       </Section>
 
@@ -243,8 +255,8 @@ export default async function Home() {
         </div>
         <div className="mt-9 grid gap-4 lg:grid-cols-2">
           {[
-            { name: "ÜCRETSİZ", price: "₺0", suffix: "/ ay", desc: "Kredi notu koçluğu ve temel takip.", features: ["Tahmini Findeks notu + koçluk", "Banka ekstresi okuma", "AI asistan ile işlem girişi", "Borç & kart yönetimi", "Sınırsız işlem"], pro: false },
-            { name: "PRO", price: "Yakında", suffix: "", desc: "Daha derin otomasyon ve aile hesabı.", features: ["Resmî Findeks rapor yükleme", "Otomatik kategori öğrenme", "Çok hesaplı aile", "İleri borç stratejisi", "Öncelikli destek"], pro: true },
+            { name: "ÜCRETSİZ", price: "₺0", suffix: "/ ay", desc: "Bugün canlıda olan her şey.", features: ["Tahmini Findeks notu + AI koçluk", "Resmî Findeks raporu (PDF) yükleme", "Banka ekstresi okuma + otomatik kategorileme", "AI asistan ile işlem girişi", "Borç kapatma planı & kart yönetimi"], pro: false },
+            { name: "PRO", price: "Yakında", suffix: "", desc: "Henüz yazmadığımız, sırada olan özellikler.", features: ["Çok hesaplı aile paneli", "Alışkanlığından öğrenen kategori motoru", "Senaryo simülasyonları", "Öncelikli destek"], pro: true },
           ].map((p) => (
             <div key={p.name} className="relative overflow-hidden rounded-[24px] p-8" style={{ background: p.pro ? DARK : "#FFFFFF", color: p.pro ? "#F8FAFC" : INK, border: p.pro ? "none" : `1px solid ${LINE}` }}>
               {p.pro && <div aria-hidden className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,0.4) 0%, transparent 60%)" }} />}
@@ -265,8 +277,8 @@ export default async function Home() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/register" className="block rounded-full py-3.5 text-center text-[15px] font-bold transition-transform hover:-translate-y-0.5" style={{ background: p.pro ? "#F8FAFC" : BLUE, color: p.pro ? INK : "#FFFFFF" }}>
-                  {p.pro ? "Haber ver" : "Ücretsiz kayıt ol"} →
+                <Link href={p.pro ? "/iletisim" : "/register"} className="block rounded-full py-3.5 text-center text-[15px] font-bold transition-transform hover:-translate-y-0.5" style={{ background: p.pro ? "#F8FAFC" : BLUE, color: p.pro ? INK : "#FFFFFF" }}>
+                  {p.pro ? "Pro çıkınca haber ver" : "Erken erişime katıl"} →
                 </Link>
               </div>
             </div>
@@ -308,7 +320,7 @@ export default async function Home() {
       {/* ===== Alt CTA ===== */}
       <GradientCTA
         title="Kredi notunu bugün öğren."
-        desc="Birkaç dakikada kurulur. Ücretsiz başla, notunu yükseltmeye başla."
+        desc="Birkaç dakikada kurulur. Davetini kullan, notunu yükseltmeye hemen başla."
       />
     </>
   );

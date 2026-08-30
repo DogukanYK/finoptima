@@ -289,9 +289,10 @@ export function GradientCTA({
   title,
   desc,
   primaryHref = "/register",
-  primaryLabel = "Ücretsiz kayıt ol",
+  primaryLabel = "Erken erişime katıl",
   secondaryHref = "/login",
   secondaryLabel = "Giriş yap",
+  note = "Kapalı beta: kayıt davet kodu ile açılıyor, kullanım ücretsiz.",
 }: {
   title: string;
   desc: string;
@@ -299,6 +300,7 @@ export function GradientCTA({
   primaryLabel?: string;
   secondaryHref?: string;
   secondaryLabel?: string;
+  note?: string;
 }) {
   return (
     <Section className="py-12">
@@ -319,6 +321,11 @@ export function GradientCTA({
             <p className="mt-3 max-w-lg text-[15px]" style={{ color: "rgba(255,255,255,0.9)" }}>
               {desc}
             </p>
+            {note && (
+              <p className="mt-3 max-w-lg text-[13px]" style={{ color: "rgba(255,255,255,0.75)" }}>
+                {note}
+              </p>
+            )}
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
             <CTAButton href={primaryHref} variant="white" size="lg" arrow>

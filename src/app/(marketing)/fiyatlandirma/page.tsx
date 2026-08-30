@@ -25,24 +25,29 @@ import { Check, Minus, Sparkles } from "lucide-react";
 export const metadata: Metadata = {
   title: "Fiyatlandırma",
   description:
-    "FinOptima'da başlamak ücretsiz. Kredi notu koçluğu, banka ekstresi okuma, AI asistan ve temel finans takibi her zaman ücretsiz. Kart bilgisi istemez.",
+    "FinOptima'da bugün canlıda olan her şey ücretsiz: resmî Findeks raporu yükleme, kredi notu koçluğu, banka ekstresi okuma, AI asistan ve borç planı. Kart bilgisi istemez.",
 };
 
-/* Karşılaştırma tablosu satırları: [özellik, ücretsiz, pro] — true/false/metin */
+/* Karşılaştırma tablosu satırları: [özellik, ücretsiz, pro] — true/false/metin
+   Kural: bugün uygulamada çalışan her özellik ücretsiz sütununda işaretlidir.
+   Pro sütununda yalnızca henüz yazılmamış özellikler "yakında" olarak durur. */
 const COMPARE: { label: string; free: boolean | string; pro: boolean | string }[] = [
   { label: "Tahmini Findeks kredi notu", free: true, pro: true },
-  { label: "Resmî Findeks raporu yükleme", free: false, pro: true },
+  { label: "Resmî Findeks raporu (PDF) yükleme", free: true, pro: true },
   { label: "Kişiselleştirilmiş kredi notu koçluğu", free: true, pro: true },
-  { label: "Banka ekstresi / PDF okuma", free: true, pro: true },
-  { label: "AI finans asistanı", free: "Standart", pro: "Öncelikli" },
+  { label: "Banka ekstresi / dekont okuma", free: true, pro: true },
+  { label: "AI finans asistanı", free: true, pro: true },
   { label: "Fiş & fatura tarama", free: true, pro: true },
-  { label: "Otomatik kategori öğrenme", free: false, pro: true },
+  { label: "Otomatik kategorileme", free: true, pro: true },
   { label: "Borç & kredi kartı takibi", free: true, pro: true },
-  { label: "İleri borç kapatma stratejisi", free: false, pro: true },
+  { label: "Borç kapatma planı (faiz önceliğine göre)", free: true, pro: true },
+  { label: "Fatura & ödeme takvimi", free: true, pro: true },
   { label: "Aylık işlem limiti", free: "Sınırsız", pro: "Sınırsız" },
-  { label: "Çok hesaplı aile paneli", free: false, pro: true },
-  { label: "KVKK uyumlu veri koruması", free: true, pro: true },
-  { label: "Destek", free: "E-posta", pro: "Öncelikli" },
+  { label: "KVKK uyumlu veri koruması + veri dışa aktarma", free: true, pro: true },
+  { label: "Alışkanlığından öğrenen kategori motoru", free: false, pro: "Yakında" },
+  { label: "Senaryo simülasyonları", free: false, pro: "Yakında" },
+  { label: "Çok hesaplı aile paneli", free: false, pro: "Yakında" },
+  { label: "Destek", free: "Uygulama içi", pro: "Öncelikli" },
 ];
 
 function Cell({ value }: { value: boolean | string }) {
@@ -74,15 +79,23 @@ function Cell({ value }: { value: boolean | string }) {
 const FAQ: { q: string; a: string }[] = [
   {
     q: "FinOptima gerçekten ücretsiz mi?",
-    a: "Evet. Kredi notu koçluğu, tahmini Findeks takibi, banka ekstresi okuma, AI asistan ve temel harcama/borç takibi hiçbir ücret olmadan kullanılabilir. Ücretsiz plan bir deneme süresi değil; süresiz olarak ücretsizdir.",
+    a: "Evet. Bugün uygulamada çalışan her şey — resmî Findeks raporu yükleme dahil — hiçbir ücret olmadan kullanılabilir. Ücretsiz plan bir deneme süresi değil; süresiz olarak ücretsizdir.",
+  },
+  {
+    q: "Kayıt herkese açık mı?",
+    a: "Şu an kapalı betadayız: kayıt davet koduyla açılıyor. Bunu bilinçli tercih ettik — her yeni kullanıcıyla birlikte kredi koçluğunun kalitesini ölçüyor, altyapıyı kontrollü büyütüyoruz. Davet kodu için iletişim sayfasından bize yazabilirsiniz.",
   },
   {
     q: "Başlamak için kredi kartımı girmem gerekir mi?",
-    a: "Hayır. Ücretsiz kayıt olurken hiçbir kart veya ödeme bilgisi istemiyoruz. Sadece e-posta ile hesap açar, dakikalar içinde kullanmaya başlarsınız. Pro planı geldiğinde bile geçiş tamamen sizin tercihinizde olacak.",
+    a: "Hayır. Kayıt olurken hiçbir kart veya ödeme bilgisi istemiyoruz. E-posta ve davet kodunuzla hesap açar, dakikalar içinde kullanmaya başlarsınız. Pro planı geldiğinde bile geçiş tamamen sizin tercihinizde olacak.",
+  },
+  {
+    q: "Resmî Findeks raporumu yükleyebilir miyim?",
+    a: "Evet, bugün yükleyebilirsiniz ve bunun için ücret ödemezsiniz. Findeks'ten indirdiğiniz Risk Raporu PDF'ini yüklediğinizde uygulama gerçek skorunuzu, limit ve kart verilerinizi okur; tavsiyeler tahmini skor yerine bu gerçek veriyle üretilir.",
   },
   {
     q: "Pro planı ne zaman gelecek?",
-    a: "Pro üzerinde çalışıyoruz. Resmî Findeks raporu yükleme, otomatik kategori öğrenme, çok hesaplı aile paneli ve ileri borç stratejisi gibi özellikler Pro ile gelecek. Kayıt olup 'Haber ver' derseniz, çıktığında ilk siz haberdar olursunuz.",
+    a: "Pro üzerinde çalışıyoruz; içinde yalnızca bugün henüz yazmadığımız özellikler var: çok hesaplı aile paneli, alışkanlığınızdan öğrenen kategori motoru, senaryo simülasyonları ve öncelikli destek. Bugün ücretsiz kullandığınız hiçbir özellik Pro'ya taşınmayacak.",
   },
   {
     q: "İstediğim zaman ayrılabilir miyim?",
@@ -105,12 +118,12 @@ export default function Page() {
           <Sparkles size={13} /> FİYAT
         </Pill>
         <SectionTitle as="h1" className="mt-6 max-w-3xl">
-          Başlamak ücretsiz
+          Bugün canlıda olan her şey ücretsiz
         </SectionTitle>
         <Lead className="mt-6 max-w-2xl">
-          Kredi notu koçluğu ve temel finans takibi FinOptima'da her zaman
-          ücretsiz. Kart bilgisi istemeden kayıt olun, dakikalar içinde kredi
-          notunuzu, harcamalarınızı ve borçlarınızı tek panelde görmeye başlayın.
+          Resmî Findeks raporu yükleme, kredi notu koçluğu, banka ekstresi okuma,
+          AI asistan ve borç kapatma planı — hepsi bugün ücretsiz. Kart bilgisi
+          istemiyoruz. Kapalı betada olduğumuz için kayıt davet koduyla açılıyor.
         </Lead>
       </Section>
 
@@ -151,19 +164,24 @@ export default function Page() {
             </p>
 
             <ul className="mt-6 grid gap-2.5">
-              <CheckItem>Tahmini Findeks kredi notu + koçluk</CheckItem>
-              <CheckItem>Banka ekstresi / PDF okuma</CheckItem>
+              <CheckItem>Tahmini Findeks kredi notu + AI koçluk</CheckItem>
+              <CheckItem>Resmî Findeks raporu (PDF) yükleme</CheckItem>
+              <CheckItem>Banka ekstresi / dekont okuma</CheckItem>
               <CheckItem>AI finans asistanı</CheckItem>
-              <CheckItem>Fiş & fatura tarama</CheckItem>
-              <CheckItem>Borç & kredi kartı takibi</CheckItem>
+              <CheckItem>Fiş & fatura tarama, otomatik kategorileme</CheckItem>
+              <CheckItem>Borç kapatma planı & kart takibi</CheckItem>
+              <CheckItem>Fatura & ödeme takvimi</CheckItem>
               <CheckItem>Sınırsız işlem kaydı</CheckItem>
               <CheckItem>KVKK uyumlu veri koruması</CheckItem>
             </ul>
 
             <div className="mt-8 pt-2">
               <CTAButton href="/register" variant="primary" size="lg" arrow className="w-full">
-                Ücretsiz kayıt ol
+                Erken erişime katıl
               </CTAButton>
+              <p className="mt-3 text-center text-xs leading-relaxed" style={{ color: MUTED }}>
+                Kapalı beta: kayıt davet kodu ile açılıyor.
+              </p>
             </div>
           </Card>
 
@@ -196,22 +214,22 @@ export default function Page() {
               className="mt-3 text-sm leading-relaxed"
               style={{ color: "rgba(248,250,252,0.78)" }}
             >
-              Ücretsiz planın tüm gücü, üzerine resmî Findeks entegrasyonu ve
-              gelişmiş otomasyon. Fiyatlandırma çıkışta netleşecek.
+              Ücretsiz planın tüm gücü, üzerine hane bazlı yönetim ve derin
+              otomasyon. Aşağıdaki maddeler henüz yazılmadı; hazır olduklarında
+              fiyatlandırma da netleşecek.
             </p>
 
             <ul className="mt-6 grid gap-2.5">
               <CheckItem light>Ücretsiz plandaki her şey</CheckItem>
-              <CheckItem light>Resmî Findeks raporu yükleme</CheckItem>
-              <CheckItem light>Otomatik kategori öğrenme</CheckItem>
               <CheckItem light>Çok hesaplı aile paneli</CheckItem>
-              <CheckItem light>İleri borç kapatma stratejisi</CheckItem>
+              <CheckItem light>Alışkanlığından öğrenen kategori motoru</CheckItem>
+              <CheckItem light>Senaryo simülasyonları</CheckItem>
               <CheckItem light>Öncelikli destek</CheckItem>
             </ul>
 
             <div className="mt-8 pt-2">
-              <CTAButton href="/register" variant="white" size="lg" arrow className="w-full">
-                Haber ver
+              <CTAButton href="/iletisim" variant="white" size="lg" arrow className="w-full">
+                Pro çıkınca haber ver
               </CTAButton>
             </div>
           </DarkPanel>
@@ -226,8 +244,9 @@ export default function Page() {
             Ücretsiz ve Pro
           </SectionTitle>
           <Lead className="mx-auto mt-4">
-            Bugün ücretsizle başladığınız her şey Pro çıktığında da yerinde kalır.
-            Pro yalnızca gelişmiş özellikleri ekler.
+            Basit bir kuralımız var: bugün uygulamada çalışan her özellik ücretsiz
+            sütununda. Pro&apos;da yalnızca henüz yazmadığımız maddeler duruyor ve
+            ücretsizden hiçbir şey oraya taşınmayacak.
           </Lead>
         </div>
 
@@ -320,9 +339,8 @@ export default function Page() {
       </Section>
 
       <GradientCTA
-        title="Ücretsiz başla"
-        desc="Kart bilgisi olmadan dakikalar içinde kayıt ol; kredi notunu, harcamalarını ve borçlarını tek panelde topla."
-        primaryLabel="Ücretsiz kayıt ol"
+        title="Erken erişime katıl"
+        desc="Kart bilgisi olmadan dakikalar içinde kur; kredi notunu, harcamalarını ve borçlarını tek panelde topla."
       />
     </>
   );

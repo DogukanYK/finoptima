@@ -163,7 +163,7 @@ export default function Page() {
         </Lead>
         <div className="mt-8 flex flex-wrap gap-3">
           <CTAButton href="/register" variant="primary" size="lg" arrow>
-            Ücretsiz başla
+            Erken erişime katıl
           </CTAButton>
           <CTAButton href="/ozellikler" variant="outline" size="lg">
             Tüm özellikler
@@ -347,9 +347,11 @@ export default function Page() {
             ))}
           </div>
           <p className="mt-9 text-sm leading-relaxed" style={{ color: "rgba(248,250,252,0.62)" }}>
-            Not: Hesap bağlama zorunluluğu yoktur. Resmî Findeks raporunu görmeyiz; skorumuz senin
-            girdiğin veriden üretilen bir <strong style={{ color: "#F8FAFC" }}>tahmindir</strong> ve
-            amacı seni doğru adımlara yönlendirmektir.
+            Not: Hesap bağlama zorunluluğu yoktur. Findeks&apos;e senin adına bağlanmayız; varsayılan
+            skorumuz girdiğin veriden üretilen bir{" "}
+            <strong style={{ color: "#F8FAFC" }}>tahmindir</strong>. Resmî notunla çalışmak istersen
+            Findeks Risk Raporu PDF&apos;ini kendin yükleyebilirsin — uygulama raporu okur ve planı
+            gerçek veriyle kurar.
           </p>
         </DarkPanel>
       </Section>
@@ -406,7 +408,7 @@ export default function Page() {
 
       <GradientCTA
         title="Bugün ilk ekstreni yükle"
-        desc="Kaydol, harcamanı ekle ve dakikalar içinde kredi sağlığını gör. Ücretsiz, hesap bağlama yok."
+        desc="Davetinle kaydol, harcamanı ekle ve dakikalar içinde kredi sağlığını gör. Ücretsiz, hesap bağlama yok."
       />
     </>
   );
