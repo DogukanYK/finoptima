@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { categorize } from "@/lib/categorize";
 import { dateFromInput, toDateKey } from "@/lib/format";
 import { makeDedupHash } from "@/lib/dedup";
+import { rateLimit } from "@/lib/rate-limit";
+import { AI_DEMO } from "@/lib/ai/client";
 import { getDashboard, getOrCreateFinanceProfile } from "@/lib/queries";
 import { runAssistant, type AssistantContext } from "@/lib/ai/assistant";
 import type {
@@ -38,6 +40,20 @@ export async function askAssistantForUser(
   const trimmed = String(text ?? "").trim().slice(0, 1000);
   if (!trimmed) {
     return { reply: "Bir şey yazmadın 🙂", actions: [], navigate: null };
+  }
+
+  // Maliyet tavanı: her mesaj bir AI çağrısı. Demo modunda API çağrılmadığı
+  // için sınır uygulanmaz (sunum akışı bozulmasın).
+  if (!AI_DEMO) {
+    const rl = await rateLimit(`assistant:ai:${userId}`, 30, 60 * 60 * 1000);
+    if (!rl.ok) {
+      return {
+        reply:
+          "Bu saatlik sohbet limitine ulaştın 🙏 Biraz sonra kaldığımız yerden devam edelim.",
+        actions: [],
+        navigate: null,
+      };
+    }
   }
 
   const [dash, profile, user, cats, accounts, recentTx] = await Promise.all([

@@ -16,9 +16,23 @@ import {
 import { parsePdfStatement, extractPdfText } from "@/lib/pdfStatements";
 import { extractDocument } from "@/lib/extract";
 import { claudeExtract } from "@/lib/extract/claude";
+import { resolveExtractedKind } from "@/lib/extract/transfer";
 import { detectBankName } from "@/lib/extract/bankDetect";
 import { makeDedupHash } from "@/lib/dedup";
+import { rateLimit } from "@/lib/rate-limit";
+import { AI_DEMO } from "@/lib/ai/client";
 import { SEED_CATEGORIES } from "@/lib/seed-data";
+
+// Belge okuma (vision/PDF) çağrısı pahalı. Mobil API ile aynı anahtarı kullanır,
+// yani tavan iki yüzey arasında paylaşılır ve biriyle atlatılamaz.
+const AI_LIMIT_MESSAGE =
+  "Saatlik belge okuma limitine ulaştın. Biraz sonra tekrar dener misin?";
+
+async function aiQuotaExceeded(userId: string): Promise<boolean> {
+  if (AI_DEMO) return false;
+  const rl = await rateLimit(`import:ai:${userId}`, 15, 60 * 60 * 1000);
+  return !rl.ok;
+}
 
 export type ParsedRow = {
   date: string; // ISO
@@ -148,6 +162,9 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
         // bırak: Claude PDF'i doğrudan okur; demo'da senaryo dosya adından gelir.
         text = "";
       }
+      if (allowCloud && (await aiQuotaExceeded(userId))) {
+        return { ok: false, error: AI_LIMIT_MESSAGE };
+      }
       const result = await extractDocument(
         { fileName: file.name, mimeType: "application/pdf", buffer, text },
         { allowCloud },
@@ -163,7 +180,7 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
         date: r.date,
         description: r.description,
         amount: r.amount,
-        kind: (r.direction === "in" ? "INCOME" : "EXPENSE") as TxKind,
+        kind: resolveExtractedKind(r, ownerName),
         categoryHint: r.categoryHint,
       }));
       detectedBank =
@@ -189,7 +206,7 @@ export async function parseStatement(formData: FormData): Promise<ParseResult> {
       date: r.date,
       description: r.description,
       amount: r.amount,
-      kind: (r.direction === "in" ? "INCOME" : "EXPENSE") as TxKind,
+      kind: resolveExtractedKind(r, ownerName),
       categoryHint: r.categoryHint,
     }));
     detectedBank = result.meta?.bank ?? "AI ile okundu";
@@ -393,8 +410,12 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
   if (file.size > 10 * 1024 * 1024) {
     return { ok: false, error: "Dosya 10 MB'tan küçük olmalı." };
   }
+  if (await aiQuotaExceeded(userId)) {
+    return { ok: false, error: AI_LIMIT_MESSAGE };
+  }
 
-  const [categories, existing, rules] = await Promise.all([
+  const [user, categories, existing, rules] = await Promise.all([
+    db.user.findUnique({ where: { id: userId }, select: { name: true } }),
     db.category.findMany({ where: { userId }, select: { id: true, name: true } }),
     db.transaction.findMany({
       where: { userId, dedupHash: { not: null } },
@@ -407,6 +428,7 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
   ]);
   const catName = new Map(categories.map((c) => [c.id, c.name]));
   const existingHashes = new Set(existing.map((e) => e.dedupHash));
+  const ownerName = user?.name ?? undefined;
 
   const buffer = await file.arrayBuffer();
   const lower = file.name.toLowerCase();
@@ -437,7 +459,7 @@ export async function reviewWithAI(formData: FormData): Promise<ParseResult> {
 
   const batchSeen = new Set<string>();
   const rows: ParsedRow[] = result.rows.map((r) => {
-    const kind: TxKind = r.direction === "in" ? "INCOME" : "EXPENSE";
+    const kind: TxKind = resolveExtractedKind(r, ownerName);
     const matchedCat =
       categorize(r.description, rules) ??
       mapHintToCategory(r.categoryHint, categories);

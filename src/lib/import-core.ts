@@ -6,7 +6,10 @@ import { db } from "@/lib/db";
 import { categorize } from "@/lib/categorize";
 import { extractPdfText } from "@/lib/pdfStatements";
 import { claudeExtract } from "@/lib/extract/claude";
+import { resolveExtractedKind } from "@/lib/extract/transfer";
 import { makeDedupHash } from "@/lib/dedup";
+import { rateLimit } from "@/lib/rate-limit";
+import { AI_DEMO } from "@/lib/ai/client";
 import { SEED_CATEGORIES } from "@/lib/seed-data";
 
 export type ImportKind = "INCOME" | "EXPENSE" | "TRANSFER";
@@ -55,7 +58,21 @@ export async function reviewImportForUser(
     return { ok: false, error: "Dosya 10 MB'tan küçük olmalı." };
   }
 
-  const [categories, existing, rules] = await Promise.all([
+  // Maliyet tavanı: belge okuma (vision/PDF) çağrısı pahalı ve token'ı çok.
+  // Demo modunda API çağrılmadığı için sınır uygulanmaz.
+  if (!AI_DEMO) {
+    const rl = await rateLimit(`import:ai:${userId}`, 15, 60 * 60 * 1000);
+    if (!rl.ok) {
+      return {
+        ok: false,
+        error:
+          "Saatlik belge okuma limitine ulaştın. Biraz sonra tekrar dener misin?",
+      };
+    }
+  }
+
+  const [user, categories, existing, rules] = await Promise.all([
+    db.user.findUnique({ where: { id: userId }, select: { name: true } }),
     db.category.findMany({ where: { userId }, select: { id: true, name: true } }),
     db.transaction.findMany({
       where: { userId, dedupHash: { not: null } },
@@ -68,6 +85,7 @@ export async function reviewImportForUser(
   ]);
   const catName = new Map(categories.map((c) => [c.id, c.name]));
   const existingHashes = new Set(existing.map((e) => e.dedupHash));
+  const ownerName = user?.name ?? undefined; // kendi adına havale = transfer
 
   const buffer = await file.arrayBuffer();
   const lower = file.name.toLowerCase();
@@ -95,9 +113,13 @@ export async function reviewImportForUser(
 
   const batchSeen = new Set<string>();
   const rows: ImportRow[] = result.rows.map((r) => {
-    const kind: ImportKind = r.direction === "in" ? "INCOME" : "EXPENSE";
+    // Transfer (virman / kart borcu ödemesi / kendi hesabına havale) gider sayılmaz.
+    const kind: ImportKind = resolveExtractedKind(r, ownerName);
     const matchedCat =
-      categorize(r.description, rules) ?? mapHintToCategory(r.categoryHint, categories);
+      kind === "TRANSFER"
+        ? null
+        : (categorize(r.description, rules) ??
+          mapHintToCategory(r.categoryHint, categories));
     const hash = makeDedupHash(r.date, r.amount, r.description);
     const duplicate = existingHashes.has(hash) || batchSeen.has(hash);
     batchSeen.add(hash);

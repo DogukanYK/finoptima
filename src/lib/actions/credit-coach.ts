@@ -7,6 +7,8 @@ import { getFindeksSignals, getDebts } from "@/lib/queries";
 import { computeFindeks } from "@/lib/findeks";
 import { generateCreditCoachPlan, type CoachPlan } from "@/lib/ai/creditCoach";
 import { logAudit } from "@/lib/audit";
+import { rateLimit } from "@/lib/rate-limit";
+import { AI_DEMO } from "@/lib/ai/client";
 
 export type CreditCoachState =
   | { status: "idle" }
@@ -21,6 +23,20 @@ export async function generateCoachPlan(
   _formData: FormData,
 ): Promise<CreditCoachState> {
   const userId = await requireUserId();
+
+  // Maliyet tavanı: plan üretimi en pahalı çağrı (Opus). Demo modunda API
+  // çağrılmadığı için sınır uygulanmaz.
+  if (!AI_DEMO) {
+    const rl = await rateLimit(`credit-coach:ai:${userId}`, 5, 60 * 60 * 1000);
+    if (!rl.ok) {
+      return {
+        status: "error",
+        error:
+          "Saatlik plan oluşturma limitine ulaştın. Mevcut planın duruyor; biraz sonra yeniden deneyebilirsin.",
+      };
+    }
+  }
+
   try {
     const [signals, debts] = await Promise.all([
       getFindeksSignals(userId),
