@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -43,3 +44,21 @@ next-env.d.ts
 # kullanıcı yüklemeleri
 /public/uploads
 scripts/eval/son-sonuc.json
+
+# kalibrasyon — ham Kaggle verisi + Python venv asla commit'lenmez
+scripts/calibration/data/*.csv
+scripts/calibration/.venv/
+
+# demo materyali — CSV/PDF/talimat kalır, ekran kaydı ve görüntüler repoyu şişirmesin
+demo-data/**/*.mov
+demo-data/**/*.mp4
+demo-data/**/*.png
+demo-data/**/*.jpg
+
+# iOS — XcodeGen çıktısı ve derleme artıkları
+ios/*.xcodeproj/
+ios/build/
+ios/DerivedData/
+
+# İç çalışma dokümanları — lokalde kalır
+docs/

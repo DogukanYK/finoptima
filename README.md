@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FinOptima
 
-## Getting Started
+AI destekli kişisel finans ve kredi notu (Findeks) koçu. Kullanıcı banka ekstresini yükler, işlemleri otomatik kategorilenir, borçları ve yaklaşan ödemeleri tek yerden görür; sistem kredi notunu etkileyen faktörleri hesaplar ve aylık, önceliklendirilmiş bir eylem planı üretir.
 
-First, run the development server:
+Canlı: [finoptima.dev](https://www.finoptima.dev) (davet kodlu kapalı beta)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Mimari ilke: rakamı motor üretir, LLM yorumlar
+
+Finansal ürünlerde en büyük risk, modelin para hakkında sayı uydurmasıdır. Bu yüzden sistem iki katmana ayrıldı ve sınır kod düzeyinde korunuyor:
+
+```
+Kullanıcı verisi (ekstre / Findeks raporu / manuel giriş)
+        ↓
+[Deterministik motor]  src/lib/findeks.ts · src/lib/debt.ts
+  faiz, taksit, borç-gelir oranı, skor faktörleri     → rakamı ÜRETİR
+        ↓
+[Claude — yalnızca yorum katmanı]  src/lib/ai/
+  açıklama, önceliklendirme, koçluk tonu             → rakam ÜRETMEZ
+        ↓
+Arayüz
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aynı soru tekrar sorulduğunda rakamlar birebir aynı çıkar, çünkü onları üreten taraf model değil. Kredi koçunun sistem promptunda bu kural açıkça yazılıdır ve modele kimlik verisi (ad, TC, adres) hiçbir zaman gönderilmez.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Kalite ölçümü tahmine bırakılmadı: `scripts/eval/` altında 17 senaryoluk (kart kullanım oranı, asgari ödeme tuzağı, icra, kefil, işsizlik, dolandırıcılık tespiti, dürüstlük testleri) rubrikli bir değerlendirme motoru var; cevaplar ayrı bir jüri modeliyle 0-100 puanlanır.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx tsx --env-file=.env scripts/eval/fin-intel-eval.mts        # tek prompt
+npx tsx --env-file=.env scripts/eval/fin-intel-eval.mts --ab   # V1 vs V2 karşılaştırması
+```
 
-## Learn More
+## Yığın
 
-To learn more about Next.js, take a look at the following resources:
+Next.js 16 (App Router) · React 19 · TypeScript · Prisma + PostgreSQL (Neon) · NextAuth v5 · Anthropic Claude · Tailwind v4 · Sentry · Upstash (rate limit) · Resend (e-posta). Ayrıca `ios/` altında SwiftUI ile yazılmış native iOS istemcisi (XcodeGen tabanlı).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Güvenlik ve KVKK
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Kurumsal bir müşterinin tedarikçi değerlendirmesinden geçebilecek şekilde inşa edildi:
 
-## Deploy on Vercel
+- **Alan düzeyinde şifreleme** — TC kimlik, adres gibi hassas alanlar AES-256-GCM ile at-rest şifreli (`src/lib/crypto.ts`)
+- **Append-only denetim günlüğü** — IP ve user-agent ile birlikte, uygulamayı asla bloklamayan yazım (`src/lib/audit.ts`)
+- **2FA (TOTP)**, cihaz tanıma ve yeni cihaz güvenlik e-postası, tüm cihazlardan çıkış
+- **KVKK** — kayıtta zorunlu açık rıza, tüm verinin JSON olarak dışa aktarımı, hesap ve veri silme
+- **Kademeli destek erişim rızası** — yönetici müşteri verisine ancak kullanıcının kapsam ve süre (24/48/72 saat) seçerek verdiği, istediği an iptal edebildiği rıza ile bakabilir
+- Argon2 parola hash'i, Upstash tabanlı rate limit, satır düzeyinde çok kiracılı izolasyon
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Geliştirme
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+cp .env.example .env     # değerleri doldur
+npx prisma migrate dev
+npm run dev
+```
+
+Env değişkenlerinin tamamı ve ne işe yaradıkları `.env.example` içinde açıklandı. `AI_DEMO=true` ile Anthropic API anahtarı olmadan, sıfır maliyetle çalıştırılabilir — kredi koçu ve ekstre çıkarımı bu modda gerçek deterministik motor çıktısıyla beslenen örnek sonuçlar döner.
+
+İlk kayıt olan kullanıcı yönetici olur; sonraki kayıtlar davet kodu ister (Ayarlar → Davetler).
+
+## Dağıtım
+
+Vercel (bölge `fra1`, veritabanına yakınlık için). `npm run build` üretimde migration'ları da uygular (`prisma migrate deploy && next build`). Günlük cron `/api/cron/support-daily` üzerinden çalışır.

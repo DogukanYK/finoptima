@@ -1,12 +1,25 @@
 # FinOptima — iOS (SwiftUI)
 
 Native SwiftUI istemci. FinOptima finansal sağlık uygulamasının iOS uygulaması.
-Canlı backend'e (`https://financeoptima.vercel.app`) `/api/mobile/*` uçları üzerinden
+Canlı backend'e (`https://www.finoptima.dev`) `/api/mobile/*` uçları üzerinden
 Bearer JWT ile bağlanır.
 
-> **Not:** Bu makinede Xcode kurulu olmadığından proje **derlenmedi / çalıştırılmadı**.
-> Kod derlenmeye hazır, idiomatik SwiftUI olarak yazıldı; ilk derleme aşağıdaki
-> adımlarla Xcode kurulu bir makinede yapılmalıdır.
+> **Derleme durumu (2026-08-22):** Xcode 27.0 (beta, `27A5218g`) ile **simülatör
+> hedefine sorunsuz derleniyor** — 0 hata, 0 uyarı. Doğrulanan komut:
+>
+> ```bash
+> xcodegen generate
+> xcodebuild -project FinOptima.xcodeproj -scheme FinOptima \
+>   -sdk iphonesimulator -configuration Debug \
+>   -destination 'generic/platform=iOS Simulator' \
+>   -derivedDataPath build/dd-sim \
+>   CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+> ```
+>
+> **Henüz simülatörde çalıştırılmadı:** bu makinede hiçbir iOS Simulator runtime'ı
+> kurulu değil (`xcrun simctl list runtimes` boş), dolayısıyla açılabilecek bir
+> cihaz yok. Çalıştırmak için `xcodebuild -downloadPlatform iOS` ile runtime
+> indirilmeli (~9 GB; indirmeden önce disk alanını kontrol et).
 
 ## Gereksinimler
 
@@ -37,7 +50,7 @@ kurulumda kendi Apple geliştirici takımını (Signing & Capabilities) seçmen 
 
 | Ayar | Değer |
 | --- | --- |
-| Base URL | `https://financeoptima.vercel.app` (bkz. `FinOptima/Config/AppConfig.swift`) |
+| Base URL | `https://www.finoptima.dev/api/mobile` (bkz. `FinOptima/Config/AppConfig.swift`) |
 | API kökü | tüm uçlar `/api/mobile/*` altında |
 | Bundle ID | `com.minerva108.finoptima` |
 | Deployment target | iOS 17.0 |

@@ -4,4 +4,6 @@ FinOptima.xcodeproj/
 build/
 DerivedData/
 *.xcuserstate
+*.xcuserdatad/
+*.xcresult
 .DS_Store
