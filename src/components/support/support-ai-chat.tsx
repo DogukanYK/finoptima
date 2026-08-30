@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { askSupportAI, escalateSupportChat } from "@/lib/actions/support";
 import type { AssistantMessage } from "@/lib/assistant-types";
+import { useChatStorageKey } from "@/lib/chat-storage";
 import { cn } from "@/lib/utils";
 
 type ChatMsg = {
@@ -26,7 +27,8 @@ type ChatMsg = {
   suggestedSubject?: string | null;
 };
 
-const STORAGE_KEY = "finoptima-support-chat-v1";
+// Geçmiş kullanıcı bazında saklanır — "finoptima-support-chat-v1:<userId>"
+const STORAGE_BASE = "finoptima-support-chat-v1";
 
 const SUGGESTIONS = [
   "Ekstremi nasıl yüklerim?",
@@ -46,28 +48,31 @@ export function SupportAiChat() {
   const [error, setError] = useState("");
   const [hint, setHint] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const hydrated = useRef(false);
+  const storageKey = useChatStorageKey(STORAGE_BASE);
+  const [hydratedKey, setHydratedKey] = useState<string | null>(null);
 
-  // localStorage'dan geçmişi yükle (bir kez)
+  // localStorage'dan geçmişi yükle — kullanıcı kimliği çözülmeden okuma yok
   useEffect(() => {
+    if (!storageKey) return;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setMessages(JSON.parse(raw));
+      const raw = localStorage.getItem(storageKey);
+      setMessages(raw ? JSON.parse(raw) : []);
     } catch {
       /* bozuk kayıt — yok say */
+      setMessages([]);
     }
-    hydrated.current = true;
-  }, []);
+    setHydratedKey(storageKey);
+  }, [storageKey]);
 
-  // geçmişi kaydet (son 30 mesaj)
+  // geçmişi kaydet (son 30 mesaj) — yalnız kendi anahtarına
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!storageKey || hydratedKey !== storageKey) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30)));
+      localStorage.setItem(storageKey, JSON.stringify(messages.slice(-30)));
     } catch {
       /* kota — yok say */
     }
-  }, [messages]);
+  }, [messages, storageKey, hydratedKey]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -140,7 +145,7 @@ export function SupportAiChat() {
       });
       if (res.ok && res.id) {
         try {
-          localStorage.removeItem(STORAGE_KEY);
+          if (storageKey) localStorage.removeItem(storageKey);
         } catch {
           /* yok say */
         }
@@ -158,8 +163,9 @@ export function SupportAiChat() {
     setMessages([]);
     setError("");
     setHint("");
+    if (!storageKey) return;
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(storageKey);
     } catch {
       /* yok say */
     }

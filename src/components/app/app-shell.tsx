@@ -34,6 +34,7 @@ import {
 } from "@/lib/nav";
 import { Brand } from "@/components/brand";
 import { logoutAction } from "@/lib/actions/auth";
+import { clearAllChatStorage } from "@/lib/chat-storage";
 import {
   AppChromeProvider,
   SearchTrigger,
@@ -128,7 +129,8 @@ export function AppShell({
               <p className="truncate text-xs text-muted">{user.email}</p>
             </div>
           </div>
-          <form action={logoutAction}>
+          {/* Çıkışta AI sohbet geçmişi tarayıcıdan silinir (paylaşılan cihaz) */}
+          <form action={logoutAction} onSubmit={() => clearAllChatStorage()}>
             <button
               type="submit"
               className="mt-1 flex w-full items-center gap-2 rounded-[calc(var(--app-radius)*0.7)] px-3 py-2 text-sm text-muted transition-colors hover:bg-surface-2 hover:text-destructive"
@@ -258,7 +260,11 @@ export function AppShell({
                 );
               })}
             </div>
-            <form action={logoutAction} className="mt-3">
+            <form
+              action={logoutAction}
+              onSubmit={() => clearAllChatStorage()}
+              className="mt-3"
+            >
               <button
                 type="submit"
                 className="flex w-full items-center justify-center gap-2 rounded-[var(--app-radius)] border border-line py-3 text-sm font-medium text-destructive"

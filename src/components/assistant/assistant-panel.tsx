@@ -17,6 +17,7 @@ import {
 import { askAssistant, commitAssistantAction } from "@/lib/actions/assistant";
 import type { ProposedAction } from "@/lib/assistant-types";
 import { formatTL, formatDateShort } from "@/lib/format";
+import { useChatStorageKey } from "@/lib/chat-storage";
 import { cn } from "@/lib/utils";
 
 type ChatMsg = {
@@ -27,7 +28,8 @@ type ChatMsg = {
   navigate?: string | null;
 };
 
-const STORAGE_KEY = "finoptima-chat-v1";
+// Geçmiş kullanıcı bazında saklanır — anahtar: "finoptima-chat-v1:<userId>"
+const STORAGE_BASE = "finoptima-chat-v1";
 
 const SUGGESTIONS = [
   "Bu ay ne kadar harcadım?",
@@ -71,28 +73,31 @@ export function AssistantPanel({
   const [pending, setPending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const hydrated = useRef(false);
+  const storageKey = useChatStorageKey(STORAGE_BASE);
+  const [hydratedKey, setHydratedKey] = useState<string | null>(null);
 
-  // localStorage'dan geçmişi yükle (bir kez)
+  // localStorage'dan geçmişi yükle — kullanıcı kimliği çözülmeden okuma yok
   useEffect(() => {
+    if (!storageKey) return;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setMessages(JSON.parse(raw));
+      const raw = localStorage.getItem(storageKey);
+      setMessages(raw ? JSON.parse(raw) : []);
     } catch {
       /* bozuk kayıt — yok say */
+      setMessages([]);
     }
-    hydrated.current = true;
-  }, []);
+    setHydratedKey(storageKey);
+  }, [storageKey]);
 
-  // geçmişi kaydet (son 40 mesaj)
+  // geçmişi kaydet (son 40 mesaj) — yalnız kendi anahtarına
   useEffect(() => {
-    if (!hydrated.current) return;
+    if (!storageKey || hydratedKey !== storageKey) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-40)));
+      localStorage.setItem(storageKey, JSON.stringify(messages.slice(-40)));
     } catch {
       /* kota — yok say */
     }
-  }, [messages]);
+  }, [messages, storageKey, hydratedKey]);
 
   const send = useCallback(
     async (text: string) => {
@@ -156,8 +161,9 @@ export function AssistantPanel({
 
   const clearThread = () => {
     setMessages([]);
+    if (!storageKey) return;
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(storageKey);
     } catch {
       /* yok say */
     }

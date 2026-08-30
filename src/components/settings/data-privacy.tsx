@@ -15,6 +15,7 @@ import {
   deleteMyAccount,
   type AccountActionState,
 } from "@/lib/actions/account";
+import { clearAllChatStorage } from "@/lib/chat-storage";
 import { Field } from "@/components/ui/field";
 import { Button, buttonClass } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -79,6 +80,7 @@ export function DataPrivacy() {
           onClick={() =>
             startTransition(async () => {
               await logoutEverywhere();
+              clearAllChatStorage();
               setLoggedOut(true);
             })
           }
