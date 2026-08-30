@@ -8,7 +8,11 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { getAnthropic, EXTRACT_MODEL, AI_DEMO } from "@/lib/ai/client";
-import type { ExtractInput, ExtractResult, ExtractedRow } from "@/lib/extract/types";
+import type { ExtractInput } from "@/lib/extract/types";
+import {
+  type TransferAwareRow,
+  type TransferAwareResult,
+} from "@/lib/extract/transfer";
 import { SEED_CATEGORY_KEYS } from "@/lib/seed-data";
 import { detectBankName } from "@/lib/extract/bankDetect";
 
@@ -19,6 +23,7 @@ const rowSchema = z.object({
   description: z.string(),
   amount: z.number(), // pozitif
   direction: z.enum(["in", "out"]), // in = gelir/alacak, out = gider/borç
+  isTransfer: z.boolean(), // hesaplar arası para taşıma (ne gelir ne gider)
   merchant: z.string().nullable(), // işyeri/kurum adı
   categoryHint: z.enum(CATEGORY_KEYS).nullable(), // açıklamadan çıkan kategori anahtarı
 });
@@ -41,7 +46,8 @@ KURALLAR:
 6. docKind'i belge tipine göre seç. Belgede gerçekten olan veriyi çıkar, ASLA uydurma.
 7. bank: Belgeyi düzenleyen banka/kurumu belirle (ör. "Garanti BBVA", "Enpara", "Yapı Kredi"); başlık/logo/IBAN'dan çöz, emin değilsen null.
 8. merchant: Her satırda işyeri/kurum adını çıkar (ör. "Migros", "Netflix", "Elektrik Dağıtım"); yoksa null.
-9. categoryHint: Açıklamadan işlemin ne olduğu anlaşılıyorsa listeden EN UYGUN anahtarı seç; emin değilsen null. Örnekler: elektrik/su/doğalgaz faturası→faturalar, market/Migros/BIM→market, maaş/bordro→maas, Netflix/Spotify→abonelikler, benzin/akaryakıt→akaryakit, kira→kira, restoran/yemek→yeme-icme. Geçerli anahtarlar: ${SEED_CATEGORY_KEYS.join(", ")}.`;
+9. categoryHint: Açıklamadan işlemin ne olduğu anlaşılıyorsa listeden EN UYGUN anahtarı seç; emin değilsen null. Örnekler: elektrik/su/doğalgaz faturası→faturalar, market/Migros/BIM→market, maaş/bordro→maas, Netflix/Spotify→abonelikler, benzin/akaryakıt→akaryakit, kira→kira, restoran/yemek→yeme-icme. Geçerli anahtarlar: ${SEED_CATEGORY_KEYS.join(", ")}.
+10. isTransfer: Satır GERÇEK bir gelir/gider değil, sadece paranın yer değiştirmesiyse true yaz; aksi halde false. Transfer sayılanlar: hesaplar arası virman, kendi hesabına/kendi adına havale-EFT-FAST, kredi kartı borç ödemesi ("kart ödeme", "K.KARTI ÖDEME", "kredi kartı borcu ödemesi"), vadeli/vadesiz hesap arası aktarım, yatırım-cüzdan hesabına aktarım, ATM'den nakit çekme/yatırma. Transfer DEĞİL: üçüncü kişiye gönderilen para, mal/hizmet alışverişi, faiz/komisyon/aidat/kur farkı gibi bankaya kalan tutarlar (bunlar gerçek giderdir), maaş gibi dış kaynaklı gelirler. Emin değilsen false yaz; isTransfer true olsa bile direction'ı doğru doldurmaya devam et.`;
 
 // MIME → izinli görüntü medya tipi (SDK union'ı).
 type ImageMedia = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
@@ -59,7 +65,7 @@ function toBase64(buffer: ArrayBuffer): string {
 
 // Demo: gerçek AI yokken, belge türüne göre değişen gerçekçi sonuç üretir.
 // 3 senaryo — fiş/görüntü · kredi kartı ekstresi · banka hesap dökümü.
-function demoExtract(input: ExtractInput): ExtractResult {
+function demoExtract(input: ExtractInput): TransferAwareResult {
   const t = new Date();
   const d = (n: number) =>
     new Date(t.getFullYear(), t.getMonth(), Math.max(1, t.getDate() - n));
@@ -73,7 +79,7 @@ function demoExtract(input: ExtractInput): ExtractResult {
 
   // Senaryo 1 — Fiş / ekran görüntüsü (tek harcama).
   if (isImage) {
-    const rows: ExtractedRow[] = [
+    const rows: TransferAwareRow[] = [
       { date: d(0), description: "Migros — market alışverişi", amount: 487.65, direction: "out", currency: "TRY" },
     ];
     return { rows, docKind: "receipt", currency: "TRY", confidence: 0.96, engine: "claude" };
@@ -81,7 +87,7 @@ function demoExtract(input: ExtractInput): ExtractResult {
 
   // Senaryo 2 — Kredi kartı ekstresi.
   if (isCard) {
-    const rows: ExtractedRow[] = [
+    const rows: TransferAwareRow[] = [
       { date: d(2), description: "Trendyol", amount: 1240.5, direction: "out", currency: "TRY" },
       { date: d(4), description: "Migros", amount: 380.2, direction: "out", currency: "TRY" },
       { date: d(6), description: "Shell akaryakıt", amount: 1100, direction: "out", currency: "TRY" },
@@ -93,13 +99,13 @@ function demoExtract(input: ExtractInput): ExtractResult {
     return { rows, docKind: "card_statement", currency: "TRY", confidence: 0.95, engine: "claude", meta: { bank: "Yapı Kredi" } };
   }
 
-  // Senaryo 3 — Banka hesap dökümü.
-  const rows: ExtractedRow[] = [
+  // Senaryo 3 — Banka hesap dökümü (kart borcu ödemesi bilerek transfer).
+  const rows: TransferAwareRow[] = [
     { date: d(1), description: "Maaş ödemesi", amount: 32000, direction: "in", currency: "TRY" },
     { date: d(2), description: "Konut kirası", amount: 12500, direction: "out", currency: "TRY" },
     { date: d(4), description: "Migros market", amount: 642.3, direction: "out", currency: "TRY" },
     { date: d(7), description: "Elektrik faturası", amount: 487.1, direction: "out", currency: "TRY" },
-    { date: d(9), description: "Kredi kartı ödemesi", amount: 3500, direction: "out", currency: "TRY" },
+    { date: d(9), description: "Kredi kartı ödemesi", amount: 3500, direction: "out", currency: "TRY", isTransfer: true },
     { date: d(12), description: "Spotify aboneliği", amount: 57.99, direction: "out", currency: "TRY" },
     { date: d(14), description: "Gelen havale", amount: 1500, direction: "in", currency: "TRY" },
     { date: d(18), description: "Akaryakıt", amount: 850, direction: "out", currency: "TRY" },
@@ -107,7 +113,9 @@ function demoExtract(input: ExtractInput): ExtractResult {
   return { rows, docKind: "statement", currency: "TRY", confidence: 0.94, engine: "claude", meta: { bank: "Garanti BBVA" } };
 }
 
-export async function claudeExtract(input: ExtractInput): Promise<ExtractResult> {
+export async function claudeExtract(
+  input: ExtractInput,
+): Promise<TransferAwareResult> {
   if (AI_DEMO) return demoExtract(input);
   const client = getAnthropic();
   const content: Anthropic.ContentBlockParam[] = [];
@@ -142,7 +150,7 @@ export async function claudeExtract(input: ExtractInput): Promise<ExtractResult>
   const out = message.parsed_output;
   if (!out) throw new Error("Belge okunamadı (boş yanıt).");
 
-  const rows: ExtractedRow[] = out.rows
+  const rows: TransferAwareRow[] = out.rows
     .map((r) => ({
       date: new Date(r.date),
       description: r.description.slice(0, 120),
@@ -151,6 +159,8 @@ export async function claudeExtract(input: ExtractInput): Promise<ExtractResult>
       currency: out.currency,
       merchant: r.merchant ?? null,
       categoryHint: r.categoryHint ?? null,
+      // Hesaplar arası taşıma: tüketici tarafta INCOME/EXPENSE değil TRANSFER'e eşlenir.
+      isTransfer: r.isTransfer === true,
     }))
     .filter((r) => !Number.isNaN(r.date.getTime()) && r.amount > 0);
 
