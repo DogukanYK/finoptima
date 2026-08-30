@@ -9,6 +9,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@anthropic-ai/foundry-sdk": "^0.4.4",
     "@anthropic-ai/sdk": "^0.106.0",
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.19.3",
